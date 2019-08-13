@@ -13,13 +13,14 @@ VERSION = __version__
 AUTHOR = 'Aaron Dettmann'
 EMAIL = 'dettmann@kth.se'
 DESCRIPTION = 'A vortex-lattice implementation (VLM) implementation'
-URL = '***'
+URL = 'https://github.com/airinnova/pytornado'
 REQUIRES_PYTHON = '>=3.6.0'
 REQUIRED = [
-        'numpy',
-        'scipy',
-        'matplotlib',
-        ]
+    'numpy',
+    'scipy',
+    'matplotlib',
+    'commonlibs',
+]
 README = 'README.rst'
 PACKAGE_DIR = 'src/lib/'
 LICENSE = 'Apache License 2.0'
@@ -75,7 +76,6 @@ setup(
         "Programming Language :: Python :: 3",
         'Programming Language :: Python :: 3.6',
         "License :: OSI Approved :: Apache Software License",
-        "Operating System :: OS Independent",
         "Environment :: Console",
         "Intended Audience :: Developers",
         "Intended Audience :: Education",
