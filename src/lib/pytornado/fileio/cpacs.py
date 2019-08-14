@@ -248,6 +248,10 @@ def load(aircraft, state, settings):
             sect, elem = tigl.wingGetInnerSectionAndElementIndex(idx_wing, idx_segment)
 
             name_ib = parse_str(tigl.wingGetProfileName(idx_wing, sect, elem))
+            if not name_ib:
+                msg = f"CPACS error: could not extract inner wing profile name (wing: {idx_wing}, segment: {sect})"
+                raise ValueError(msg)
+
             file_ib = os.path.join(settings.dirs['airfoils'], 'blade.{}'.format(name_ib))
 
             aircraft.wing[wing_uid].segment[segment_uid].airfoils['inner'] = file_ib
@@ -255,6 +259,10 @@ def load(aircraft, state, settings):
             sect, elem = tigl.wingGetOuterSectionAndElementIndex(idx_wing, idx_segment)
 
             name_ob = parse_str(tigl.wingGetProfileName(idx_wing, sect, elem))
+            if not name_ob:
+                msg = f"CPACS error: could not extract outer wing profile name (wing: {idx_wing}, segment: {sect})"
+                raise ValueError(msg)
+
             file_ob = os.path.join(settings.dirs['airfoils'], 'blade.{}'.format(name_ob))
 
             aircraft.wing[wing_uid].segment[segment_uid].airfoils['outer'] = file_ob
