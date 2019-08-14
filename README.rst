@@ -10,7 +10,16 @@
     :target: https://github.com/airinnova/pytornado/blob/master/LICENSE.txt
     :alt: License
 
-PyTornado
-=========
+|
+
+.. image:: https://raw.githubusercontent.com/airinnova/pytornado/master/docs/source/_static/images/logo/logo006.svg?sanitize=true
+    :alt: FramAT
+    :width: 100 px
+    :scale: 100 %
 
 PyTornado is an implementation of the vortex-lattice method (VLM)
+
+.. image:: https://raw.githubusercontent.com/airinnova/pytornado/master/docs/source/_static/images/main.png
+    :target: https://github.com/airinnova/pytornado
+    :alt: Example
+    :width: 200 px

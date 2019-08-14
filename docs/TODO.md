@@ -1,5 +1,10 @@
 # TODO
 
+* Fix PyPI (binaries?)
+* Fix ReadTheDocs
+* Set up TravisCI
+* Set up Codecov
+
 ## Important
 * Better system for airfoil modelling (check that camber line rotation axis correct, or better: compute camber line "roatations" as normals of a curved surface?)
 * Check: `c_results.cpp` --> sign of `results->iw_x[i]` correct?
