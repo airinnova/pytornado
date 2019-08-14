@@ -1,3 +1,8 @@
+# ----- PyTornado files -----
+_plots/
+_results/
+log.txt
+
 # See: https://www.gitignore.io/api/c++,python
 
 ### C++ ###

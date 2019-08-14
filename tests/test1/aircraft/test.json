@@ -1,0 +1,73 @@
+{
+    "uid": "test",
+    "refs": {
+        "area": 1,
+        "span": 1,
+        "chord": 1,
+        "gcenter": [0, 0, 0],
+        "rcenter": [0, 0, 0]
+    },
+    "wings": [
+        {
+            "uid": "wing1",
+            "symmetry": 0,
+            "segments": [
+                {
+                    "uid": "seg1",
+                    "vertices": {
+                        "a": [0, 0, 0],
+                        "b": [0, 1, 0],
+                        "c": [1, 1, 0],
+                        "d": [1, 0, 0]
+                    },
+                    "geometry": {
+                        "inner_chord": null,
+                        "inner_alpha": null,
+                        "inner_beta": null,
+                        "inner_axis": null,
+                        "outer_chord": null,
+                        "outer_alpha": null,
+                        "outer_beta": null,
+                        "outer_axis": null,
+                        "span": null,
+                        "sweep": null,
+                        "dihedral": null
+                    },
+                    "airfoils": {
+                        "inner": "NACA0000",
+                        "outer": "NACA0000"
+                    },
+                    "panels": {
+                        "num_c": 1,
+                        "num_s": 1
+                    }
+                }
+            ],
+            "controls": [
+                {
+                    "uid": "control1",
+                    "device_type": "flap",
+                    "deflection": 0,
+                    "deflection_mirror": null,
+                    "segment_uid": {
+                        "inner": "seg1",
+                        "outer": "seg1"
+                    },
+                    "rel_vertices": {
+                        "eta_inner": 0.5,
+                        "eta_outer": 1,
+                        "xsi_inner": 0.5,
+                        "xsi_outer": 0.5
+                    },
+                    "rel_hinge_vertices": {
+                        "xsi_inner": 0.5,
+                        "xsi_outer": 0.5
+                    },
+                    "panels": {
+                        "num_c": 1
+                    }
+                }
+            ]
+        }
+    ]
+}

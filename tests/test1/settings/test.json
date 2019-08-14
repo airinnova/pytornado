@@ -1,0 +1,37 @@
+{
+    "inputs": {
+        "aircraft": "test.json",
+        "state": "test",
+        "deformation": false,
+        "horseshoe_type": 2,
+        "epsilon": 1e-06,
+        "_do_normal_rotations": true,
+        "_deformation_check": true
+    },
+    "outputs": {
+        "vlm_autopanels_c": null,
+        "vlm_autopanels_s": null,
+        "vlm_lattice": true,
+        "vlm_compute": true,
+        "save_results": [
+            "global",
+            "NO_panelwise",
+            "loads_with_undeformed_mesh",
+            "NO_loads_with_deformed_mesh"
+        ]
+    },
+    "plot": {
+        "geometry_aircraft": false,
+        "geometry_wing": null,
+        "geometry_segment": null,
+        "geometry_property": null,
+        "lattice_aircraft": true,
+        "lattice_aircraft_optional": ["horseshoe_midpoints"],
+        "lattice_wing": null,
+        "lattice_segment": null,
+        "results_downwash": false,
+        "results_panelwise": null,
+        "show": false,
+        "save": false
+    }
+}
