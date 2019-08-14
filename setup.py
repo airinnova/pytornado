@@ -18,7 +18,7 @@ REQUIRES_PYTHON = '>=3.6.0'
 REQUIRED = [
     'numpy',
     'scipy',
-    'matplotlib',
+    'matplotlib==3.0.2',
     'commonlibs',
 ]
 README = 'README.rst'

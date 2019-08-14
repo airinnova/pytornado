@@ -113,6 +113,23 @@
 * "Python3.6-devel" is required for "Python.h" header file (i.e. to compile the C/C++ code)
 * `tkinter` may have to be installed separately for matplotlib to work (not included in matplotlib PyPI package?)
 
+### Error with matplotlib version 3.1.1 (2019-08-14)
+
+* Matplotlib version 3.1.1 throws NotImplementedError! Force version 3.0.2 for now
+
+```
+Traceback (most recent call last):
+  File "main.py", line 57, in <module>
+    pyt.standard_run(args)
+  File ".../pytornado/stdfun.py", line 193, in standard_run
+    pl_geometry.view_aircraft(aircraft, plt_settings, plot='norm')
+  File ".../pytornado/plot/geometry.py", line 77, in view_aircraft
+    axes_xyz.set_aspect('equal')
+  File ".../matplotlib/axes/_base.py", line 1281, in set_aspect
+    'It is not currently possible to manually set the aspect '
+NotImplementedError: It is not currently possible to manually set the aspect on 3D axes
+```
+
 ## General reminders
 * Direction of normal can have influence on the sign of the pressure coefficient
 
