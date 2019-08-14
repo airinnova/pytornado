@@ -1,0 +1,14 @@
+usage: py3tornado 0.1.0 [-h] [-r RUN | --cpacs2json CPACS2JSON | --make-wkdir]
+                        [-v | -d | -q] [-c | --clean-only]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -r RUN, --run RUN     run from a native settings file 'set.*'
+  --cpacs2json CPACS2JSON
+                        convert a CPACS file to native JSON format
+  --make-wkdir          generate a template project directory in-place
+  -v, --verbose
+  -d, --debug
+  -q, --quiet
+  -c, --clean           remove old project files
+  --clean-only          clean and exit
