@@ -32,7 +32,7 @@ import json
 
 import numpy as np
 from commonlibs.logger import truncate_filepath
-from commonlibs.mathtools.vectors import vector_projection
+from commonlibs.math.vectors import vector_projection
 
 import pytornado.objects.objecttools as ot
 

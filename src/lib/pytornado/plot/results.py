@@ -36,7 +36,7 @@ import matplotlib.cm as cm
 from mpl_toolkits.mplot3d import Axes3D
 
 from commonlibs.logger import truncate_filepath
-from commonlibs.mathtools.vectors import unit_vector
+from commonlibs.math.vectors import unit_vector
 
 from pytornado.plot.utils import get_limits, scale_fig, interpolate_quad, \
                                  get_date_str, COLOR1, COLOR5, \

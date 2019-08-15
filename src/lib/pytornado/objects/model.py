@@ -36,7 +36,7 @@ import os
 
 import numpy as np
 from scipy.interpolate import CubicSpline
-from commonlibs.mathtools.vectors import get_plane_line_intersect, rotate_vector_around_axis
+from commonlibs.math.vectors import get_plane_line_intersect, rotate_vector_around_axis
 
 from pytornado.objects.utils import FixedNamespace, FixedOrderedDict
 from pytornado.objects.airfoils import Airfoil, MorphAirfoil

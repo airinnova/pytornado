@@ -4,6 +4,8 @@
 from setuptools import setup, Extension, find_namespace_packages
 import os
 
+import numpy as np
+
 from src.lib.pytornado.__version__ import __version__
 
 # See also: https://github.com/kennethreitz/setup.py/blob/master/setup.py
@@ -26,7 +28,7 @@ PACKAGE_DIR = 'src/lib/'
 LICENSE = 'Apache License 2.0'
 
 
-here = os.path.abspath(os.path.dirname(__file__))
+here = os.path.dirname(__file__)
 
 with open(os.path.join(here, README), "r") as fp:
     long_description = fp.read()
@@ -35,20 +37,23 @@ with open(os.path.join(here, README), "r") as fp:
 # See
 # * https://docs.python.org/3.7/extending/building.html
 # * https://docs.python.org/3/distutils/setupscript.html
-module1_path = 'src/lib/pytornado/aero/'
+module1_path_rel = 'src/lib/pytornado/aero/'
 module1 = Extension(
         'pytornado.aero.c_vlm',
         sources=[
-            module1_path + 'c_vlm.cpp',
-            module1_path + 'c_boundary.cpp',
-            module1_path + 'c_downwash.cpp',
-            module1_path + 'c_lattice.cpp',
-            module1_path + 'c_results.cpp',
+            os.path.join(module1_path_rel, 'c_vlm.cpp'),
+            os.path.join(module1_path_rel, 'c_boundary.cpp'),
+            os.path.join(module1_path_rel, 'c_downwash.cpp'),
+            os.path.join(module1_path_rel, 'c_lattice.cpp'),
+            os.path.join(module1_path_rel, 'c_results.cpp'),
             ],
         include_dirs=[
-            module1_path,
+            module1_path_rel,
             '/usr/include/python3.6',
-            '/usr/lib/python3/dist-packages/numpy/core/include/'
+            # Numpy header
+            # '/usr/lib/python3/dist-packages/numpy/core/include/'
+            os.path.join(np.get_include(), 'numpy'),
+            np.get_include(),
             ]
         )
 

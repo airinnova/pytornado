@@ -7,6 +7,10 @@ import json
 import numpy as np
 import pytest
 
+from pytornado.stdfun import StdRunArgs, standard_run
+
+
+here = os.path.abspath(os.path.dirname(__file__))
 
 def test_panel_forces():
     """
@@ -16,8 +20,10 @@ def test_panel_forces():
     testdir = "test1"
     run_name = "test"
 
-    os.chdir(testdir)
-    os.system(f"pytornado -c --run {run_name}")
+    os.chdir(os.path.join(here, testdir))
+    args = StdRunArgs()
+    args.run = run_name
+    standard_run(args)
 
     # -------------------------------------------------------------------------
     # Panel forces should act at theses coordinates

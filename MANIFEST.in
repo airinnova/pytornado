@@ -1,2 +1,4 @@
 include README.rst LICENSE.txt
 include src/lib/pytornado/aero/Makefile
+# Include header file
+graft src/lib/pytornado/aero/
