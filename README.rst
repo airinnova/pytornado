@@ -10,6 +10,14 @@
     :target: https://github.com/airinnova/pytornado/blob/master/LICENSE.txt
     :alt: License
 
+.. image:: https://travis-ci.org/airinnova/pytornado.svg?branch=master
+    :target: https://travis-ci.org/airinnova/pytornado
+    :alt: Build status
+
+.. image:: https://codecov.io/gh/airinnova/pytornado/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/airinnova/pytornado
+    :alt: Coverage
+
 |
 
 .. image:: https://raw.githubusercontent.com/airinnova/pytornado/master/docs/source/_static/images/logo/logo006.svg?sanitize=true

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from setuptools import setup, Extension, find_namespace_packages
+from setuptools import setup, Extension, find_packages
 import os
 
 import numpy as np
@@ -73,7 +73,7 @@ setup(
     package_dir={'': PACKAGE_DIR},
     license=LICENSE,
     # packages=[NAME],
-    packages=find_namespace_packages(where=PACKAGE_DIR),
+    packages=find_packages(where=PACKAGE_DIR),
     python_requires=REQUIRES_PYTHON,
     install_requires=REQUIRED,
     # See: https://pypi.org/classifiers/
