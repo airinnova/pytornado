@@ -218,8 +218,8 @@ def standard_run(args):
 
     # Return results to caller
     results = {
-            "lattice": lattice,
-            "vlmdata": vlmdata,
-            "state": state
-            }
+        "lattice": lattice,
+        "vlmdata": vlmdata,
+        "state": state
+    }
     return results
