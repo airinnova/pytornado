@@ -251,9 +251,8 @@ def set_aircraft_wing_segments(aircraft, settings, xpath_wing, wing_uid, idx_win
         d = get_segment_mid_point(tigl, idx_wing, idx_segment, eta=0, xsi=1)
 
         #########################################################################
+        ## TODO: Put this in "objects.model!?"
         #########################################################################
-
-        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
         # Re-order vertices
         # * A, D should be at root and B, C at tip
@@ -270,42 +269,79 @@ def set_aircraft_wing_segments(aircraft, settings, xpath_wing, wing_uid, idx_win
         if c[0] - b[0] < 0.0:
             a, b, c, d = a, c, b, d
 
-        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+        #########################################################################
+        #########################################################################
+        #########################################################################
 
         aircraft.wing[wing_uid].segment[segment_uid].vertices['a'] = a
         aircraft.wing[wing_uid].segment[segment_uid].vertices['b'] = b
         aircraft.wing[wing_uid].segment[segment_uid].vertices['c'] = c
         aircraft.wing[wing_uid].segment[segment_uid].vertices['d'] = d
 
-        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+        # ----- Set airfoils -----
+        set_aircraft_airfoils(aircraft, settings, tigl, wing_uid, segment_uid, idx_wing, idx_segment)
 
-        sect, elem = tigl.wingGetInnerSectionAndElementIndex(idx_wing, idx_segment)
 
-        name_ib = parse_str(tigl.wingGetProfileName(idx_wing, sect, elem))
-        if not name_ib:
-            msg = f"CPACS error: could not extract inner wing profile name (wing: {idx_wing}, segment: {sect})"
+#########################################################################
+#########################################################################
+# TODO: FIX arg list
+#########################################################################
+#########################################################################
+def set_aircraft_airfoils(aircraft, settings, tigl, wing_uid, segment_uid, idx_wing, idx_segment):
+    """
+    Set the segment airfoil data
+    """
+
+    for position in ['inner', 'outer']:
+        if 'inner':
+            tigl_func = tigl.wingGetInnerSectionAndElementIndex
+        else:
+            tigl_func = tigl.wingGetOuterSectionAndElementIndex
+
+        idx_section, idx_elem = tigl_func(idx_wing, idx_segment)
+        name_airfoil = parse_str(tigl.wingGetProfileName(idx_wing, idx_section, idx_elem))
+        if not name_airfoil:
+            err_msg = f"""
+            CPACS error: Could not extract {position} airfoil name
+            * Wing: {idx_wing}
+            * Segment: {idx_section}
+            """
             raise ValueError(msg)
 
-        file_ib = os.path.join(settings.dirs['airfoils'], 'blade.{}'.format(name_ib))
-
-        aircraft.wing[wing_uid].segment[segment_uid].airfoils['inner'] = file_ib
-
-        sect, elem = tigl.wingGetOuterSectionAndElementIndex(idx_wing, idx_segment)
-
-        name_ob = parse_str(tigl.wingGetProfileName(idx_wing, sect, elem))
-        if not name_ob:
-            msg = f"CPACS error: could not extract outer wing profile name (wing: {idx_wing}, segment: {sect})"
-            raise ValueError(msg)
-
-        file_ob = os.path.join(settings.dirs['airfoils'], 'blade.{}'.format(name_ob))
-
-        aircraft.wing[wing_uid].segment[segment_uid].airfoils['outer'] = file_ob
-
-        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-
-        logger.debug(f"Loaded segment '{segment_uid}'")
+        file_airfoil = f"blade.{name_airfoil}"
+        file_airfoil = os.path.join(settings.dirs['airfoils'], file_airfoil)
+        aircraft.wing[wing_uid].segment[segment_uid].airfoils[position] = file_airfoil
 
 
+def write_airfoils_files(settings, tixi):
+    """
+    Extract airfoil data from CPACS and write airfoil files
+
+    Args:
+        :settings: (object) Data structure for execution settings
+        :tixi: Tixi handle
+    """
+
+    logger.debug("Extracting airfoil data...")
+    num_airfoils = tixi.getNumberOfChilds(XPATH_AIRFOILS)
+    for i in range(1, num_airfoils + 1):
+        node_airfoil = XPATH_AIRFOILS + f"/wingAirfoil[{i}]"
+        node_data = node_airfoil + "/pointList"
+
+        try:
+            name_airfoil = parse_str(tixi.getTextElement(node_airfoil + '/name'))
+        except tixiwrapper.TixiException:
+            name_airfoil = f'AIRFOIL{i:02d}'
+
+        file_airfoil = os.path.join(settings.dirs['airfoils'], f"blade.{name_airfoil}")
+
+        # Convert string to numpy array
+        coords_x = np.fromstring(tixi.getTextElement(node_data + '/x'), sep=';')
+        coords_z = np.fromstring(tixi.getTextElement(node_data + '/z'), sep=';')
+        coords = np.transpose([coords_x, coords_z])
+
+        logger.info(f"Copying airfoil {name_airfoil} to file...")
+        np.savetxt(file_airfoil, coords, header=f"{name_airfoil}", fmt=COORD_FORMAT)
 
 
 def load(aircraft, state, settings):
@@ -333,6 +369,8 @@ def load(aircraft, state, settings):
 
     set_aircraft_name(aircraft, tixi)
     set_aircraft_wings(aircraft, settings, tixi, tigl)
+
+    write_airfoils_files(settings, tixi)
 
 
     # ====================================================================
@@ -469,40 +507,6 @@ def load(aircraft, state, settings):
     #     this_control[2].check()
 
     # 2.3. SEGMENT WING SECTIONS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-
-    logger.debug("Extracting airfoil data...")
-    num_foils = tixi.getNumberOfChilds(XPATH_AIRFOILS)
-
-    for i in range(1, num_foils + 1):
-        node_airfoil = XPATH_AIRFOILS + '/wingAirfoil[{}]'.format(i)
-        node_data = node_airfoil + '/pointList'
-
-        try:
-            name_airfoil = parse_str(tixi.getTextElement(node_airfoil + '/name'))
-        except tixiwrapper.TixiException:
-            name_airfoil = f'AIRFOIL{i:02d}'
-
-        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-
-        file_airfoil = os.path.join(settings.dirs['airfoils'], 'blade.{}'.format(name_airfoil))
-
-        if os.path.isfile(file_airfoil):
-            continue
-
-        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-
-        logger.info(f"Copying airfoil {name_airfoil} to file...")
-
-        # convert string to numpy array
-        coords_x = np.fromstring(tixi.getTextElement(node_data + '/x'), sep=';')
-        coords_z = np.fromstring(tixi.getTextElement(node_data + '/z'), sep=';')
-
-        coords = np.transpose([coords_x, coords_z])
-
-        np.savetxt(file_airfoil, coords, header=f"{name_airfoil}", fmt=COORD_FORMAT)
-        logger.info("airfoil '{}' copied to {}.".format(name_airfoil, file_airfoil))
-
-    logger.debug("Airfoil data extracted...")
 
     # 2.4. REFERENCE VALUES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
