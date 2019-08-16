@@ -1,5 +1,8 @@
 # TODO
 
+* "refs" stored both in Aircraft and in State
+* Improve main settings file
+
 * Fix PyPI (binaries?)
 * Fix ReadTheDocs
 * Set up TravisCI
