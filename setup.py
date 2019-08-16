@@ -18,6 +18,7 @@ DESCRIPTION = 'A vortex-lattice implementation (VLM) implementation'
 URL = 'https://github.com/airinnova/pytornado'
 REQUIRES_PYTHON = '>=3.6.0'
 REQUIRED = [
+    'ambiance',
     'numpy',
     'scipy',
     'matplotlib==3.0.2',
