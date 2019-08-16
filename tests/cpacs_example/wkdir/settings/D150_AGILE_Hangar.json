@@ -23,7 +23,7 @@
         "lattice_segment": null,
         "results_downwash": false,
         "results_panelwise": ["cp"],
-        "show": false,
+        "show": true,
         "save": false
     }
 }

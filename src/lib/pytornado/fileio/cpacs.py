@@ -146,43 +146,32 @@ def set_aircraft_name(aircraft, tixi):
     aircraft.uid = aircraft_uid
 
 
-def load(aircraft, state, settings):
+def set_aircraft_wings(aircraft, settings, tixi, tigl):
     """
-    Get aircraft model, flight state and settings data from a CPACS file
+    Extract the aircraft wings including airfoils and controls
 
     Args:
         :aircraft: (object) Data structure for aircraft model
-        :state: (object) Data structure for flight state
-        :settings: (object) Data structure for execution settings
+        :tixi: Tixi handle
+        :tigl: Tigl handle
     """
-
-    cpacs_file = settings.files['aircraft']
-    logger.info(f"Loading aircraft from CPACS file: {cpacs_file}...")
-    if not os.path.exists(cpacs_file):
-        err_msg = f"File '{cpacs_file}' not found"
-        logger.error(err_msg)
-        raise FileNotFoundError(err_msg)
-
-    tixi = open_tixi(cpacs_file)
-    tigl = open_tigl(tixi)
-
-    # Reset the aircraft model
-    aircraft.reset()
-
-    set_aircraft_name(aircraft, tixi)
 
     logger.info("Loading aircraft wings...")
     if not tixi.checkElement(XPATH_WINGS):
         err_msg = f"""
         Could not find path '{XPATH_WINGS}'.
-        The aircraft must be at least one wing.
+        The aircraft must have at least one wing.
         """
         logger.error(err_msg)
         raise ValueError(err_msg)
 
-    # enumerate wings
-    for idx_wing in range(1, tixi.getNamedChildrenCount(XPATH_WINGS, 'wing') + 1):
-        node_wing = XPATH_WINGS + '/wing[{}]'.format(idx_wing)
+    num_wings = tixi.getNamedChildrenCount(XPATH_WINGS, 'wing')
+    for idx_wing in range(1, num_wings + 1):
+        node_wing = XPATH_WINGS + f"/wing[{idx_wing}]"
+
+    # ====================================================================
+    # ====================================================================
+    # ====================================================================
 
         try:
             wing_uid = parse_str(tixi.getTextAttribute(node_wing, 'uID'))
@@ -290,6 +279,39 @@ def load(aircraft, state, settings):
             # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
             logger.debug(f"Loaded segment '{segment_uid}'")
+
+
+def load(aircraft, state, settings):
+    """
+    Get aircraft model, flight state and settings data from a CPACS file
+
+    Args:
+        :aircraft: (object) Data structure for aircraft model
+        :state: (object) Data structure for flight state
+        :settings: (object) Data structure for execution settings
+    """
+
+    cpacs_file = settings.files['aircraft']
+    logger.info(f"Loading aircraft from CPACS file: {cpacs_file}...")
+    if not os.path.exists(cpacs_file):
+        err_msg = f"File '{cpacs_file}' not found"
+        logger.error(err_msg)
+        raise FileNotFoundError(err_msg)
+
+    tixi = open_tixi(cpacs_file)
+    tigl = open_tigl(tixi)
+
+    # Reset the aircraft model
+    aircraft.reset()
+
+    set_aircraft_name(aircraft, tixi)
+    set_aircraft_wings(aircraft, settings, tixi, tigl)
+
+
+    # ====================================================================
+    # ====================================================================
+    # ====================================================================
+
 
         # # ===== ADD CONTROLS =====
 
