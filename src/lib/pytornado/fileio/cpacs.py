@@ -344,6 +344,35 @@ def write_airfoils_files(settings, tixi):
         np.savetxt(file_airfoil, coords, header=f"{name_airfoil}", fmt=COORD_FORMAT)
 
 
+def set_aircraft_refs(aircraft, tixi):
+    """
+    Extract the aircraft reference values
+
+    Args:
+        :aircraft: (object) Data structure for aircraft model
+        :tixi: Tixi handle
+
+    .. warning::
+
+        * 'rcenter' is same as 'gcenter'
+        * Currently there is only one reference length in CPACS
+    """
+
+    aircraft.refs['gcenter'] = np.zeros(3, dtype=float, order='C')
+    aircraft.refs['gcenter'][0] = tixi.getDoubleElement(XPATH_REFS + '/point/x')
+    aircraft.refs['gcenter'][1] = tixi.getDoubleElement(XPATH_REFS + '/point/y')
+    aircraft.refs['gcenter'][2] = tixi.getDoubleElement(XPATH_REFS + '/point/z')
+
+    aircraft.refs['rcenter'] = np.zeros(3, dtype=float, order='C')
+    aircraft.refs['rcenter'][0] = tixi.getDoubleElement(XPATH_REFS + '/point/x')
+    aircraft.refs['rcenter'][1] = tixi.getDoubleElement(XPATH_REFS + '/point/y')
+    aircraft.refs['rcenter'][2] = tixi.getDoubleElement(XPATH_REFS + '/point/z')
+
+    aircraft.refs['area'] = tixi.getDoubleElement(XPATH_REFS + '/area')
+    aircraft.refs['span'] = tixi.getDoubleElement(XPATH_REFS + '/length')
+    aircraft.refs['chord'] = tixi.getDoubleElement(XPATH_REFS + '/length')
+
+
 def load(aircraft, state, settings):
     """
     Get aircraft model, flight state and settings data from a CPACS file
@@ -367,11 +396,13 @@ def load(aircraft, state, settings):
     # Reset the aircraft model
     aircraft.reset()
 
+    # Extract CPACS data and add to aircraft model
     set_aircraft_name(aircraft, tixi)
     set_aircraft_wings(aircraft, settings, tixi, tigl)
-
     write_airfoils_files(settings, tixi)
+    set_aircraft_refs(aircraft, tixi)
 
+    tixi.close()
 
     # ====================================================================
     # ====================================================================
@@ -506,26 +537,6 @@ def load(aircraft, state, settings):
     # for this_control, _ in all_controls(aircraft):
     #     this_control[2].check()
 
-    # 2.3. SEGMENT WING SECTIONS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-
-    # 2.4. REFERENCE VALUES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-
-    aircraft.refs['gcenter'] = np.zeros(3, dtype=float, order='C')
-    aircraft.refs['gcenter'][0] = tixi.getDoubleElement(XPATH_REFS + '/point/x')
-    aircraft.refs['gcenter'][1] = tixi.getDoubleElement(XPATH_REFS + '/point/y')
-    aircraft.refs['gcenter'][2] = tixi.getDoubleElement(XPATH_REFS + '/point/z')
-
-    # TODO | currently the same as gcenter
-    aircraft.refs['rcenter'] = np.zeros(3, dtype=float, order='C')
-    aircraft.refs['rcenter'][0] = tixi.getDoubleElement(XPATH_REFS + '/point/x')
-    aircraft.refs['rcenter'][1] = tixi.getDoubleElement(XPATH_REFS + '/point/y')
-    aircraft.refs['rcenter'][2] = tixi.getDoubleElement(XPATH_REFS + '/point/z')
-
-    # TODO | currently one reference length
-    aircraft.refs['area'] = tixi.getDoubleElement(XPATH_REFS + '/area')
-    aircraft.refs['span'] = tixi.getDoubleElement(XPATH_REFS + '/length')
-    aircraft.refs['chord'] = tixi.getDoubleElement(XPATH_REFS + '/length')
-
     # 3. GET STATE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
     # 3.1. GET AERODYNAMIC OPERATING CONDITIONS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
@@ -565,10 +576,6 @@ def load(aircraft, state, settings):
     # state.aero['density'] = tixi.getDoubleElement(node_state + '/density')
     # TODO | currently in tool-specific: need altitude, mach
 
-    tixi.save(cpacs_file)
-    tixi.close()
-
-    logger.info(f"Aircraft loaded from CPACS file: {cpacs_file}")
 
 
 ##################################################################
