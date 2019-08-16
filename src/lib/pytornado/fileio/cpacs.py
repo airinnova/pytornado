@@ -127,6 +127,25 @@ def open_tigl(tixi):
     return tigl
 
 
+def set_aircraft_name(aircraft, tixi):
+    """
+    Extract the aircraft name from CPACS and it to the aircraft model
+
+    Args:
+        :aircraft: (object) Data structure for aircraft model
+        :tixi: Tixi handle
+    """
+
+    if tixi.checkElement(XPATH_MODEL):
+        aircraft_uid = parse_str(tixi.getTextAttribute(XPATH_MODEL, 'uID'))
+        logger.debug(f"Aircraft name: '{aircraft.uid}'")
+    else:
+        logger.warning(f"Could not find path '{XPATH_MODEL}'")
+        aircraft_uid = 'NAME_NOT_FOUND'
+
+    aircraft.uid = aircraft_uid
+
+
 def load(aircraft, state, settings):
     """
     Get aircraft model, flight state and settings data from a CPACS file
@@ -138,30 +157,19 @@ def load(aircraft, state, settings):
     """
 
     cpacs_file = settings.files['aircraft']
-    tixi = open_tixi(cpacs_file)
-    tigl = open_tigl(tixi)
-
-    # =======================================================================
-    # =======================================================================
-    # =======================================================================
-
-
     logger.info(f"Loading aircraft from CPACS file: {cpacs_file}...")
-
     if not os.path.exists(cpacs_file):
         err_msg = f"File '{cpacs_file}' not found"
         logger.error(err_msg)
         raise FileNotFoundError(err_msg)
 
+    tixi = open_tixi(cpacs_file)
+    tigl = open_tigl(tixi)
 
+    # Reset the aircraft model
     aircraft.reset()
 
-    if tixi.checkElement(XPATH_MODEL):
-        aircraft.uid = parse_str(tixi.getTextAttribute(XPATH_MODEL, 'uID'))
-    else:
-        logger.warning(f"Could not find path '{XPATH_MODEL}'")
-
-    logger.debug(f"Loading aircraft '{aircraft.uid}'")
+    set_aircraft_name(aircraft, tixi)
 
     logger.info("Loading aircraft wings...")
     if not tixi.checkElement(XPATH_WINGS):
