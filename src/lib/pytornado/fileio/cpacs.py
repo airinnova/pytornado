@@ -188,6 +188,25 @@ def set_aircraft_wings(aircraft, settings, tixi, tigl):
         #########################################################################
         #########################################################################
 
+
+def get_segment_mid_point(tigl, idx_wing, idx_segment, eta, xsi):
+    """
+    Return a mid point for a segment
+
+    Args:
+        :tigl: Tigl handle
+        :idx_wing: Wing index
+        :idx_segment: Segment index
+        :eta: Relative segment coordinate
+        :xsi: Relative segment coordinate
+    """
+
+    lower = tigl.wingGetLowerPoint(idx_wing, idx_segment, eta, xsi)
+    upper = tigl.wingGetUpperPoint(idx_wing, idx_segment, eta, xsi)
+    mid_point = [(l + u)/2.0 for l, u in zip(lower, upper)]
+    return mid_point
+
+
 #########################################################################
 #########################################################################
 # TODO: FIX arg list
@@ -225,23 +244,14 @@ def set_aircraft_wing_segments(aircraft, settings, xpath_wing, wing_uid, idx_win
 
         aircraft.wing[wing_uid].add_segment(segment_uid)
 
-    ######################################
+        # Get the absolute segment vertices
+        a = get_segment_mid_point(tigl, idx_wing, idx_segment, eta=0, xsi=0)
+        b = get_segment_mid_point(tigl, idx_wing, idx_segment, eta=1, xsi=0)
+        c = get_segment_mid_point(tigl, idx_wing, idx_segment, eta=1, xsi=1)
+        d = get_segment_mid_point(tigl, idx_wing, idx_segment, eta=0, xsi=1)
 
-        lower = tigl.wingGetLowerPoint(idx_wing, idx_segment, 0.0, 0.0)
-        upper = tigl.wingGetUpperPoint(idx_wing, idx_segment, 0.0, 0.0)
-        a = [(l + u)/2.0 for l, u in zip(lower, upper)]
-
-        lower = tigl.wingGetLowerPoint(idx_wing, idx_segment, 1.0, 0.0)
-        upper = tigl.wingGetUpperPoint(idx_wing, idx_segment, 1.0, 0.0)
-        b = [(l + u)/2.0 for l, u in zip(lower, upper)]
-
-        lower = tigl.wingGetLowerPoint(idx_wing, idx_segment, 1.0, 1.0)
-        upper = tigl.wingGetUpperPoint(idx_wing, idx_segment, 1.0, 1.0)
-        c = [(l + u)/2.0 for l, u in zip(lower, upper)]
-
-        lower = tigl.wingGetLowerPoint(idx_wing, idx_segment, 0.0, 1.0)
-        upper = tigl.wingGetUpperPoint(idx_wing, idx_segment, 0.0, 1.0)
-        d = [(l + u)/2.0 for l, u in zip(lower, upper)]
+        #########################################################################
+        #########################################################################
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
