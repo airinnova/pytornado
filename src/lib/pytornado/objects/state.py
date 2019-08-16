@@ -32,6 +32,7 @@ import logging
 
 import numpy as np
 from numpy import cos, sin, deg2rad
+from ambiance import Atmosphere
 
 from pytornado.objects.utils import FixedNamespace, FixedOrderedDict
 
@@ -80,14 +81,15 @@ class FlightState(FixedNamespace):
         self.refs['chord'] = None
         self.refs._freeze()
 
-        # PROPERTIES -- user-provided aerodynamic operating conditions
         self.aero = FixedOrderedDict()
-        self.aero['airspeed'] = None
         self.aero['alpha'] = None
         self.aero['beta'] = None
         self.aero['rate_P'] = None
         self.aero['rate_Q'] = None
         self.aero['rate_R'] = None
+        self.aero['mach'] = None
+        self.aero['altitude'] = None
+        self.aero['airspeed'] = None
         self.aero['density'] = None
         self.aero._freeze()
 
@@ -117,6 +119,44 @@ class FlightState(FixedNamespace):
         for key, value in aero.items():
             self.aero[key] = value
 
+        # We can allow either "airspeed and density" or "mach number and altitude"
+        all_values = {'airspeed', 'mach', 'density', 'altitude'}
+        pairs = [
+            {'airspeed', 'density'},
+            {'airspeed', 'altitude'},
+            {'mach', 'altitude'},
+        ]
+
+        err_msg = """
+        Invalid combination: You may set:
+        (1) 'airspeed' and 'density' or
+        (2) 'airspeed' and 'altitude' or
+        (3) 'mach' and 'altitude'
+        Make sure the remaining values are all set to 'None'.
+        """
+
+        for pair in pairs:
+            pair_values = [self.aero.get(v, None) for v in pair]
+            other_values = [self.aero.get(v, None) for v in all_values.difference(pair)]
+
+            if all(v is not None for v in pair_values):
+                if any(v is not None for v in other_values):
+                    raise ValueError(err_msg)
+
+        # Compute airspeed and density if necessary
+        density = None
+        speed_of_sound = None
+        if self.aero['altitude'] is not None:
+            atmosphere = Atmosphere(self.aero['altitude'])
+            density = float(atmosphere.density)
+            speed_of_sound = float(atmosphere.speed_of_sound)
+
+        if self.aero['density'] is None:
+            self.aero['density'] = density
+
+        if self.aero['mach'] is not None:
+            self.aero['airspeed'] = self.aero['mach']*speed_of_sound
+
     def get_refs(self, aircraft):
         """Set FLIGHTSTATE.REFS from AIRCRAFT model definition, check AERO."""
 
@@ -134,18 +174,18 @@ class FlightState(FixedNamespace):
         self.refs['chord'] = aircraft.refs['chord']
 
     def check(self):
-        """Check properties of FLIGHTSTATE.AERO."""
+        """Check properties of state settings"""
 
-        logger.info("Checking aerodynamic operating conditions...")
+        logger.info("Checking aerodynamic settings...")
 
-        # 1. CHECK AERODYNAMIC PARAMETERS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-        # airspeed
+        # Airspeed
         if self.aero['airspeed'] is None:
             raise StateDefinitionError("'aero.airspeed' is not defined.")
         elif not isinstance(self.aero['airspeed'], (float, int)):
             raise TypeError("'aero.airspeed' must be FLOAT [m/s].")
         else:
             self.aero['airspeed'] = float(self.aero['airspeed'])
+        # ------------------------------------------------------------
 
         # angle of attack
         if self.aero['alpha'] is None:
