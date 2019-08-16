@@ -1,8 +1,10 @@
 # TODO
 
+* Refactor CPACS functions --> make control surfaces work
+
+* Bug with Cm coefficient (may there is some unassigned value in the C++ code, check reference values...)
+
 * Fix PyPI (binaries?)
-* Fix ReadTheDocs
-* Set up TravisCI
 * Set up Codecov
 
 ## Important
