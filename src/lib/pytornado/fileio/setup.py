@@ -53,17 +53,64 @@ def setup_wkdir():
     state = FlightState()
 
     aircraft.uid = 'template_aircraft'
-    aircraft.add_wing('template_wing')
-    aircraft.wing['template_wing'].add_segment('template_segment')
-    aircraft.wing['template_wing'].add_control('template_control')
+    wing = aircraft.add_wing('template_wing', return_wing=True)
+    segment = wing.add_segment('template_segment', return_segment=True)
+    control = wing.add_control('template_control', return_control=True)
 
     # Generate file names and create project directory
-    settings = Settings(project_basename, wkdir=os.path.abspath(os.getcwd()),
-                        make_dirs=False)
+    settings = Settings(project_basename, wkdir=os.path.abspath(os.getcwd()), make_dirs=False)
+
+    # ========== Set default values ==========
+    # ---------- Settings ----------
     settings.inputs['aircraft'] = aircraft.uid + '.json'
     settings.inputs['state'] = project_basename
     settings.generate_file_names()
     settings.make_project_subdirs()
+    settings.plot['results_panelwise'] = ['cp']
+    settings.outputs['vlm_autopanels_s'] = 20
+    settings.outputs['vlm_autopanels_c'] = 5
+    settings.outputs['vlm_lattice'] = True
+    settings.outputs['vlm_compute'] = True
+
+    # ---------- State ----------
+    state.aero['airspeed'] = 100
+    state.aero['density'] = 1.225
+    state.aero['alpha'] = 2
+    state.aero['beta'] = 2
+    state.aero['rate_P'] = 0
+    state.aero['rate_Q'] = 0
+    state.aero['rate_R'] = 0
+
+    # ---------- Aircraft ----------
+    aircraft.refs['area'] = 10
+    aircraft.refs['span'] = 5
+    aircraft.refs['chord'] = 2
+    aircraft.refs['gcenter'] = [0, 0, 0]
+    aircraft.refs['rcenter'] = [0, 0, 0]
+
+    # ---------- Wing ----------
+    wing.symmetry = 2
+
+    # ---------- Segment ----------
+    segment.vertices['a'] = [0, 0, 0]
+    segment.vertices['b'] = [0, 5, 0]
+    segment.vertices['c'] = [2, 5, 0]
+    segment.vertices['d'] = [2, 0, 0]
+    segment.airfoils['inner'] = 'NACA0000'
+    segment.airfoils['outer'] = 'NACA0000'
+
+    # ---------- Control ----------
+    control.device_type = 'flap'
+    control.deflection = 5
+    control.deflection_mirror = -5
+    control.segment_uid['inner'] = 'template_segment'
+    control.segment_uid['outer'] = 'template_segment'
+    control.rel_vertices['eta_inner'] = 0.2
+    control.rel_vertices['eta_outer'] = 0.8
+    control.rel_vertices['xsi_inner'] = 0.7
+    control.rel_vertices['xsi_outer'] = 0.7
+    control.rel_hinge_vertices['xsi_inner'] = 0.7
+    control.rel_hinge_vertices['xsi_outer'] = 0.7
 
     # Save settings, state and model file
     io_settings.save(settings)

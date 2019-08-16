@@ -78,5 +78,14 @@ def save(settings):
     for key in ['inputs', 'outputs', 'plot']:
         output[key] = dict(getattr(settings, key))
 
+        # Do not save special underscore settings by default
+        delete_keys = []
+        for sub_key in output[key].keys():
+            if sub_key.startswith("_"):
+                delete_keys.append(sub_key)
+
+        for sub_key in delete_keys:
+            del output[key][sub_key]
+
     with open(set_file, 'w') as fp:
         dump_pretty_json(output, fp)

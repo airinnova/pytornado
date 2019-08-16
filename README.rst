@@ -20,14 +20,21 @@
 
 |
 
-.. image:: https://raw.githubusercontent.com/airinnova/pytornado/master/docs/source/_static/images/logo/logo006.svg?sanitize=true
-    :alt: FramAT
-    :width: 100 px
+.. image:: https://raw.githubusercontent.com/airinnova/pytornado/master/docs/source/_static/images/logo/logo.png
+    :alt: PyTornado
+    :width: 200 px
     :scale: 100 %
 
-PyTornado is an implementation of the vortex-lattice method (VLM)
+PyTornado is an implementation of the vortex lattice method (VLM). The VLM, based on potential flow theory, is the simplest general method for 3D aerodynamic analyses of aircraft. The method requires only a coarse definition of the aircraft geometry and the flight state. Due to the few input parameters analyses can be set up with little effort and analyses are computationally inexpensive. PyTornado is an ideal tool for conceptual aircraft design. Short computation times make it possible to easily obtain estimates of aerodynamic loads and to benchmark different concepts.
 
 .. image:: https://raw.githubusercontent.com/airinnova/pytornado/master/docs/source/_static/images/main.png
     :target: https://github.com/airinnova/pytornado
+    :scale: 50 %
     :alt: Example
-    :width: 200 px
+
+How to get started
+------------------
+
+Please refer to the documentation for installation instructions and a user guide:
+
+* https://pytornado.readthedocs.io/

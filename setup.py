@@ -4,7 +4,18 @@
 from setuptools import setup, Extension, find_packages
 import os
 
-import numpy as np
+# Numpy must be installed
+try:
+    import numpy as np
+except ImportError:
+    msg = f"""
+    {'='*80}
+    Please install 'numpy' first. Try:
+
+        pip install numpy
+    {'='*80}
+    """
+    raise ImportError(msg)
 
 from src.lib.pytornado.__version__ import __version__
 
