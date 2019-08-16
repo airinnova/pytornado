@@ -165,120 +165,137 @@ def set_aircraft_wings(aircraft, settings, tixi, tigl):
         logger.error(err_msg)
         raise ValueError(err_msg)
 
+    # ---------- Iterate through wings ----------
     num_wings = tixi.getNamedChildrenCount(XPATH_WINGS, 'wing')
     for idx_wing in range(1, num_wings + 1):
-        node_wing = XPATH_WINGS + f"/wing[{idx_wing}]"
-
-    # ====================================================================
-    # ====================================================================
-    # ====================================================================
+        xpath_wing = XPATH_WINGS + f"/wing[{idx_wing}]"
 
         try:
-            wing_uid = parse_str(tixi.getTextAttribute(node_wing, 'uID'))
+            wing_uid = parse_str(tixi.getTextAttribute(xpath_wing, 'uID'))
         except tixiwrapper.TixiException:
             wing_uid = f'WING{idx_wing:02}'
 
-        logger.debug(f"Loading wing '{wing_uid}'")
+        logger.debug(f"Wing name: '{wing_uid}'")
+
         aircraft.add_wing(wing_uid)
-
-        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-
         aircraft.wing[wing_uid].symmetry = tigl.wingGetSymmetry(idx_wing)
 
-        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+        # Get segment data
+        set_aircraft_wing_segments(aircraft, settings, xpath_wing, wing_uid, idx_wing, tixi, tigl)
 
-        node_segments = node_wing + '/segments'
+        #########################################################################
+        #########################################################################
+        #########################################################################
+        #########################################################################
 
-        if not tixi.checkElement(node_segments):
-            logger.error(f"Could not find path '{node_segments}'")
-            continue
+#########################################################################
+#########################################################################
+# TODO: FIX arg list
+#########################################################################
+#########################################################################
 
-        logger.debug(f"Loading segments of wing '{wing_uid}'...")
+def set_aircraft_wing_segments(aircraft, settings, xpath_wing, wing_uid, idx_wing, tixi, tigl):
+    """
+    Extract the wing segment data
 
-        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+    Args:
+        TODO
+    """
 
-        # enumerate segments
-        for idx_segment in range(1, tixi.getNamedChildrenCount(node_segments, 'segment') + 1):
-            node_segment = node_segments + '/segment[{}]'.format(idx_segment)
+    xpath_segments = xpath_wing + '/segments'
 
-            try:
-                segment_uid = parse_str(tixi.getTextAttribute(node_segment, 'uID'))
-            except tixiwrapper.TixiException:
-                segment_uid = '{}_SEGMENT{:02}'.format(wing_uid, idx_segment)
+    if not tixi.checkElement(xpath_segments):
+        err_msg = f"Could not find path '{xpath_segments}'"
+        logger.error(err_msg)
+        raise ValueError(err_msg)
 
-            logger.debug("Loading segment '{}'...".format(segment_uid))
+    logger.debug(f"Loading segments of wing '{wing_uid}'...")
 
-            aircraft.wing[wing_uid].add_segment(segment_uid)
+    # ---------- Iterate through segments ----------
+    num_segments = tixi.getNamedChildrenCount(xpath_segments, 'segment')
+    for idx_segment in range(1, num_segments + 1):
+        node_segment = xpath_segments + f"/segment[{idx_segment}]"
 
-            # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+        try:
+            segment_uid = parse_str(tixi.getTextAttribute(node_segment, 'uID'))
+        except tixiwrapper.TixiException:
+            segment_uid = f"{wing_uid}_SEGMENT{idx_segment:02}"
 
-            lower = tigl.wingGetLowerPoint(idx_wing, idx_segment, 0.0, 0.0)
-            upper = tigl.wingGetUpperPoint(idx_wing, idx_segment, 0.0, 0.0)
-            a = [(l + u)/2.0 for l, u in zip(lower, upper)]
+        logger.debug(f"Loading segment '{segment_uid}'...")
 
-            lower = tigl.wingGetLowerPoint(idx_wing, idx_segment, 1.0, 0.0)
-            upper = tigl.wingGetUpperPoint(idx_wing, idx_segment, 1.0, 0.0)
-            b = [(l + u)/2.0 for l, u in zip(lower, upper)]
+        aircraft.wing[wing_uid].add_segment(segment_uid)
 
-            lower = tigl.wingGetLowerPoint(idx_wing, idx_segment, 1.0, 1.0)
-            upper = tigl.wingGetUpperPoint(idx_wing, idx_segment, 1.0, 1.0)
-            c = [(l + u)/2.0 for l, u in zip(lower, upper)]
+    ######################################
 
-            lower = tigl.wingGetLowerPoint(idx_wing, idx_segment, 0.0, 1.0)
-            upper = tigl.wingGetUpperPoint(idx_wing, idx_segment, 0.0, 1.0)
-            d = [(l + u)/2.0 for l, u in zip(lower, upper)]
+        lower = tigl.wingGetLowerPoint(idx_wing, idx_segment, 0.0, 0.0)
+        upper = tigl.wingGetUpperPoint(idx_wing, idx_segment, 0.0, 0.0)
+        a = [(l + u)/2.0 for l, u in zip(lower, upper)]
 
-            # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+        lower = tigl.wingGetLowerPoint(idx_wing, idx_segment, 1.0, 0.0)
+        upper = tigl.wingGetUpperPoint(idx_wing, idx_segment, 1.0, 0.0)
+        b = [(l + u)/2.0 for l, u in zip(lower, upper)]
 
-            # Re-order vertices
-            # * A, D should be at root and B, C at tip
-            # * This is done so that the segments (thus panel normals point in the correct direction)
-            if b[1] - a[1] < 0.0 or (b[1] == a[1] and b[2] - a[2] < 0.0):
-                a, b, c, d = b, a, c, d
+        lower = tigl.wingGetLowerPoint(idx_wing, idx_segment, 1.0, 1.0)
+        upper = tigl.wingGetUpperPoint(idx_wing, idx_segment, 1.0, 1.0)
+        c = [(l + u)/2.0 for l, u in zip(lower, upper)]
 
-            if c[1] - d[1] < 0.0 or (c[1] == d[1] and c[2] - d[2] < 0.0):
-                a, b, c, d = a, b, d, c
+        lower = tigl.wingGetLowerPoint(idx_wing, idx_segment, 0.0, 1.0)
+        upper = tigl.wingGetUpperPoint(idx_wing, idx_segment, 0.0, 1.0)
+        d = [(l + u)/2.0 for l, u in zip(lower, upper)]
 
-            if d[0] - a[0] < 0.0:
-                a, b, c, d = d, b, c, a
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
-            if c[0] - b[0] < 0.0:
-                a, b, c, d = a, c, b, d
+        # Re-order vertices
+        # * A, D should be at root and B, C at tip
+        # * This is done so that the segments (thus panel normals point in the correct direction)
+        if b[1] - a[1] < 0.0 or (b[1] == a[1] and b[2] - a[2] < 0.0):
+            a, b, c, d = b, a, c, d
 
-            # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+        if c[1] - d[1] < 0.0 or (c[1] == d[1] and c[2] - d[2] < 0.0):
+            a, b, c, d = a, b, d, c
 
-            aircraft.wing[wing_uid].segment[segment_uid].vertices['a'] = a
-            aircraft.wing[wing_uid].segment[segment_uid].vertices['b'] = b
-            aircraft.wing[wing_uid].segment[segment_uid].vertices['c'] = c
-            aircraft.wing[wing_uid].segment[segment_uid].vertices['d'] = d
+        if d[0] - a[0] < 0.0:
+            a, b, c, d = d, b, c, a
 
-            # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+        if c[0] - b[0] < 0.0:
+            a, b, c, d = a, c, b, d
 
-            sect, elem = tigl.wingGetInnerSectionAndElementIndex(idx_wing, idx_segment)
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
-            name_ib = parse_str(tigl.wingGetProfileName(idx_wing, sect, elem))
-            if not name_ib:
-                msg = f"CPACS error: could not extract inner wing profile name (wing: {idx_wing}, segment: {sect})"
-                raise ValueError(msg)
+        aircraft.wing[wing_uid].segment[segment_uid].vertices['a'] = a
+        aircraft.wing[wing_uid].segment[segment_uid].vertices['b'] = b
+        aircraft.wing[wing_uid].segment[segment_uid].vertices['c'] = c
+        aircraft.wing[wing_uid].segment[segment_uid].vertices['d'] = d
 
-            file_ib = os.path.join(settings.dirs['airfoils'], 'blade.{}'.format(name_ib))
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
-            aircraft.wing[wing_uid].segment[segment_uid].airfoils['inner'] = file_ib
+        sect, elem = tigl.wingGetInnerSectionAndElementIndex(idx_wing, idx_segment)
 
-            sect, elem = tigl.wingGetOuterSectionAndElementIndex(idx_wing, idx_segment)
+        name_ib = parse_str(tigl.wingGetProfileName(idx_wing, sect, elem))
+        if not name_ib:
+            msg = f"CPACS error: could not extract inner wing profile name (wing: {idx_wing}, segment: {sect})"
+            raise ValueError(msg)
 
-            name_ob = parse_str(tigl.wingGetProfileName(idx_wing, sect, elem))
-            if not name_ob:
-                msg = f"CPACS error: could not extract outer wing profile name (wing: {idx_wing}, segment: {sect})"
-                raise ValueError(msg)
+        file_ib = os.path.join(settings.dirs['airfoils'], 'blade.{}'.format(name_ib))
 
-            file_ob = os.path.join(settings.dirs['airfoils'], 'blade.{}'.format(name_ob))
+        aircraft.wing[wing_uid].segment[segment_uid].airfoils['inner'] = file_ib
 
-            aircraft.wing[wing_uid].segment[segment_uid].airfoils['outer'] = file_ob
+        sect, elem = tigl.wingGetOuterSectionAndElementIndex(idx_wing, idx_segment)
 
-            # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+        name_ob = parse_str(tigl.wingGetProfileName(idx_wing, sect, elem))
+        if not name_ob:
+            msg = f"CPACS error: could not extract outer wing profile name (wing: {idx_wing}, segment: {sect})"
+            raise ValueError(msg)
 
-            logger.debug(f"Loaded segment '{segment_uid}'")
+        file_ob = os.path.join(settings.dirs['airfoils'], 'blade.{}'.format(name_ob))
+
+        aircraft.wing[wing_uid].segment[segment_uid].airfoils['outer'] = file_ob
+
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+
+        logger.debug(f"Loaded segment '{segment_uid}'")
+
+
 
 
 def load(aircraft, state, settings):
