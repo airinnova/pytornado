@@ -84,6 +84,7 @@ rst_prolog = f"""
 .. _aeroelasticity: https://en.wikipedia.org/wiki/Aeroelasticity
 .. _CPACS: https://www.cpacs.de/
 .. _DLR: https://www.dlr.de/
+.. |dlr_full| replace:: German Aerospace Centre
 .. _Airinnova: http://airinnova.se/
 .. _Airinnova AB: http://airinnova.se/
 .. _PyPI: https://pypi.org/
