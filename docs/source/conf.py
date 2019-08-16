@@ -83,7 +83,9 @@ rst_prolog = f"""
 .. _FE: https://en.wikipedia.org/wiki/Finite_element_method
 .. _aeroelasticity: https://en.wikipedia.org/wiki/Aeroelasticity
 .. _CPACS: https://www.cpacs.de/
+.. _Github: https://github.com/airinnova/pytornado
 .. _DLR: https://www.dlr.de/
+.. |dlr_full| replace:: German Aerospace Centre
 .. _Airinnova: http://airinnova.se/
 .. _Airinnova AB: http://airinnova.se/
 .. _PyPI: https://pypi.org/

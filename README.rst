@@ -20,9 +20,9 @@
 
 |
 
-.. image:: https://raw.githubusercontent.com/airinnova/pytornado/master/docs/source/_static/images/logo/logo006.svg?sanitize=true
-    :alt: FramAT
-    :width: 100 px
+.. image:: https://raw.githubusercontent.com/airinnova/pytornado/master/docs/source/_static/images/logo/logo.png
+    :alt: PyTornado
+    :width: 200 px
     :scale: 100 %
 
 PyTornado is an implementation of the vortex-lattice method (VLM)
