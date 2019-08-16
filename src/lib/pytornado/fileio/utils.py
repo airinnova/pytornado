@@ -47,3 +47,27 @@ class NDArrayEncoder(json.JSONEncoder):
 
 # Dump pretty-formatted JSON with support for numpy arrays
 dump_pretty_json = partial(json.dump, cls=NDArrayEncoder, indent=4, separators=(',', ': '))
+
+
+def parse_str(entry, allow_char='-_'):
+    """
+    Strip undesired characters from a string
+
+    Note:
+        * Alphanumeric characters always accepted: [a...z], [A...Z], [0...9]
+
+    Args:
+        :entry: (string) Input string
+        :allow_char: (string) Additional accepted characters
+        :allow_none: (bool) Detect when input is None
+        :allow_bool: (bool) Detect when input is True or False
+
+    Returns:
+        :parsed_string: Parsed string
+    """
+
+    if not isinstance(entry, str):
+        raise ValueError("Input is not of type 'string'")
+
+    parsed_string = ''.join([c for c in entry if c.isalnum() or c in allow_char])
+    return parsed_string

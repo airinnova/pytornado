@@ -31,6 +31,7 @@ import os
 import logging
 import numpy as np
 
+from pytornado.fileio.utils import parse_str
 from pytornado.objects.model import ComponentDefinitionError
 from pytornado.objects.objecttools import all_controls, all_wings
 
@@ -71,38 +72,6 @@ XPATH_TOOLSPEC = '/cpacs/toolspecific/pyTornado'
 XPATH_TOOLSPEC_CONTROL = XPATH_TOOLSPEC + '/controlDevices'
 
 COORD_FORMAT = '%+.7f'
-
-
-def parse_str(entry, allow_char='-_', allow_none=False, allow_bool=False):
-    """
-    Convert input to valid STRING. Optionally, to TRUE, FALSE or NONE.
-
-    Alphanum chars a...z, A...Z, 0...9 are always accepted.
-    Additional valid chars can be passed :wT_CHAR.
-
-        * ALLOW_NONE lets function return NONE if entry is 'NONE'.
-        * ALLOW_BOOL lets function return TRUE/FALSE if entry is 'TRUE'/'FALSE'.
-
-    Args:
-        :entry: (string) input STRING
-        :allow_char: (string) additional accepted characters (default: underscore & hyphen)
-        :allow_none: (bool) detect when input is NONE (default: FALSE)
-        :allow_bool: (bool) detect when input is TRUE or FALSE (default: FALSE)
-
-    Returns:
-        (?) converted STRING, or NONE, TRUE, FALSE
-    """
-
-    if not isinstance(entry, str):
-        return ''
-    elif allow_none and entry.upper().strip() == 'NONE':
-        return None
-    elif allow_bool and entry.upper().strip() == 'TRUE':
-        return True
-    elif allow_bool and entry.upper().strip() == 'FALSE':
-        return False
-    else:
-        return ''.join([c for c in entry if c.isalnum() or c in allow_char])
 
 
 def load(aircraft, state, settings):
