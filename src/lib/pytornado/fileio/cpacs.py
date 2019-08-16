@@ -40,40 +40,37 @@ from pytornado.fileio.cpacs_patch import PATCH_getControlSurfaceCount, PATCH_get
 
 logger = logging.getLogger(__name__)
 
+# ----- Check if Tixi is installed -----
+TIXI_INSTALLED = True
 try:
     import tixi3.tixi3wrapper as tixiwrapper
     tixiwrapper.Tixi = tixiwrapper.Tixi3
     tixiwrapper.TixiException = tixiwrapper.Tixi3Exception
 except ImportError:
     TIXI_INSTALLED = False
-else:
-    TIXI_INSTALLED = True
 
+# ----- Check if Tigl is installed -----
+TIGL_INSTALLED = True
 try:
     import tigl3.tigl3wrapper as tiglwrapper
     tiglwrapper.Tigl = tiglwrapper.Tigl3
 except ImportError:
     TIGL_INSTALLED = False
-else:
-    TIGL_INSTALLED = True
 
+# ----- CPACS paths -----
+XPATH_MODEL = '/cpacs/vehicles/aircraft/model'
+XPATH_REFS = XPATH_MODEL + '/reference'
+XPATH_WINGS = XPATH_MODEL + '/wings'
+XPATH_AIRFOILS = '/cpacs/vehicles/profiles/wingAirfoils'
+XPATH_APMAP = '/cpacs/vehicles/aircraft/analyes/aeroPerformanceMap'
+XPATH_CONTROL = XPATH_WINGS \
+    + '/wing[{0:d}]/componentSegments/componentSegment[{1:d}]' \
+    + '/controlSurfaces/{3:s}EdgeDevices/{3:s}EdgeDevice[{2:d}]'
 
-NODE_NAME = '/cpacs/vehicles/aircraft/model'
-NODE_REFS = '/cpacs/vehicles/aircraft/model/reference'
-NODE_WINGS = '/cpacs/vehicles/aircraft/model/wings'
-NODE_AIRFOILS = '/cpacs/vehicles/profiles/wingAirfoils'
-NODE_AEROPMAP = '/cpacs/vehicles/aircraft/analyes/aeroPerformanceMap'
-NODE_CONTROL = NODE_WINGS \
-        + '/wing[{0:d}]/componentSegments/componentSegment[{1:d}]' \
-        + '/controlSurfaces/{3:s}EdgeDevices/{3:s}EdgeDevice[{2:d}]'
-
-NODE_TOOLSPEC = '/cpacs/toolspecific/pyTornado'
-NODE_TS_CONTROL = NODE_TOOLSPEC + '/controlDevices'
+XPATH_TOOLSPEC = '/cpacs/toolspecific/pyTornado'
+XPATH_TOOLSPEC_CONTROL = XPATH_TOOLSPEC + '/controlDevices'
 
 COORD_FORMAT = '%+.7f'
-
-# Airfoil bounding box
-BOUNDING_BOX = '{:+.7} {:+.7} {:+.7} {:+.7}'.format(-1.0, -1.0, +2.5, +1.5)
 
 
 def parse_str(entry, allow_char='-_', allow_none=False, allow_bool=False):
@@ -156,20 +153,20 @@ def load(aircraft, state, settings):
 
     aircraft.reset()
 
-    if tixi.checkElement(NODE_NAME):
-        aircraft.uid = parse_str(tixi.getTextAttribute(NODE_NAME, 'uID'))
+    if tixi.checkElement(XPATH_MODEL):
+        aircraft.uid = parse_str(tixi.getTextAttribute(XPATH_MODEL, 'uID'))
     else:
-        logger.warning(f"Could not find path '{NODE_NAME}'")
+        logger.warning(f"Could not find path '{XPATH_MODEL}'")
 
     logger.debug("Loading aircraft '{aircraft.uid}'")
     logger.info("Loading aircraft wings...")
 
-    if not tixi.checkElement(NODE_WINGS):
-        return logger.error(f"Could not find path '{NODE_WINGS}'")
+    if not tixi.checkElement(XPATH_WINGS):
+        return logger.error(f"Could not find path '{XPATH_WINGS}'")
 
     # enumerate wings
-    for idx_wing in range(1, tixi.getNamedChildrenCount(NODE_WINGS, 'wing') + 1):
-        node_wing = NODE_WINGS + '/wing[{}]'.format(idx_wing)
+    for idx_wing in range(1, tixi.getNamedChildrenCount(XPATH_WINGS, 'wing') + 1):
+        node_wing = XPATH_WINGS + '/wing[{}]'.format(idx_wing)
 
         try:
             wing_uid = parse_str(tixi.getTextAttribute(node_wing, 'uID'))
@@ -409,10 +406,10 @@ def load(aircraft, state, settings):
     # 2.3. SEGMENT WING SECTIONS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
     logger.debug("Extracting airfoil data...")
-    num_foils = tixi.getNumberOfChilds(NODE_AIRFOILS)
+    num_foils = tixi.getNumberOfChilds(XPATH_AIRFOILS)
 
     for i in range(1, num_foils + 1):
-        node_airfoil = NODE_AIRFOILS + '/wingAirfoil[{}]'.format(i)
+        node_airfoil = XPATH_AIRFOILS + '/wingAirfoil[{}]'.format(i)
         node_data = node_airfoil + '/pointList'
 
         try:
@@ -431,16 +428,13 @@ def load(aircraft, state, settings):
 
         logger.info(f"Copying airfoil {name_airfoil} to file...")
 
-        # coordinate file header
-        header = '%{}\n {}'.format(name_airfoil, BOUNDING_BOX)
-
         # convert string to numpy array
         coords_x = np.fromstring(tixi.getTextElement(node_data + '/x'), sep=';')
         coords_z = np.fromstring(tixi.getTextElement(node_data + '/z'), sep=';')
 
         coords = np.transpose([coords_x, coords_z])
 
-        np.savetxt(file_airfoil, coords, header=header, fmt=COORD_FORMAT)
+        np.savetxt(file_airfoil, coords, header=f"{name_airfoil}", fmt=COORD_FORMAT)
         logger.info("airfoil '{}' copied to {}.".format(name_airfoil, file_airfoil))
 
     logger.debug("Airfoil data extracted...")
@@ -448,20 +442,20 @@ def load(aircraft, state, settings):
     # 2.4. REFERENCE VALUES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
     aircraft.refs['gcenter'] = np.zeros(3, dtype=float, order='C')
-    aircraft.refs['gcenter'][0] = tixi.getDoubleElement(NODE_REFS + '/point/x')
-    aircraft.refs['gcenter'][1] = tixi.getDoubleElement(NODE_REFS + '/point/y')
-    aircraft.refs['gcenter'][2] = tixi.getDoubleElement(NODE_REFS + '/point/z')
+    aircraft.refs['gcenter'][0] = tixi.getDoubleElement(XPATH_REFS + '/point/x')
+    aircraft.refs['gcenter'][1] = tixi.getDoubleElement(XPATH_REFS + '/point/y')
+    aircraft.refs['gcenter'][2] = tixi.getDoubleElement(XPATH_REFS + '/point/z')
 
     # TODO | currently the same as gcenter
     aircraft.refs['rcenter'] = np.zeros(3, dtype=float, order='C')
-    aircraft.refs['rcenter'][0] = tixi.getDoubleElement(NODE_REFS + '/point/x')
-    aircraft.refs['rcenter'][1] = tixi.getDoubleElement(NODE_REFS + '/point/y')
-    aircraft.refs['rcenter'][2] = tixi.getDoubleElement(NODE_REFS + '/point/z')
+    aircraft.refs['rcenter'][0] = tixi.getDoubleElement(XPATH_REFS + '/point/x')
+    aircraft.refs['rcenter'][1] = tixi.getDoubleElement(XPATH_REFS + '/point/y')
+    aircraft.refs['rcenter'][2] = tixi.getDoubleElement(XPATH_REFS + '/point/z')
 
     # TODO | currently one reference length
-    aircraft.refs['area'] = tixi.getDoubleElement(NODE_REFS + '/area')
-    aircraft.refs['span'] = tixi.getDoubleElement(NODE_REFS + '/length')
-    aircraft.refs['chord'] = tixi.getDoubleElement(NODE_REFS + '/length')
+    aircraft.refs['area'] = tixi.getDoubleElement(XPATH_REFS + '/area')
+    aircraft.refs['span'] = tixi.getDoubleElement(XPATH_REFS + '/length')
+    aircraft.refs['chord'] = tixi.getDoubleElement(XPATH_REFS + '/length')
 
     # 3. GET STATE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
