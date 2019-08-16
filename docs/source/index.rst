@@ -24,8 +24,7 @@ For simpler analyses |name| provides a simple command line interface. More compl
    :maxdepth: 2
    :caption: User guide
 
-   user_guide/what_is
-   user_guide/requirements
+   user_guide/installation
    user_guide/getting_started
    user_guide/detailed_user_guide
    user_guide/caveats
