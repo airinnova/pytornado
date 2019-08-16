@@ -2,6 +2,7 @@
 _plots/
 _results/
 log.txt
+airfoils/
 
 # See: https://www.gitignore.io/api/c++,python
 

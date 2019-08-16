@@ -1835,6 +1835,10 @@ class WingControl(FixedNamespace):
             elif 0 < rel_coord > 1:
                 raise ValueError("Values in 'rel_vertices' must be in range [0, 1].")
 
+        print(self.segment_uid['inner'])
+        print(self.segment_uid['outer'])
+        print(self.rel_vertices['eta_inner'])
+        print(self.rel_vertices['eta_outer'])
         if (self.segment_uid['inner'] == self.segment_uid['outer']) and \
                 (self.rel_vertices['eta_outer'] <= self.rel_vertices['eta_inner']):
             raise ValueError("'eta_outer' must be greater than 'eta_inner'")
@@ -1858,11 +1862,11 @@ class WingControl(FixedNamespace):
 
         if self.deflection_mirror is None:
             if self.symmetry != 0:
-                logger.warning("Control '{self.uid:s}': 'deflection_mirror' is not set, " +
+                logger.warning(f"Control '{self.uid:s}': 'deflection_mirror' is not set, " +
                                "but wing has symmetry. Will use 'deflection'")
                 self.deflection_mirror = self.deflection
         elif self.symmetry == 0:
-            logger.warning("Control '{self.uid:s}': 'deflection_mirror' is set, " +
+            logger.warning(f"Control '{self.uid:s}': 'deflection_mirror' is set, " +
                            "but wing has no symmetry. Value will be ignored.")
         elif not isinstance(self.deflection_mirror, (float, int)):
             raise TypeError("'deflection' must be FLOAT.")

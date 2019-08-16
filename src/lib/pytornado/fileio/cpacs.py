@@ -34,17 +34,24 @@ import numpy as np
 from pytornado.objects.model import ComponentDefinitionError
 from pytornado.objects.objecttools import all_controls, all_wings
 
+# ----- (START) Temporary fix -----
+from pytornado.fileio.cpacs_patch import PATCH_getControlSurfaceCount, PATCH_getControlSurfaceUID
+# ----- (END) Temporary fix -----
+
 logger = logging.getLogger(__name__)
 
 try:
-    import tixi.tixiwrapper as tixiwrapper
+    import tixi3.tixi3wrapper as tixiwrapper
+    tixiwrapper.Tixi = tixiwrapper.Tixi3
+    tixiwrapper.TixiException = tixiwrapper.Tixi3Exception
 except ImportError:
     TIXI_INSTALLED = False
 else:
     TIXI_INSTALLED = True
 
 try:
-    import tigl.tiglwrapper as tiglwrapper
+    import tigl3.tigl3wrapper as tiglwrapper
+    tiglwrapper.Tigl = tiglwrapper.Tigl3
 except ImportError:
     TIGL_INSTALLED = False
 else:
@@ -271,131 +278,133 @@ def load(aircraft, state, settings):
 
             logger.debug(f"Loaded segment '{segment_uid}'")
 
-        # ===== ADD CONTROLS =====
+        # # ===== ADD CONTROLS =====
 
-        # Iterate through component sections (contain control surfaces)
-        for idx_comp_section in range(1, tigl.wingGetComponentSegmentCount(idx_wing) + 1):
-            name_comp_section = tigl.wingGetComponentSegmentUID(idx_wing, idx_comp_section)
+        # # Iterate through component sections (contain control surfaces)
+        # for idx_comp_section in range(1, tigl.wingGetComponentSegmentCount(idx_wing) + 1):
+        #     name_comp_section = tigl.wingGetComponentSegmentUID(idx_wing, idx_comp_section)
 
-            # Iterate through control surfaces
-            for idx_control in range(1, tigl.getControlSurfaceCount(name_comp_section) + 1):
-                # Control surfaces can be trailing or leading edge devices
-                for device_pos in ('leading', 'trailing'):
-                    control_uid = tigl.getControlSurfaceUID(name_comp_section, idx_control)
-                    logger.debug("Wing {:d} has control {:s}".format(idx_wing, control_uid))
-                    node_control = NODE_CONTROL.format(idx_wing, idx_comp_section, idx_control, device_pos)
+        #     # Iterate through control surfaces
+        #     # for idx_control in range(1, tigl.getControlSurfaceCount(name_comp_section) + 1):
+        #     for idx_control in range(1, PATCH_getControlSurfaceCount(tixi, name_comp_section) + 1):
+        #         # Control surfaces can be trailing or leading edge devices
+        #         for device_pos in ('leading', 'trailing'):
+        #             # control_uid = tigl.getControlSurfaceUID(name_comp_section, idx_control)
+        #             control_uid = PATCH_getControlSurfaceUID(tixi, name_comp_section, idx_control)
+        #             logger.debug("Wing {:d} has control {:s}".format(idx_wing, control_uid))
+        #             node_control = NODE_CONTROL.format(idx_wing, idx_comp_section, idx_control, device_pos)
 
-                    # Try to read the relative coordinates for each control (eta, xsi)
-                    try:
-                        # Control surface corner points
-                        etaLE_ib = tixi.getDoubleElement(node_control + "/outerShape/innerBorder/etaLE")
-                        etaTE_ib = tixi.getDoubleElement(node_control + "/outerShape/innerBorder/etaTE")
-                        xsiLE_ib = tixi.getDoubleElement(node_control + "/outerShape/innerBorder/xsiLE")
-                        etaLE_ob = tixi.getDoubleElement(node_control + "/outerShape/outerBorder/etaLE")
-                        etaTE_ob = tixi.getDoubleElement(node_control + "/outerShape/outerBorder/etaTE")
-                        xsiLE_ob = tixi.getDoubleElement(node_control + "/outerShape/outerBorder/xsiLE")
+        #             # Try to read the relative coordinates for each control (eta, xsi)
+        #             try:
+        #                 # Control surface corner points
+        #                 etaLE_ib = tixi.getDoubleElement(node_control + "/outerShape/innerBorder/etaLE")
+        #                 etaTE_ib = tixi.getDoubleElement(node_control + "/outerShape/innerBorder/etaTE")
+        #                 xsiLE_ib = tixi.getDoubleElement(node_control + "/outerShape/innerBorder/xsiLE")
+        #                 etaLE_ob = tixi.getDoubleElement(node_control + "/outerShape/outerBorder/etaLE")
+        #                 etaTE_ob = tixi.getDoubleElement(node_control + "/outerShape/outerBorder/etaTE")
+        #                 xsiLE_ob = tixi.getDoubleElement(node_control + "/outerShape/outerBorder/xsiLE")
 
-                        # Hinge parameters
-                        hingeXsi_ib = tixi.getDoubleElement(node_control + "/path/innerHingePoint/hingeXsi")
-                        hingeXsi_ob = tixi.getDoubleElement(node_control + "/path/outerHingePoint/hingeXsi")
+        #                 # Hinge parameters
+        #                 hingeXsi_ib = tixi.getDoubleElement(node_control + "/path/innerHingePoint/hingeXsi")
+        #                 hingeXsi_ob = tixi.getDoubleElement(node_control + "/path/outerHingePoint/hingeXsi")
 
-                    except tixiwrapper.TixiException:
-                        logger.debug("No control data found for NODE {:s}".format(node_control))
-                        continue
+        #             except tixiwrapper.TixiException:
+        #                 logger.debug("No control data found for NODE {:s}".format(node_control))
+        #                 continue
 
-                    if device_pos == 'leading':
-                        # Enforcing parallelism between control edges and x-axis
-                        xsiLE_ib = 0.0
-                        xsiLE_ob = 0.0
+        #             if device_pos == 'leading':
+        #                 # Enforcing parallelism between control edges and x-axis
+        #                 xsiLE_ib = 0.0
+        #                 xsiLE_ob = 0.0
 
-                        # Relative coordinates of control w.r.t. component segment
-                        _, segment_uid_inner, eta_inner, xsi_inner, _ = \
-                            tigl.wingComponentSegmentPointGetSegmentEtaXsi(name_comp_section, etaTE_ib, xsiTE_ib)
+        #                 # Relative coordinates of control w.r.t. component segment
+        #                 _, segment_uid_inner, eta_inner, xsi_inner = \
+        #                     tigl.wingComponentSegmentPointGetSegmentEtaXsi(name_comp_section, etaTE_ib, xsiTE_ib)
 
-                        _, segment_uid_outer, eta_outer, xsi_outer, _ = \
-                            tigl.wingComponentSegmentPointGetSegmentEtaXsi(name_comp_section, etaTE_ob, xsiTE_ob)
+        #                 _, segment_uid_outer, eta_outer, xsi_outer = \
+        #                     tigl.wingComponentSegmentPointGetSegmentEtaXsi(name_comp_section, etaTE_ob, xsiTE_ob)
 
-                        # Relative coordinates of control hinge line w.r.t. component segment
-                        _, _, _, xsi_h1, _ = tigl.wingComponentSegmentPointGetSegmentEtaXsi(name_comp_section, etaTE_ib, hingeXsi_ib)
-                        _, _, _, xsi_h2, _ = tigl.wingComponentSegmentPointGetSegmentEtaXsi(name_comp_section, etaTE_ob, hingeXsi_ob)
+        #                 # Relative coordinates of control hinge line w.r.t. component segment
+        #                 _, _, _, xsi_h1 = tigl.wingComponentSegmentPointGetSegmentEtaXsi(name_comp_section, etaTE_ib, hingeXsi_ib)
+        #                 _, _, _, xsi_h2 = tigl.wingComponentSegmentPointGetSegmentEtaXsi(name_comp_section, etaTE_ob, hingeXsi_ob)
 
-                    elif device_pos == 'trailing':
-                        xsiTE_ib = 1.0
-                        xsiTE_ob = 1.0
+        #             elif device_pos == 'trailing':
+        #                 xsiTE_ib = 1.0
+        #                 xsiTE_ob = 1.0
 
-                        # Relative coordinates of control w.r.t. component segment
-                        _, segment_uid_inner, eta_inner, xsi_inner, _ = \
-                            tigl.wingComponentSegmentPointGetSegmentEtaXsi(name_comp_section, etaLE_ib, xsiLE_ib)
+        #                 # Relative coordinates of control w.r.t. component segment
+        #                 _, segment_uid_inner, eta_inner, xsi_inner = \
+        #                     tigl.wingComponentSegmentPointGetSegmentEtaXsi(name_comp_section, etaLE_ib, xsiLE_ib)
 
-                        _, segment_uid_outer, eta_outer, xsi_outer, _ = \
-                            tigl.wingComponentSegmentPointGetSegmentEtaXsi(name_comp_section, etaLE_ob, xsiLE_ob)
+        #                 _, segment_uid_outer, eta_outer, xsi_outer = \
+        #                     tigl.wingComponentSegmentPointGetSegmentEtaXsi(name_comp_section, etaLE_ob, xsiLE_ob)
 
-                        # Relative coordinates of control hinge line w.r.t. component segment
-                        _, _, _, xsi_h1, _ = tigl.wingComponentSegmentPointGetSegmentEtaXsi(name_comp_section, etaLE_ib, hingeXsi_ib)
-                        _, _, _, xsi_h2, _ = tigl.wingComponentSegmentPointGetSegmentEtaXsi(name_comp_section, etaLE_ob, hingeXsi_ob)
+        #                 # Relative coordinates of control hinge line w.r.t. component segment
+        #                 _, _, _, xsi_h1 = tigl.wingComponentSegmentPointGetSegmentEtaXsi(name_comp_section, etaLE_ib, hingeXsi_ib)
+        #                 _, _, _, xsi_h2 = tigl.wingComponentSegmentPointGetSegmentEtaXsi(name_comp_section, etaLE_ob, hingeXsi_ob)
 
-                    # ADD WING CONTROL AND SET ATTRIBUTES
-                    control = aircraft.wing[wing_uid].add_control(control_uid, return_control=True)
+        #             # ADD WING CONTROL AND SET ATTRIBUTES
+        #             control = aircraft.wing[wing_uid].add_control(control_uid, return_control=True)
 
-                    if device_pos == 'leading':
-                        control.device_type = 'slat'
-                    elif device_pos == 'trailing':
-                        control.device_type = 'flap'
+        #             if device_pos == 'leading':
+        #                 control.device_type = 'slat'
+        #             elif device_pos == 'trailing':
+        #                 control.device_type = 'flap'
 
-                    # Set DEFAULT deflection to 0
-                    control.deflection = 0
+        #             # Set DEFAULT deflection to 0
+        #             control.deflection = 0
 
-                    control.rel_vertices['eta_inner'] = eta_inner
-                    control.rel_vertices['xsi_inner'] = xsi_inner
-                    control.rel_vertices['eta_outer'] = eta_outer
-                    control.rel_vertices['xsi_outer'] = xsi_outer
+        #             control.rel_vertices['eta_inner'] = eta_inner
+        #             control.rel_vertices['xsi_inner'] = xsi_inner
+        #             control.rel_vertices['eta_outer'] = eta_outer
+        #             control.rel_vertices['xsi_outer'] = xsi_outer
 
-                    control.rel_hinge_vertices['xsi_inner'] = xsi_h1
-                    control.rel_hinge_vertices['xsi_outer'] = xsi_h2
+        #             control.rel_hinge_vertices['xsi_inner'] = xsi_h1
+        #             control.rel_hinge_vertices['xsi_outer'] = xsi_h2
 
-                    control.segment_uid['inner'] = segment_uid_inner
-                    control.segment_uid['outer'] = segment_uid_outer
+        #             control.segment_uid['inner'] = segment_uid_inner
+        #             control.segment_uid['outer'] = segment_uid_outer
 
-    # ----- CONTROL SURFACE DEFLECTION -----
-    try:
-        n_control_dev = tixi.getNamedChildrenCount(NODE_TS_CONTROL, 'controlDevice')
-    except:
-        n_control_dev = 0
+    # # ----- CONTROL SURFACE DEFLECTION -----
+    # try:
+    #     n_control_dev = tixi.getNamedChildrenCount(NODE_TS_CONTROL, 'controlDevice')
+    # except:
+    #     n_control_dev = 0
 
-    for idx_control in range(1, n_control_dev + 1):
-        node_control_device = NODE_TS_CONTROL + '/controlDevice[{}]'.format(idx_control)
-        control_uid = tixi.getTextAttribute(node_control_device, 'uID')
-        deflection = 0
-        deflection_mirror = None
+    # for idx_control in range(1, n_control_dev + 1):
+    #     node_control_device = NODE_TS_CONTROL + '/controlDevice[{}]'.format(idx_control)
+    #     control_uid = tixi.getTextAttribute(node_control_device, 'uID')
+    #     deflection = 0
+    #     deflection_mirror = None
 
-        try:
-            deflection = tixi.getDoubleElement(node_control_device + '/deflection')
-        except tixiwrapper.TixiException:
-            logger.error("Unable to read 'deflection' for control '{:s}'".format(control_uid))
+    #     try:
+    #         deflection = tixi.getDoubleElement(node_control_device + '/deflection')
+    #     except tixiwrapper.TixiException:
+    #         logger.error("Unable to read 'deflection' for control '{:s}'".format(control_uid))
 
-        try:
-            deflection_mirror = tixi.getDoubleElement(node_control_device + '/deflectionMirror')
-        except:
-            logger.warning("Unable to read 'deflection_mirror' for control '{:s}'".format(control_uid))
+    #     try:
+    #         deflection_mirror = tixi.getDoubleElement(node_control_device + '/deflectionMirror')
+    #     except:
+    #         logger.warning("Unable to read 'deflection_mirror' for control '{:s}'".format(control_uid))
 
-        deflection_is_set = False
+    #     deflection_is_set = False
 
-        for this_wing in all_wings(aircraft):
-            wing = this_wing[2]
+        # for this_wing in all_wings(aircraft):
+        #     wing = this_wing[2]
 
-            if control_uid in wing.control.keys():
-                wing.control[control_uid].deflection = deflection
-                wing.control[control_uid].deflection_mirror = deflection_mirror
-                deflection_is_set = True
-                break
+            # if control_uid in wing.control.keys():
+            #     wing.control[control_uid].deflection = deflection
+            #     wing.control[control_uid].deflection_mirror = deflection_mirror
+            #     deflection_is_set = True
+            #     break
 
-        if not deflection_is_set:
-            logger.error("Could not set deflection for control '{:s}'".format(control_uid))
-            raise ComponentDefinitionError("Control '{:s}' not found".format(control_uid))
+        # if not deflection_is_set:
+        #     logger.error("Could not set deflection for control '{:s}'".format(control_uid))
+        #     raise ComponentDefinitionError("Control '{:s}' not found".format(control_uid))
 
-    # ----- CONTROL CHECKS -----
-    for this_control, _ in all_controls(aircraft):
-        this_control[2].check()
+    # # ----- CONTROL CHECKS -----
+    # for this_control, _ in all_controls(aircraft):
+    #     this_control[2].check()
 
     # 2.3. SEGMENT WING SECTIONS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
