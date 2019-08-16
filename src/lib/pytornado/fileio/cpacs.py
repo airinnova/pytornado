@@ -74,51 +74,85 @@ XPATH_TOOLSPEC_CONTROL = XPATH_TOOLSPEC + '/controlDevices'
 COORD_FORMAT = '%+.7f'
 
 
-def load(aircraft, state, settings):
+def open_tixi(cpacs_file):
     """
-    Get aircraft model and flight state data from CPACS definition.
-
-    Expects CPACS file in the AIRCRAFT folder of the WKDIR.
-    Expects airfoil coordinate files in the AIRFOILS folder of the WKDIR.
-    If missing, airfoil coordinates are extracted from the CPACS file.
+    Return a Tixi handle
 
     Args:
-        :aircraft: (object) data structure for aircraft model
-        :state: (object) data structure for flight state
-        :settings: (object) data structure for execution settings
+        :cpacs_file: Path to CPACS file
+
+    Returns:
+        :tixi: Tixi handle
     """
 
-    logger.debug("checking TIXI installation...")
-
+    logger.debug("Checking Tixi installation...")
     if not TIXI_INSTALLED:
-        logger.error("Could not import 'tixiwrapper'.")
-        raise ModuleNotFoundError("Module 'tixiwrapper' not found")
+        err_msg = """
+        Unable to import Tixi. Please make sure Tixi is accessible to Python.
+        Please refer to the documentation to check for supported versions of Tixi.
+        """
+        logger.error(err_msg)
+        raise ModuleNotFoundError(err_msg)
 
-    logger.debug("TIXI imported.")
-    logger.debug("Checking TIGL installation...")
-
-    if not TIGL_INSTALLED:
-        logger.error("Could not import 'tiglwrapper'")
-        raise ModuleNotFoundError("Module 'tiglwrapper' not found")
-
-    logger.debug("TIGL imported.")
-
-    # Handles to TIXI, TIGL libraries
     tixi = tixiwrapper.Tixi()
+    tixi.open(cpacs_file)
+    return tixi
+
+
+def open_tigl(tixi):
+    """
+    Return a Tigl handle
+
+    Args:
+        :tixi: Tixi handle
+
+    Returns:
+        :tigl: Tigl handle
+    """
+
+    logger.debug("Checking Tigl installation...")
+    if not TIGL_INSTALLED:
+        err_msg = """
+        Unable to import Tigl. Please make sure Tigl is accessible to Python.
+        Please refer to the documentation to check for supported versions of Tigl.
+        """
+        logger.error(err_msg)
+        raise ModuleNotFoundError(err_msg)
+
     tigl = tiglwrapper.Tigl()
+    # On 'uid' argument from Tigl documentation: The UID of the configuration
+    # that should be loaded by TIGL. Could be NULL or an empty string if the
+    # data set contains only one configuration.
+    tigl.open(tixi, uid='')
+    return tigl
 
-    filepath = settings.files['aircraft']
-    logger.info(f"Loading aircraft from CPACS file: {filepath}...")
 
-    if not os.path.exists(filepath):
-        return logger.error(f"File '{filepath}' not found")
+def load(aircraft, state, settings):
+    """
+    Get aircraft model, flight state and settings data from a CPACS file
 
-    tixi.open(filepath)
+    Args:
+        :aircraft: (object) Data structure for aircraft model
+        :state: (object) Data structure for flight state
+        :settings: (object) Data structure for execution settings
+    """
 
-    # From Tigl documentation:
-    # The UID of the configuration that should be loaded by TIGL. Could be NULL
-    # or an empty string if the data set contains only one configuration.
-    tigl.open(tixi, '')
+    cpacs_file = settings.files['aircraft']
+    tixi = open_tixi(cpacs_file)
+    tigl = open_tigl(tixi)
+
+    # =======================================================================
+    # =======================================================================
+    # =======================================================================
+
+
+    logger.info(f"Loading aircraft from CPACS file: {cpacs_file}...")
+
+    if not os.path.exists(cpacs_file):
+        err_msg = f"File '{cpacs_file}' not found"
+        logger.error(err_msg)
+        raise FileNotFoundError(err_msg)
+
 
     aircraft.reset()
 
@@ -127,11 +161,16 @@ def load(aircraft, state, settings):
     else:
         logger.warning(f"Could not find path '{XPATH_MODEL}'")
 
-    logger.debug("Loading aircraft '{aircraft.uid}'")
-    logger.info("Loading aircraft wings...")
+    logger.debug(f"Loading aircraft '{aircraft.uid}'")
 
+    logger.info("Loading aircraft wings...")
     if not tixi.checkElement(XPATH_WINGS):
-        return logger.error(f"Could not find path '{XPATH_WINGS}'")
+        err_msg = f"""
+        Could not find path '{XPATH_WINGS}'.
+        The aircraft must be at least one wing.
+        """
+        logger.error(err_msg)
+        raise ValueError(err_msg)
 
     # enumerate wings
     for idx_wing in range(1, tixi.getNamedChildrenCount(XPATH_WINGS, 'wing') + 1):
@@ -465,10 +504,10 @@ def load(aircraft, state, settings):
     # state.aero['density'] = tixi.getDoubleElement(node_state + '/density')
     # TODO | currently in tool-specific: need altitude, mach
 
-    tixi.save(filepath)
+    tixi.save(cpacs_file)
     tixi.close()
 
-    logger.info(f"Aircraft loaded from CPACS file: {filepath}")
+    logger.info(f"Aircraft loaded from CPACS file: {cpacs_file}")
 
 
 ##################################################################
