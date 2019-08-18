@@ -43,6 +43,7 @@ DIR_PLOTS = '_plots'
 DIR_RESULTS = '_results'
 DIR_SETTINGS = 'settings'
 DIR_STATE = 'state'
+DIR_TEMPLATE_WKDIR = 'pytornado'
 
 
 class SettingsDefinitionError(Exception):

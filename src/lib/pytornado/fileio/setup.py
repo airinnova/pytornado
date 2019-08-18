@@ -29,24 +29,41 @@ Developed at Airinnova AB, Stockholm, Sweden.
 
 
 import os
+import sys
 
 import pytornado.fileio.settings as io_settings
 import pytornado.fileio.model as io_model
 import pytornado.fileio.state as io_state
 import pytornado.fileio.cpacs as io_cpacs
-from pytornado.objects.settings import Settings
+from pytornado.objects.settings import Settings, DIR_TEMPLATE_WKDIR
 from pytornado.objects.model import Aircraft
 from pytornado.objects.state import FlightState
 
 
 def setup_wkdir():
     """
-    Setup folder structure of user project directory
+    Create a template working directory with a minimal working example
 
     Notes:
         * The project directory contains all data related to the aircraft model
         * This includes flight state definitions and execution settings
     """
+
+    # We create a separate directory for the template data
+    # to avoid potential cluttering the user's directory
+    wkdir = DIR_TEMPLATE_WKDIR
+
+    if os.path.exists(wkdir):
+        msg = f"""
+        The path '{wkdir}' does already exist. Refusing to proceed.
+        Please move or delete the folder, then try again.
+        """
+        print(msg, file=sys.stderr)
+        sys.exit(1)
+    else:
+        print(f"Creating template in folder '{wkdir}'...")
+        os.makedirs(wkdir)
+        os.chdir(wkdir)
 
     project_basename = "template"
     aircraft = Aircraft()
