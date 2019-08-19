@@ -38,3 +38,8 @@ How to get started
 Please refer to the documentation for installation instructions and a user guide:
 
 * https://pytornado.readthedocs.io/
+
+License
+-------
+
+**License:** Apache-2.0
