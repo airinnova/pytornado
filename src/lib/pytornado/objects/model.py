@@ -1835,10 +1835,6 @@ class WingControl(FixedNamespace):
             elif 0 < rel_coord > 1:
                 raise ValueError("Values in 'rel_vertices' must be in range [0, 1].")
 
-        print(self.segment_uid['inner'])
-        print(self.segment_uid['outer'])
-        print(self.rel_vertices['eta_inner'])
-        print(self.rel_vertices['eta_outer'])
         if (self.segment_uid['inner'] == self.segment_uid['outer']) and \
                 (self.rel_vertices['eta_outer'] <= self.rel_vertices['eta_inner']):
             raise ValueError("'eta_outer' must be greater than 'eta_inner'")

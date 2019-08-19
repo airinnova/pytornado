@@ -28,7 +28,6 @@ Developed at Airinnova AB, Stockholm, Sweden.
 """
 
 # TODO:
-# *** Extract control surface data
 # *** Extract flight state from CPACS (AEROPERFORMANCE MAPS)
 # *** Write back to CPACS
 
@@ -68,6 +67,13 @@ XPATH_WINGS = XPATH_MODEL + '/wings'
 XPATH_AIRFOILS = '/cpacs/vehicles/profiles/wingAirfoils'
 XPATH_APMAP = '/cpacs/vehicles/aircraft/analyes/aeroPerformanceMap'
 XPATH_TOOLSPEC = '/cpacs/toolspecific/CEASIOMpy/PyTornado'
+
+XPATH_CONTROL = XPATH_WINGS \
+    + '/wing[{0:d}]/componentSegments/componentSegment[{1:d}]' \
+    + '/controlSurfaces/{3:s}EdgeDevices/{3:s}EdgeDevice[{2:d}]'
+
+XPATH_TOOLSPEC_CONTROL = XPATH_TOOLSPEC + '/controlDevices'
+
 
 COORD_FORMAT = '%+.7f'
 
@@ -270,7 +276,7 @@ def get_aircraft_wing_segments(aircraft, settings, xpath_wing, wing_uid, idx_win
 
 def get_aircraft_controls(aircraft, wing_uid, idx_wing, tixi, tigl):
     """
-    Extract controls surfaces
+    Extract the controls surfaces
 
     Args:
         :aircraft: Aircraft model
@@ -278,19 +284,18 @@ def get_aircraft_controls(aircraft, wing_uid, idx_wing, tixi, tigl):
         :idx_wing: Index of the wing
         :tixi: Tixi handle
         :tigl: Tigl handle
+
+    .. warning::
+
+        * CPACS3 changed the control surface defintions!
+        * In Tigl 3.0.0 some fuctions for controlSurfaces are missing
+          (currently we use a workaround, see PATCH_* functions)
+        * In CPACS3 relative coordinates can be defined based on a 'section' or
+          'componentSegment', currently we assume the old definition (based on
+          'componentSegment')
     """
 
-#########################################################################
-    return
-#########################################################################
-
-    XPATH_CONTROL = XPATH_WINGS \
-        + '/wing[{0:d}]/componentSegments/componentSegment[{1:d}]' \
-        + '/controlSurfaces/{3:s}EdgeDevices/{3:s}EdgeDevice[{2:d}]'
-
-    XPATH_TOOLSPEC_CONTROL = XPATH_TOOLSPEC + '/controlDevices'
-
-    # Use saner function names
+    # Abbreviate long function name
     tigl.get_eta_xsi = tigl.wingComponentSegmentPointGetSegmentEtaXsi
 
     # ---------- Iterate through component sections (contain control surfaces) ----------
@@ -305,18 +310,21 @@ def get_aircraft_controls(aircraft, wing_uid, idx_wing, tixi, tigl):
             for device_pos in ('leading', 'trailing'):
                 # PATCHED # control_uid = tigl.getControlSurfaceUID(name_comp_section, idx_control)
                 control_uid = PATCH_getControlSurfaceUID(tixi, name_comp_section, idx_control)
-                logger.debug(f"Wing {idx_wing:d} has control {control_uid:s}")
+                logger.debug(f"Wing {idx_wing:d} has control '{control_uid:s}'")
                 node_control = XPATH_CONTROL.format(idx_wing, idx_comp_section, idx_control, device_pos)
 
                 # Try to read the relative coordinates for each control (eta, xsi)
+                # ======================================================
+                # TODO: does tixi.getDoubleElement() raise an error???
+                # ======================================================
                 try:
                     # Control vertices
-                    etaLE_ib = tixi.getDoubleElement(node_control + "/outerShape/innerBorder/etaLE")
-                    etaTE_ib = tixi.getDoubleElement(node_control + "/outerShape/innerBorder/etaTE")
-                    xsiLE_ib = tixi.getDoubleElement(node_control + "/outerShape/innerBorder/xsiLE")
-                    etaLE_ob = tixi.getDoubleElement(node_control + "/outerShape/outerBorder/etaLE")
-                    etaTE_ob = tixi.getDoubleElement(node_control + "/outerShape/outerBorder/etaTE")
-                    xsiLE_ob = tixi.getDoubleElement(node_control + "/outerShape/outerBorder/xsiLE")
+                    etaLE_ib = tixi.getDoubleElement(node_control + "/outerShape/innerBorder/etaLE/eta")
+                    etaTE_ib = tixi.getDoubleElement(node_control + "/outerShape/innerBorder/etaTE/eta")
+                    xsiLE_ib = tixi.getDoubleElement(node_control + "/outerShape/innerBorder/xsiLE/xsi")
+                    etaLE_ob = tixi.getDoubleElement(node_control + "/outerShape/outerBorder/etaLE/eta")
+                    etaTE_ob = tixi.getDoubleElement(node_control + "/outerShape/outerBorder/etaTE/eta")
+                    xsiLE_ob = tixi.getDoubleElement(node_control + "/outerShape/outerBorder/xsiLE/xsi")
 
                     # Hinge parameters
                     hingeXsi_ib = tixi.getDoubleElement(node_control + "/path/innerHingePoint/hingeXsi")
@@ -353,25 +361,10 @@ def get_aircraft_controls(aircraft, wing_uid, idx_wing, tixi, tigl):
 
                 # ADD WING CONTROL AND SET ATTRIBUTES
                 control = aircraft.wing[wing_uid].add_control(control_uid, return_control=True)
-
-                if device_pos == 'leading':
-                    control.device_type = 'slat'
-                elif device_pos == 'trailing':
-                    control.device_type = 'flap'
+                control.device_type = 'flap' if device_pos == 'trailing' else 'slat'
 
                 # Set DEFAULT deflection to 0
                 control.deflection = 0
-
-
-########################################
-                #### wingComponentSegmentPointGetSegmentEtaXsi returns 0 why??? ###
-
-                # print(segment_uid_inner)
-                # print(segment_uid_outer)
-                # print(eta_inner)
-                # print(eta_outer)
-                # input()
-########################################
 
                 control.rel_vertices['eta_inner'] = eta_inner
                 control.rel_vertices['xsi_inner'] = xsi_inner

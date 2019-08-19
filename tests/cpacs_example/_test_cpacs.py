@@ -57,32 +57,35 @@ def test_basic_analysis():
     assert results['state'].aero['airspeed'] == approx(100)
     assert results['state'].aero['density'] == approx(1.225)
 
-    # Combination 2
-    state['aero']['airspeed'] = 100
-    state['aero']['density'] = None
-    state['aero']['mach'] = None
-    state['aero']['altitude'] = 0
-    set_state_file(state)
-    results = standard_run(ARGS)
-    assert results['state'].aero['airspeed'] == approx(100)
-    assert results['state'].aero['density'] == approx(1.225)
+    # # Combination 2
+    # state['aero']['airspeed'] = 100
+    # state['aero']['density'] = None
+    # state['aero']['mach'] = None
+    # state['aero']['altitude'] = 0
+    # set_state_file(state)
+    # results = standard_run(ARGS)
+    # assert results['state'].aero['airspeed'] == approx(100)
+    # assert results['state'].aero['density'] == approx(1.225)
 
-    # Combination 3
-    state['aero']['airspeed'] = None
-    state['aero']['density'] = None
-    state['aero']['mach'] = 1
-    state['aero']['altitude'] = 0
-    set_state_file(state)
-    results = standard_run(ARGS)
-    assert results['state'].aero['airspeed'] == approx(340.2939)
-    assert results['state'].aero['density'] == approx(1.225)
+    # # Combination 3
+    # state['aero']['airspeed'] = None
+    # state['aero']['density'] = None
+    # state['aero']['mach'] = 1
+    # state['aero']['altitude'] = 0
+    # set_state_file(state)
+    # results = standard_run(ARGS)
+    # assert results['state'].aero['airspeed'] == approx(340.2939)
+    # assert results['state'].aero['density'] == approx(1.225)
 
-    # Invalid combination
-    state['aero']['airspeed'] = 100
-    state['aero']['density'] = None
-    state['aero']['mach'] = 1
-    state['aero']['altitude'] = 0
-    set_state_file(state)
+    # # Invalid combination
+    # state['aero']['airspeed'] = 100
+    # state['aero']['density'] = None
+    # state['aero']['mach'] = 1
+    # state['aero']['altitude'] = 0
+    # set_state_file(state)
 
-    with raises(ValueError):
-        standard_run(ARGS)
+    # with raises(ValueError):
+    #     standard_run(ARGS)
+
+if __name__ == '__main__':
+    test_basic_analysis()
