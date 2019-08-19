@@ -222,12 +222,36 @@ def standard_run(args):
         else:
             logger.info("No plots to save or show...")
 
-        logger.info(f"{__prog_name__} {__version__} terminated")
+###############################################
+        # Save AeroPerformance map results
+        state.results['Fx'].append(vlmdata.forces['x'])
+        state.results['Fy'].append(vlmdata.forces['y'])
+        state.results['Fz'].append(vlmdata.forces['z'])
+        state.results['FD'].append(vlmdata.forces['D'])
+        state.results['FC'].append(vlmdata.forces['C'])
+        state.results['FL'].append(vlmdata.forces['L'])
+        state.results['Mx'].append(vlmdata.forces['l'])
+        state.results['My'].append(vlmdata.forces['m'])
+        state.results['Mz'].append(vlmdata.forces['n'])
+        ####
+        state.results['Cx'].append(vlmdata.coeffs['x'])
+        state.results['Cy'].append(vlmdata.coeffs['y'])
+        state.results['Cz'].append(vlmdata.coeffs['z'])
+        state.results['CD'].append(vlmdata.coeffs['D'])
+        state.results['CC'].append(vlmdata.coeffs['C'])
+        state.results['CL'].append(vlmdata.coeffs['L'])
+        state.results['Cl'].append(vlmdata.coeffs['l'])
+        state.results['Cm'].append(vlmdata.coeffs['m'])
+        state.results['Cn'].append(vlmdata.coeffs['n'])
+###############################################
 
-        # Return results to caller
-        results = {
-            "lattice": lattice,
-            "vlmdata": vlmdata,
-            "state": state
-        }
+
+    logger.info(f"{__prog_name__} {__version__} terminated")
+
+    # Return results to caller
+    results = {
+        "lattice": lattice,
+        "vlmdata": vlmdata,
+        "state": state
+    }
     return results

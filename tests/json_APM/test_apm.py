@@ -67,4 +67,5 @@ def test_basic_analysis():
     set_state_file(state)
     results = standard_run(ARGS)
     print(results['state'].aero)
+    print(results['state'].results)
     # assert

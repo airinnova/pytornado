@@ -40,7 +40,19 @@ logger = logging.getLogger(__name__)
 
 
 # Fundamental parameters used to define a flight state
-STATE_BASE_PARAMS = ['airspeed', 'density', 'alpha', 'beta', 'rate_P', 'rate_Q', 'rate_R']
+STATE_BASE_PARAMS = [
+    'airspeed', 'density', 'alpha', 'beta',
+    'rate_P', 'rate_Q', 'rate_R'
+]
+
+GLOBAL_COEFFS = [
+    'Fx', 'Fy', 'Fz',
+    'FD', 'FC', 'FL',
+    'Mx', 'My', 'Mz',
+    'Cx', 'Cy', 'Cz',
+    'CD', 'CC', 'CL',
+    'Cl', 'Cm', 'Cn',
+]
 
 
 class CurrentState:
@@ -88,6 +100,10 @@ class FlightState:
         self.aero['airspeed'] = None
         self.aero['density'] = None
         self.aero._freeze()
+
+        self.results = {}
+        for param in GLOBAL_COEFFS:
+            self.results[param] = []
 
         # Number of values in the aeroperformance map
         self.num_apm_values = 0
