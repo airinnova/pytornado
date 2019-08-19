@@ -1,0 +1,97 @@
+{
+    "uid": "template_aircraft",
+    "refs": {
+        "area": 10,
+        "span": 5,
+        "chord": 2,
+        "gcenter": [
+            0,
+            0,
+            0
+        ],
+        "rcenter": [
+            0,
+            0,
+            0
+        ]
+    },
+    "wings": [
+        {
+            "uid": "template_wing",
+            "symmetry": 2,
+            "segments": [
+                {
+                    "uid": "template_segment",
+                    "vertices": {
+                        "a": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "b": [
+                            0,
+                            5,
+                            0
+                        ],
+                        "c": [
+                            2,
+                            5,
+                            0
+                        ],
+                        "d": [
+                            2,
+                            0,
+                            0
+                        ]
+                    },
+                    "geometry": {
+                        "inner_chord": null,
+                        "inner_alpha": null,
+                        "inner_beta": null,
+                        "inner_axis": null,
+                        "outer_chord": null,
+                        "outer_alpha": null,
+                        "outer_beta": null,
+                        "outer_axis": null,
+                        "span": null,
+                        "sweep": null,
+                        "dihedral": null
+                    },
+                    "airfoils": {
+                        "inner": "NACA0000",
+                        "outer": "NACA0000"
+                    },
+                    "panels": {
+                        "num_c": null,
+                        "num_s": null
+                    }
+                }
+            ],
+            "controls": [
+                {
+                    "uid": "template_control",
+                    "device_type": "flap",
+                    "deflection": 5,
+                    "deflection_mirror": -5,
+                    "segment_uid": {
+                        "inner": "template_segment",
+                        "outer": "template_segment"
+                    },
+                    "rel_vertices": {
+                        "eta_inner": 0.2,
+                        "eta_outer": 0.8,
+                        "xsi_inner": 0.7,
+                        "xsi_outer": 0.7
+                    },
+                    "rel_hinge_vertices": {
+                        "xsi_inner": 0.7,
+                        "xsi_outer": 0.7
+                    },
+                    "panels": {
+                        "num_c": null
+                    }
+                }
+            ]
+        }
+    ]
+}

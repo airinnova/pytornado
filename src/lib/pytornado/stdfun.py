@@ -29,6 +29,7 @@ Developed for Airinnova AB, Stockholm, Sweden.
 
 import os
 import logging
+from pytornado.objects.utils import FixedOrderedDict
 
 import commonlibs.logger as hlogger
 
@@ -45,7 +46,7 @@ import pytornado.plot.geometry as pl_geometry
 import pytornado.plot.lattice as pl_lattice
 import pytornado.plot.results as pl_results
 from pytornado.objects.model import Aircraft
-from pytornado.objects.state import FlightState
+from pytornado.objects.state import FlightState, STATE_BASE_PARAMS
 from pytornado.objects.vlm_struct import VLMData, VLMLattice
 
 logger = logging.getLogger(__name__)
@@ -134,16 +135,13 @@ def standard_run(args):
 
     aircraft.generate()
 
-    if settings.inputs['state']:
-        logger.debug("Getting flight state...")
-        io_state.load(state, settings)
+    logger.debug("Getting flight state...")
+    io_state.load(state, settings)
+    state.check()
 
     if settings.inputs['deformation']:
         logger.debug("Loading aircraft deformation...")
         io_deformation.load_deformation(aircraft, settings)
-
-    state.get_refs(aircraft)
-    state.check()
 
     # ===== Generate lattice =====
     lattice = VLMLattice()
@@ -152,69 +150,81 @@ def standard_run(args):
     autopanels_c = settings.outputs.get('vlm_autopanels_c', None)
     autopanels_s = settings.outputs.get('vlm_autopanels_s', None)
     vlm.set_autopanels(aircraft, autopanels_c, autopanels_s)
-    vlm.gen_lattice(aircraft, lattice, state, settings)
 
-    # ===== VLM =====
-    vlm.calc_downwash(lattice, vlmdata)
-    vlm.calc_boundary(lattice, state, vlmdata)  # right-hand side terms
-    vlm.solver(vlmdata)
-    vlm.calc_results(lattice, state, vlmdata)
+    for aero_state in state.iter_aero_states():
+        class CurrentState:
+            def __init__(self):
+                self.aero = None
+                self.refs = None
+                self.free_stream_velocity_vector = state.free_stream_velocity_vector
 
-    # ===== Save results =====
-    if 'panelwise' in settings.outputs['save_results']:
-        io_results.save_panelwise(state, vlmdata, settings)
+        cur_state = CurrentState()
+        cur_state.aero = aero_state
+        cur_state.refs = aircraft.refs
 
-    if 'global' in settings.outputs['save_results']:
-        io_results.save_glob_results(state, vlmdata, settings)
+        vlm.gen_lattice(aircraft, lattice, cur_state, settings)
 
-    if 'loads_with_deformed_mesh' in settings.outputs['save_results']:
-        io_results.save_loads(aircraft, settings, state, vlmdata, lattice)
+        # ===== VLM =====
+        vlm.calc_downwash(lattice, vlmdata)
+        vlm.calc_boundary(lattice, cur_state, vlmdata)  # right-hand side terms
+        vlm.solver(vlmdata)
+        vlm.calc_results(lattice, cur_state, vlmdata)
 
-    if 'loads_with_undeformed_mesh' in settings.outputs['save_results']:
-        io_results.save_loads(aircraft, settings, state, vlmdata, lattice=None)
+        # ===== Save results =====
+        if 'panelwise' in settings.outputs['save_results']:
+            io_results.save_panelwise(cur_state, vlmdata, settings)
 
-    # ===== Generate plots =====
-    plt_settings = {
-            "plot_dir": settings.dirs['plots'],
-            "save": settings.plot['save'],
-            "show": settings.plot['show']
-            }
+        if 'global' in settings.outputs['save_results']:
+            io_results.save_glob_results(cur_state, vlmdata, settings)
 
-    if plt_settings['save'] or plt_settings['show']:
-        if settings.plot['results_downwash']:
-            pl_downwash.view_downwash(vlmdata, plt_settings)
+        if 'loads_with_deformed_mesh' in settings.outputs['save_results']:
+            io_results.save_loads(aircraft, settings, cur_state, vlmdata, lattice)
 
-        if settings.plot['geometry_aircraft']:
-            pl_geometry.view_aircraft(aircraft, plt_settings, plot='norm')
+        if 'loads_with_undeformed_mesh' in settings.outputs['save_results']:
+            io_results.save_loads(aircraft, settings, cur_state, vlmdata, lattice=None)
 
-        for wing_uid, wing in aircraft.wing.items():
-            if wing_uid in settings.plot['geometry_wing']:
-                pl_geometry.view_wing(wing, wing_uid, plt_settings, plot='surf')
+        # ===== Generate plots =====
+        plt_settings = {
+                "plot_dir": settings.dirs['plots'],
+                "save": settings.plot['save'],
+                "show": settings.plot['show']
+                }
 
-                if settings.plot['geometry_property']:
-                    pl_geometry.view_spanwise(wing, wing_uid, plt_settings,
-                                              properties=settings.plot['geometry_property'])
+        if plt_settings['save'] or plt_settings['show']:
+            if settings.plot['results_downwash']:
+                pl_downwash.view_downwash(vlmdata, plt_settings)
 
-                for segment_uid, segment in wing.segment.items():
-                    if segment_uid in settings.plot['geometry_segment']:
-                        pl_geometry.view_segment(segment, segment_uid, plt_settings, plot='wire')
+            if settings.plot['geometry_aircraft']:
+                pl_geometry.view_aircraft(aircraft, plt_settings, plot='norm')
 
-        if settings.plot['lattice_aircraft']:
-            pl_lattice.view_aircraft(aircraft, lattice, plt_settings,
-                                     opt_settings=settings.plot['lattice_aircraft_optional'])
+            for wing_uid, wing in aircraft.wing.items():
+                if wing_uid in settings.plot['geometry_wing']:
+                    pl_geometry.view_wing(wing, wing_uid, plt_settings, plot='surf')
 
-        if settings.plot['results_panelwise']:
-            for result in settings.plot['results_panelwise']:
-                pl_results.view_panelwise(aircraft, state, lattice, vlmdata, result, plt_settings)
-    else:
-        logger.info("No plots to save or show...")
+                    if settings.plot['geometry_property']:
+                        pl_geometry.view_spanwise(wing, wing_uid, plt_settings,
+                                                  properties=settings.plot['geometry_property'])
 
-    logger.info(f"{__prog_name__} {__version__} terminated")
+                    for segment_uid, segment in wing.segment.items():
+                        if segment_uid in settings.plot['geometry_segment']:
+                            pl_geometry.view_segment(segment, segment_uid, plt_settings, plot='wire')
 
-    # Return results to caller
-    results = {
-        "lattice": lattice,
-        "vlmdata": vlmdata,
-        "state": state
-    }
-    return results
+            if settings.plot['lattice_aircraft']:
+                pl_lattice.view_aircraft(aircraft, lattice, plt_settings,
+                                         opt_settings=settings.plot['lattice_aircraft_optional'])
+
+            if settings.plot['results_panelwise']:
+                for result in settings.plot['results_panelwise']:
+                    pl_results.view_panelwise(aircraft, cur_state, lattice, vlmdata, result, plt_settings)
+        else:
+            logger.info("No plots to save or show...")
+
+        logger.info(f"{__prog_name__} {__version__} terminated")
+
+        # Return results to caller
+        results = {
+            "lattice": lattice,
+            "vlmdata": vlmdata,
+            "state": state
+        }
+        return results
