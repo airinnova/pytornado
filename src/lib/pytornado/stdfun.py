@@ -149,32 +149,29 @@ def standard_run(args):
     lattice = VLMLattice()
     vlmdata = VLMData()
 
-    if settings.outputs['vlm_lattice']:
-        autopanels_c = settings.outputs.get('vlm_autopanels_c', None)
-        autopanels_s = settings.outputs.get('vlm_autopanels_s', None)
-        vlm.set_autopanels(aircraft, autopanels_c, autopanels_s)
-
-        vlm.gen_lattice(aircraft, lattice, state, settings)
+    autopanels_c = settings.outputs.get('vlm_autopanels_c', None)
+    autopanels_s = settings.outputs.get('vlm_autopanels_s', None)
+    vlm.set_autopanels(aircraft, autopanels_c, autopanels_s)
+    vlm.gen_lattice(aircraft, lattice, state, settings)
 
     # ===== VLM =====
-    if settings.outputs['vlm_compute']:
-        vlm.calc_downwash(lattice, vlmdata)
-        vlm.calc_boundary(lattice, state, vlmdata)  # right-hand side terms
-        vlm.solver(vlmdata)
-        vlm.calc_results(lattice, state, vlmdata)
+    vlm.calc_downwash(lattice, vlmdata)
+    vlm.calc_boundary(lattice, state, vlmdata)  # right-hand side terms
+    vlm.solver(vlmdata)
+    vlm.calc_results(lattice, state, vlmdata)
 
-        # ===== Save results =====
-        if 'panelwise' in settings.outputs['save_results']:
-            io_results.save_panelwise(state, vlmdata, settings)
+    # ===== Save results =====
+    if 'panelwise' in settings.outputs['save_results']:
+        io_results.save_panelwise(state, vlmdata, settings)
 
-        if 'global' in settings.outputs['save_results']:
-            io_results.save_glob_results(state, vlmdata, settings)
+    if 'global' in settings.outputs['save_results']:
+        io_results.save_glob_results(state, vlmdata, settings)
 
-        if 'loads_with_deformed_mesh' in settings.outputs['save_results']:
-            io_results.save_loads(aircraft, settings, state, vlmdata, lattice)
+    if 'loads_with_deformed_mesh' in settings.outputs['save_results']:
+        io_results.save_loads(aircraft, settings, state, vlmdata, lattice)
 
-        if 'loads_with_undeformed_mesh' in settings.outputs['save_results']:
-            io_results.save_loads(aircraft, settings, state, vlmdata, lattice=None)
+    if 'loads_with_undeformed_mesh' in settings.outputs['save_results']:
+        io_results.save_loads(aircraft, settings, state, vlmdata, lattice=None)
 
     # ===== Generate plots =====
     plt_settings = {
@@ -184,10 +181,8 @@ def standard_run(args):
             }
 
     if plt_settings['save'] or plt_settings['show']:
-        # TO IMPROVE
-        if settings.outputs['vlm_compute']:
-            if settings.plot['results_downwash']:
-                pl_downwash.view_downwash(vlmdata, plt_settings)
+        if settings.plot['results_downwash']:
+            pl_downwash.view_downwash(vlmdata, plt_settings)
 
         if settings.plot['geometry_aircraft']:
             pl_geometry.view_aircraft(aircraft, plt_settings, plot='norm')

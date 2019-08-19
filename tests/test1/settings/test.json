@@ -11,8 +11,6 @@
     "outputs": {
         "vlm_autopanels_c": null,
         "vlm_autopanels_s": null,
-        "vlm_lattice": true,
-        "vlm_compute": true,
         "save_results": [
             "global",
             "NO_panelwise",
