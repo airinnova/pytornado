@@ -45,7 +45,7 @@ logger = logging.getLogger(__name__)
 MIN_AUTOPANELS = 1
 
 
-def set_autopanels(aircraft, autopanels_c=None, autopanels_s=None):
+def set_autopanels(aircraft, settings):
     """
     Automatically set chord- and spanwise discretisation settings
 
@@ -55,11 +55,8 @@ def set_autopanels(aircraft, autopanels_c=None, autopanels_s=None):
         :autopanels_s: (int) number of spanwise panels on the main wing
     """
 
-    if autopanels_s is None:
-        autopanels_s = MIN_AUTOPANELS
-
-    if autopanels_c is None:
-        autopanels_c = MIN_AUTOPANELS
+    autopanels_c = settings.outputs.get('vlm_autopanels_c', MIN_AUTOPANELS)
+    autopanels_s = settings.outputs.get('vlm_autopanels_s', MIN_AUTOPANELS)
 
     for this_segment, _ in ot.all_segments(aircraft):
         segment = this_segment[2]

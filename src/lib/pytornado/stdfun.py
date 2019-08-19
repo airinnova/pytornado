@@ -145,24 +145,20 @@ def standard_run(args):
     # ===== Generate lattice =====
     lattice = VLMLattice()
     vlmdata = VLMData()
+    vlm.set_autopanels(aircraft, settings)
 
-# -----------------------------------------------------------------------------
-    autopanels_c = settings.outputs.get('vlm_autopanels_c', None)
-    autopanels_s = settings.outputs.get('vlm_autopanels_s', None)
-    vlm.set_autopanels(aircraft, autopanels_c, autopanels_s)
-# -----------------------------------------------------------------------------
-
+    # ----- Iterate through the flight states -----
     for i, cur_state in enumerate(state.iter_states()):
 
-# -----------------------------------------------------------------------------
-        # TODO: Not great to set here!
+##########################################################
+        # TODO: Don't set here. Find better solution
         cur_state.refs = aircraft.refs
-# -----------------------------------------------------------------------------
+##########################################################
 
-        if i == 0:
-            make_new_subareas = True
-        else:
-            make_new_subareas = False
+##########################################################
+        # TODO: Find better solution for pre_panelling() function
+        make_new_subareas = True if i == 0 else False
+##########################################################
 
         vlm.gen_lattice(aircraft, lattice, cur_state, settings, make_new_subareas)
 
@@ -221,6 +217,8 @@ def standard_run(args):
         else:
             logger.info("No plots to save or show...")
 
+###############################################
+        # TODO: find better solution
 ###############################################
         # Save AeroPerformance map results
         state.results['Fx'].append(vlmdata.forces['x'])
