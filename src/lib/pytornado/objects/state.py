@@ -158,10 +158,13 @@ class FlightState(FixedNamespace):
             self.aero['airspeed'] = self.aero['mach']*speed_of_sound
 
     def get_refs(self, aircraft):
-        """Set FLIGHTSTATE.REFS from AIRCRAFT model definition, check AERO."""
+        """
+        Copy refs from 'aircraft'
 
-        # 1. GET AIRCRAFT REFERENCE VALUES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-        logger.info("Getting reference values from aircraft...")
+        TODO: Remove this function! Duplicate refs! Aircraft also has refs
+        """
+
+        logger.debug("Getting reference values from aircraft...")
 
         if not aircraft.state:
             raise StateDefinitionError("Cannot get aircraft reference values!")

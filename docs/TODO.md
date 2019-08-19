@@ -1,5 +1,7 @@
 # TODO
 
+* Deprecate `objects.state.refs` (don't copy refs from aircraft! see `get_refs()`)
+
 * Improve structure of the main settings file
 
 * Refactor CPACS functions --> make control surfaces work
@@ -78,7 +80,6 @@
 
 ## Reference values
 * Reference values ($S$, $MAC$, $b$) for coefficient should not be computed by Tornado, but be defined by the user!? (talk to Jesper)
-* State class (`objects.state`) has "refs" --> are these used?
 
 ## General
 * Hinge axis orientation in global system (always consistent?)
