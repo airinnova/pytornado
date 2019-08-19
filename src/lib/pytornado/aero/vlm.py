@@ -264,6 +264,9 @@ def gen_lattice(aircraft, lattice, state, settings, make_new_subareas=True):
     if make_new_subareas:
         pre_panelling(aircraft)
 
+    # Start the panel bookkeping with a clean slate
+    lattice.clean_bookkeeping()
+
     logger.info("Getting lattice information ... ")
 
     num_subareas = 0

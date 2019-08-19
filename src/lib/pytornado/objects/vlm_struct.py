@@ -117,6 +117,11 @@ class VLMLattice(FixedNamespace):
         else:
             self.bookkeeping_by_wing_uid[entry.subarea.parent_wing.uid].append(entry)
 
+    def clean_bookkeeping(self):
+        self.panel_bookkeeping = []
+        self.bookkeeping_by_wing_uid = defaultdict(list)
+        self.bookkeeping_by_wing_uid_mirror = defaultdict(list)
+
 
 class VLMData(FixedNamespace):
     """

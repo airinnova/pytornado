@@ -43,34 +43,38 @@ logger = logging.getLogger(__name__)
 STATE_BASE_PARAMS = ['airspeed', 'density', 'alpha', 'beta', 'rate_P', 'rate_Q', 'rate_R']
 
 
-class StateDefinitionError(Exception):
-    """Raised when properties of FLIGHTSTATE are ill-defined."""
-
-    pass
-
-
-class FlightState:
-    """
-    Data structure for the PyTornado flight conditions
-
-    Attributes:
-        :aero: (dict) aerodynamic operating parameters
-        :refs: (dict) reference values (from AIRCRAFT)
-        :state: (bool) FLIGHTSTATE definition status
-
-    Note:
-        * The angles 'alpha' and 'beta' are assumed to be given in DEGREES!
-          Alpha and beta are user input. The angles stored in this state class
-          will not be changed during runtime.
-    """
+class CurrentState:
 
     def __init__(self):
         """
-        Initialise instance of FLIGHTSTATE.
+        Class reflecting the currently analysed state
 
-            * FLIGHTSTATE inherits from FIXEDNAMESPACE.
-            * Upon initialisation, attributes of FLIGHTSTATE are created and fixed.
-            * Only existing attributes may be modified afterward.
+        Attributes:
+            :aero: (dict) see FlightState()
+            :refs: (dict) see model.Aircraft()
+            :free_stream_velocity_vector: (vector)  free stream vector
+        """
+
+        self.aero = None
+        self.refs = None
+        self.free_stream_velocity_vector = None
+
+
+class FlightState:
+
+    def __init__(self):
+        """
+        Data structure for the flight conditions
+
+        Attributes:
+            :aero: (dict) aerodynamic operating parameters
+            :num_apm_values: (int) Number of values is APM
+            :idx_current_state: (int) Index of the current flight state
+
+        Note:
+            * The angles 'alpha' and 'beta' are assumed to be given in DEGREES!
+              Alpha and beta are user input. The angles stored in this state class
+              will not be changed during runtime.
         """
 
         self.aero = FixedOrderedDict()
@@ -87,23 +91,19 @@ class FlightState:
 
         # Number of values in the aeroperformance map
         self.num_apm_values = 0
-        self.idx_current_state = 0
+        self.idx_current_state = None
 
     @property
     def free_stream_velocity_vector(self):
         """Return the free stream velocity vector (incoming flow)"""
 
-        alpha = deg2rad(self.aero['alpha'])
-        beta = deg2rad(self.aero['beta'])
-        airspeed = self.aero['airspeed']
+        i = self.idx_current_state
+        alpha = deg2rad(self.aero['alpha'][i])
+        beta = deg2rad(self.aero['beta'][i])
+        airspeed = self.aero['airspeed'][i]
 
-        # if None in [alpha, beta, airspeed]:
-        #     raise RuntimeError("'alpha', 'beta' and 'airspeed' must be set")
-        ###########################
-        airspeed = 100
-        alpha = deg2rad(3)
-        beta = 0
-        ###########################
+        if None in [alpha, beta, airspeed]:
+            raise RuntimeError("'alpha', 'beta' and 'airspeed' must be set")
 
         free_stream_vel = airspeed*np.array([cos(alpha)*cos(beta),
                                              -sin(beta),
@@ -179,7 +179,7 @@ class FlightState:
 
     #     # Airspeed
     #     if self.aero['airspeed'] is None:
-    #         raise StateDefinitionError("'aero.airspeed' is not defined.")
+    #         raise ValueError("'aero.airspeed' is not defined.")
     #     elif not isinstance(self.aero['airspeed'], (float, int)):
     #         raise TypeError("'aero.airspeed' must be FLOAT [m/s].")
     #     else:
@@ -188,7 +188,7 @@ class FlightState:
 
     #     # angle of attack
     #     if self.aero['alpha'] is None:
-    #         raise StateDefinitionError("'aero.alpha' is not defined.")
+    #         raise ValueError("'aero.alpha' is not defined.")
     #     elif not isinstance(self.aero['alpha'], (float, int)):
     #         raise TypeError("'aero.alpha' must be FLOAT [deg].")
     #     elif not -90.0 <= self.aero['alpha'] <= +90.0:
@@ -198,7 +198,7 @@ class FlightState:
 
     #     # sideslip angle
     #     if self.aero['beta'] is None:
-    #         raise StateDefinitionError("'aero.beta' is not defined.")
+    #         raise ValueError("'aero.beta' is not defined.")
     #     elif not isinstance(self.aero['beta'], (float, int)):
     #         raise TypeError("'aero.beta' must be FLOAT [deg].")
     #     elif not -90.0 <= self.aero['beta'] <= +90.0:
@@ -208,7 +208,7 @@ class FlightState:
 
     #     # x-rotation rate
     #     if self.aero['rate_P'] is None:
-    #         raise StateDefinitionError("'aero.rate_P' is not defined.")
+    #         raise ValueError("'aero.rate_P' is not defined.")
     #     elif not isinstance(self.aero['rate_P'], (float, int)):
     #         raise TypeError("'aero.rate_P' must be FLOAT [rad/s].")
     #     else:
@@ -216,7 +216,7 @@ class FlightState:
 
     #     # y-rotation rate
     #     if self.aero['rate_Q'] is None:
-    #         raise StateDefinitionError("'aero.rate_Q' is not defined.")
+    #         raise ValueError("'aero.rate_Q' is not defined.")
     #     elif not isinstance(self.aero['rate_Q'], (float, int)):
     #         raise TypeError("'aero.rate_Q' must be FLOAT [rad/s].")
     #     else:
@@ -224,7 +224,7 @@ class FlightState:
 
     #     # z-rotation rate
     #     if self.aero['rate_R'] is None:
-    #         raise StateDefinitionError("'aero.rate_R' is not defined.")
+    #         raise ValueError("'aero.rate_R' is not defined.")
     #     elif not isinstance(self.aero['rate_R'], (float, int)):
     #         raise TypeError("'aero.rate_R' must be FLOAT [rad/s].")
     #     else:
@@ -232,7 +232,7 @@ class FlightState:
 
     #     # density
     #     if self.aero['density'] is None:
-    #         raise StateDefinitionError("'aero.density' is not defined.")
+    #         raise ValueError("'aero.density' is not defined.")
     #     elif not isinstance(self.aero['density'], (float, int)):
     #         raise TypeError("'aero.density' must be positive FLOAT [kgm-3].")
     #     elif not self.aero['density'] >= 0.0:
@@ -243,15 +243,22 @@ class FlightState:
     #     # 2. SET STATE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
     #     self.state = True
 
-    def iter_aero_states(self):
+    def iter_states(self):
         """
         Iterator which yields a dictionary for each flight state
         """
 
-        for i in range(0, self.num_apm_values):
-            current_state = FixedOrderedDict()
-            for param in STATE_BASE_PARAMS:
-                current_state[param] = float(self.aero[param][i])
 
-            current_state._freeze()
+        for i in range(0, self.num_apm_values):
+            self.idx_current_state = i
+
+            current_state = CurrentState()
+
+            current_aero = FixedOrderedDict()
+            for param in STATE_BASE_PARAMS:
+                current_aero[param] = float(self.aero[param][i])
+            current_aero._freeze()
+
+            current_state.aero = current_aero
+            current_state.free_stream_velocity_vector = self.free_stream_velocity_vector
             yield current_state

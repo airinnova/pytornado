@@ -147,22 +147,25 @@ def standard_run(args):
     lattice = VLMLattice()
     vlmdata = VLMData()
 
+# -----------------------------------------------------------------------------
     autopanels_c = settings.outputs.get('vlm_autopanels_c', None)
     autopanels_s = settings.outputs.get('vlm_autopanels_s', None)
     vlm.set_autopanels(aircraft, autopanels_c, autopanels_s)
+# -----------------------------------------------------------------------------
 
-    for aero_state in state.iter_aero_states():
-        class CurrentState:
-            def __init__(self):
-                self.aero = None
-                self.refs = None
-                self.free_stream_velocity_vector = state.free_stream_velocity_vector
+    for i, cur_state in enumerate(state.iter_states()):
 
-        cur_state = CurrentState()
-        cur_state.aero = aero_state
+# -----------------------------------------------------------------------------
+        # TODO: Not great to set here!
         cur_state.refs = aircraft.refs
+# -----------------------------------------------------------------------------
 
-        vlm.gen_lattice(aircraft, lattice, cur_state, settings)
+        if i == 0:
+            make_new_subareas = True
+        else:
+            make_new_subareas = False
+
+        vlm.gen_lattice(aircraft, lattice, cur_state, settings, make_new_subareas)
 
         # ===== VLM =====
         vlm.calc_downwash(lattice, vlmdata)
@@ -227,4 +230,4 @@ def standard_run(args):
             "vlmdata": vlmdata,
             "state": state
         }
-        return results
+    return results
