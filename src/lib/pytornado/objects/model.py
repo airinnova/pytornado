@@ -1858,11 +1858,11 @@ class WingControl(FixedNamespace):
 
         if self.deflection_mirror is None:
             if self.symmetry != 0:
-                logger.warning("Control '{self.uid:s}': 'deflection_mirror' is not set, " +
+                logger.warning(f"Control '{self.uid:s}': 'deflection_mirror' is not set, " +
                                "but wing has symmetry. Will use 'deflection'")
                 self.deflection_mirror = self.deflection
         elif self.symmetry == 0:
-            logger.warning("Control '{self.uid:s}': 'deflection_mirror' is set, " +
+            logger.warning(f"Control '{self.uid:s}': 'deflection_mirror' is set, " +
                            "but wing has no symmetry. Value will be ignored.")
         elif not isinstance(self.deflection_mirror, (float, int)):
             raise TypeError("'deflection' must be FLOAT.")
