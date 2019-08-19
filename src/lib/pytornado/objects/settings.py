@@ -90,8 +90,6 @@ class Settings(FixedNamespace):
         self.outputs = FixedOrderedDict()
         self.outputs['vlm_autopanels_c'] = None
         self.outputs['vlm_autopanels_s'] = None
-        self.outputs['vlm_lattice'] = False
-        self.outputs['vlm_compute'] = False
         self.outputs['save_results'] = [
                                         "NO_global",
                                         "NO_panelwise",
@@ -257,12 +255,6 @@ class Settings(FixedNamespace):
                 raise TypeError(f"'outputs.{auto_panel}' must be integer")
             elif self.outputs[auto_panel] < MIN_AUTOPANELS:
                 raise ValueError(f"'outputs.{auto_panel}' must be at least {MIN_AUTOPANELS}")
-
-        if not isinstance(self.outputs['vlm_lattice'], bool):
-            raise TypeError("'outputs.vlm_lattice' must be True or False")
-
-        if not isinstance(self.outputs['vlm_compute'], bool):
-            raise TypeError("'outputs.vlm_compute' must be True or False")
 
         # 4. CHECK PLOTS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
         if not self.plot['geometry_aircraft']:

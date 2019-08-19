@@ -1,5 +1,7 @@
 # TODO
 
+* Improve structure of the main settings file
+
 * Refactor CPACS functions --> make control surfaces work
 
 * Bug with Cm coefficient (may there is some unassigned value in the C++ code, check reference values...)

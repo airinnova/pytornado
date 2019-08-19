@@ -4,6 +4,14 @@ Changelog
 Changelog for PyTornado. Version numbers try to follow `Semantic
 Versioning <https://semver.org/spec/v2.0.0.html>`__.
 
+[*****] -- 2019-08-19
+---------------------
+
+Removed
+~~~~~~~
+
+* Removed settings 'vlm_lattice' and 'vlm_compute' (use case was unclear)
+
 [0.2.0] -- 2019-08-16
 ---------------------
 
