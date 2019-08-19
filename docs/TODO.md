@@ -94,6 +94,7 @@
 ## Proposals for other improvements (sometime, prio 3)
 * Vertex names should stay more consistent when mirroring (see symmetry 2)
 * Some `plot` modules use the exact same code ==> outsource common code and reuse!
+    * Perhaps store commonly used plot object in a dict?
 * Bash autocompletion for `--run` argument (or allow full path to settings file)
 * CPACS 3.0 compatibility
 * `objects.model`: `get_point()` method in class `Wing` is obsolete (understand \& remove)

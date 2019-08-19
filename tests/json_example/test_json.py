@@ -54,8 +54,8 @@ def test_basic_analysis():
     state['aero']['altitude'] = None
     set_state_file(state)
     results = standard_run(ARGS)
-    assert results['state'].aero['airspeed'] == approx(100)
-    assert results['state'].aero['density'] == approx(1.225)
+    assert results['state'].aero['airspeed'][0] == approx(100)
+    assert results['state'].aero['density'][0] == approx(1.225)
 
     # Combination 2
     state['aero']['airspeed'] = 100
@@ -64,8 +64,8 @@ def test_basic_analysis():
     state['aero']['altitude'] = 0
     set_state_file(state)
     results = standard_run(ARGS)
-    assert results['state'].aero['airspeed'] == approx(100)
-    assert results['state'].aero['density'] == approx(1.225)
+    assert results['state'].aero['airspeed'][0] == approx(100)
+    assert results['state'].aero['density'][0] == approx(1.225)
 
     # Combination 3
     state['aero']['airspeed'] = None
@@ -74,8 +74,8 @@ def test_basic_analysis():
     state['aero']['altitude'] = 0
     set_state_file(state)
     results = standard_run(ARGS)
-    assert results['state'].aero['airspeed'] == approx(340.2939)
-    assert results['state'].aero['density'] == approx(1.225)
+    assert results['state'].aero['airspeed'][0] == approx(340.2939)
+    assert results['state'].aero['density'][0] == approx(1.225)
 
     # Invalid combination
     state['aero']['airspeed'] = 100

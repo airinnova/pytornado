@@ -34,7 +34,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from mpl_toolkits.mplot3d import Axes3D
-
 from commonlibs.logger import truncate_filepath
 from commonlibs.math.vectors import unit_vector
 

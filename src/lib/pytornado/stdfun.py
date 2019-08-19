@@ -29,7 +29,6 @@ Developed for Airinnova AB, Stockholm, Sweden.
 
 import os
 import logging
-from pytornado.objects.utils import FixedOrderedDict
 
 import commonlibs.logger as hlogger
 
@@ -46,7 +45,7 @@ import pytornado.plot.geometry as pl_geometry
 import pytornado.plot.lattice as pl_lattice
 import pytornado.plot.results as pl_results
 from pytornado.objects.model import Aircraft
-from pytornado.objects.state import FlightState, STATE_BASE_PARAMS
+from pytornado.objects.state import FlightState
 from pytornado.objects.vlm_struct import VLMData, VLMLattice
 
 logger = logging.getLogger(__name__)
@@ -188,10 +187,10 @@ def standard_run(args):
 
         # ===== Generate plots =====
         plt_settings = {
-                "plot_dir": settings.dirs['plots'],
-                "save": settings.plot['save'],
-                "show": settings.plot['show']
-                }
+            "plot_dir": settings.dirs['plots'],
+            "save": settings.plot['save'],
+            "show": settings.plot['show']
+        }
 
         if plt_settings['save'] or plt_settings['show']:
             if settings.plot['results_downwash']:
@@ -244,7 +243,6 @@ def standard_run(args):
         state.results['Cm'].append(vlmdata.coeffs['m'])
         state.results['Cn'].append(vlmdata.coeffs['n'])
 ###############################################
-
 
     logger.info(f"{__prog_name__} {__version__} terminated")
 
