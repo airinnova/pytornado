@@ -75,7 +75,7 @@ def save(settings):
 
     output = {}
 
-    for key in ['inputs', 'outputs', 'plot']:
+    for key in ['settings', 'plot']:
         output[key] = dict(getattr(settings, key))
 
         # Do not save special underscore settings by default

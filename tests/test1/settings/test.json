@@ -1,14 +1,12 @@
 {
-    "inputs": {
+    "settings": {
         "aircraft": "test.json",
         "state": "test",
         "deformation": false,
         "horseshoe_type": 2,
         "epsilon": 1e-06,
         "_do_normal_rotations": true,
-        "_deformation_check": true
-    },
-    "outputs": {
+        "_deformation_check": true,
         "vlm_autopanels_c": null,
         "vlm_autopanels_s": null,
         "save_results": [

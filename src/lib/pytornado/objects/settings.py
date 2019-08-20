@@ -60,8 +60,7 @@ class Settings(FixedNamespace):
     Settings also stores location of project files.
 
     Attributes:
-        :inputs: (dict) provided input data
-        :outputs: (dict) expected output data
+        :settings: (dict) provided input data
         :plot: (dict) figures to be generated
         :wkdir: (string) location of project files
     """
@@ -75,27 +74,22 @@ class Settings(FixedNamespace):
 
         super().__init__()
 
-        # SETTINGS -- user-provided input identifiers
-        self.inputs = FixedOrderedDict()
-        self.inputs['aircraft'] = None
-        self.inputs['state'] = None
-        self.inputs['deformation'] = False
-        self.inputs['horseshoe_type'] = 2
-        self.inputs['epsilon'] = 1e-6
-        self.inputs['_do_normal_rotations'] = True
-        self.inputs['_deformation_check'] = True
-        self.inputs._freeze()
-
-        # SETTINGS -- user-provided analysis tasks
-        self.outputs = FixedOrderedDict()
-        self.outputs['vlm_autopanels_c'] = None
-        self.outputs['vlm_autopanels_s'] = None
-        self.outputs['save_results'] = [
+        self.settings = FixedOrderedDict()
+        self.settings['aircraft'] = None
+        self.settings['state'] = None
+        self.settings['deformation'] = False
+        self.settings['horseshoe_type'] = 2
+        self.settings['epsilon'] = 1e-6
+        self.settings['_do_normal_rotations'] = True
+        self.settings['_deformation_check'] = True
+        self.settings['vlm_autopanels_c'] = None
+        self.settings['vlm_autopanels_s'] = None
+        self.settings['save_results'] = [
                                         "NO_global",
                                         "NO_panelwise",
                                         "NO_loads_with_undeformed_mesh",
                                         "NO_loads_with_deformed_mesh"]
-        self.outputs._freeze()
+        self.settings._freeze()
 
         # SETTINGS -- user-provided visualisation tasks
         self.plot = FixedOrderedDict()
@@ -120,7 +114,7 @@ class Settings(FixedNamespace):
 
         if not make_template_only:
             self.update_from_dict(**settings_dict)
-            self.aircraft_name = os.path.splitext(self.inputs['aircraft'])[0]
+            self.aircraft_name = os.path.splitext(self.settings['aircraft'])[0]
 
         # Project directories (will be converted to abs. paths when wkdir is set)
         self.dirs = {
@@ -162,10 +156,10 @@ class Settings(FixedNamespace):
         """Generate file names"""
 
         self.files = {
-                "aircraft": f"{DIR_AIRCRAFT}/{self.inputs['aircraft']}",
+                "aircraft": f"{DIR_AIRCRAFT}/{self.settings['aircraft']}",
                 "deformation": f"{DIR_DEFORMATION}/{self.aircraft_name}.json",
                 "settings": f"{DIR_SETTINGS}/{self.project_basename}.json",
-                "state": f"{DIR_STATE}/{self.inputs['state']}.json",
+                "state": f"{DIR_STATE}/{self.settings['state']}.json",
                 "results_global": f"{DIR_RESULTS}/{self.project_basename}_global.json",
                 "results_panelwise": f"{DIR_RESULTS}/{self.project_basename}_panelwise.json",
                 "results_apm_global": f"{DIR_RESULTS}/{self.project_basename}_APM.json",
@@ -188,16 +182,13 @@ class Settings(FixedNamespace):
             if not os.path.exists(dirpath):
                 os.makedirs(dirpath)
 
-    def update_from_dict(self, inputs, outputs, plot):
+    def update_from_dict(self, settings, plot):
         """
         Update settings
         """
 
-        for key, value in inputs.items():
-            self.inputs[key] = value
-
-        for key, value in outputs.items():
-            self.outputs[key] = value
+        for key, value in settings.items():
+            self.settings[key] = value
 
         for key, value in plot.items():
             self.plot[key] = value
@@ -219,43 +210,34 @@ class Settings(FixedNamespace):
         logger.debug("Checking settings...")
 
         # 2. CHECK INPUTS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-        if self.inputs['aircraft'] is None:
-            logger.info("'inputs.aircraft' is not defined")
-        elif not isinstance(self.inputs['aircraft'], str):
-            raise TypeError("'inputs.aircraft' must be a valid STRING")
+        if self.settings['aircraft'] is None:
+            logger.info("'settings.aircraft' is not defined")
+        elif not isinstance(self.settings['aircraft'], str):
+            raise TypeError("'settings.aircraft' must be a valid STRING")
 
-        if not self.inputs['aircraft']:
+        if not self.settings['aircraft']:
             raise SettingsDefinitionError("Must provide AIRCRAFT file!")
 
-        if self.inputs['state'] is None:
+        if self.settings['state'] is None:
             raise SettingsDefinitionError("must provide CPACS state uID or PyTornado state file!")
-        elif not isinstance(self.inputs['state'], str):
-            raise TypeError("'inputs.state' must be valid STRING")
+        elif not isinstance(self.settings['state'], str):
+            raise TypeError("'settings.state' must be valid STRING")
 
-        if not isinstance(self.inputs['horseshoe_type'], int) \
-                or self.inputs['horseshoe_type'] not in [0, 1, 2]:
+        if not isinstance(self.settings['horseshoe_type'], int) \
+                or self.settings['horseshoe_type'] not in [0, 1, 2]:
             raise ValueError("'horseshoe_type' must be of type int (0, 1, 2)")
 
-        if not isinstance(self.inputs['epsilon'], float) or \
-                not (0 < self.inputs['epsilon'] < 1):
+        if not isinstance(self.settings['epsilon'], float) or \
+                not (0 < self.settings['epsilon'] < 1):
             raise ValueError("'epsilon' must be a (small) float in range (0, 1)")
 
-        if not isinstance(self.inputs['_do_normal_rotations'], bool):
+        if not isinstance(self.settings['_do_normal_rotations'], bool):
             raise ValueError("'_do_normal_rotations' must be 'True' or 'False'")
-        if not self.inputs['_do_normal_rotations']:
+        if not self.settings['_do_normal_rotations']:
             logger.warning("Normal rotations are turned off (no controls and airfoils)")
 
-        if not isinstance(self.inputs['_deformation_check'], bool):
+        if not isinstance(self.settings['_deformation_check'], bool):
             raise ValueError("'_deformation_check' must be 'True' or 'False'")
-
-        # 3. CHECK OUTPUTS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-        for auto_panel in ['vlm_autopanels_c', 'vlm_autopanels_s']:
-            if self.outputs[auto_panel] is None:
-                logger.debug(f"'outputs.{auto_panel}' is None")
-            elif not isinstance(self.outputs[auto_panel], int):
-                raise TypeError(f"'outputs.{auto_panel}' must be integer")
-            elif self.outputs[auto_panel] < MIN_AUTOPANELS:
-                raise ValueError(f"'outputs.{auto_panel}' must be at least {MIN_AUTOPANELS}")
 
         # 4. CHECK PLOTS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
         if not self.plot['geometry_aircraft']:

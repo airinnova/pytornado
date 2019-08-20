@@ -99,7 +99,7 @@ def load_deformation(aircraft, settings):
         if segment.parent_wing.is_deformed:
             segment.make_deformation_spline_interpolators()
 
-    if not settings.inputs['_deformation_check']:
+    if not settings.settings['_deformation_check']:
         logger.warning("Skipping deformation check (there may be discontinuities)")
         return
 

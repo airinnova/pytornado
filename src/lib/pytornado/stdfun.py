@@ -130,7 +130,7 @@ def standard_run(args):
     state = FlightState()
     io_state.load(state, settings)
 
-    if settings.inputs['deformation']:
+    if settings.settings['deformation']:
         io_deformation.load_deformation(aircraft, settings)
 
     # ===== Generate lattice =====
@@ -159,16 +159,16 @@ def standard_run(args):
         vlm.calc_results(lattice, cur_state, vlmdata)
 
         # ===== Save results =====
-        if 'panelwise' in settings.outputs['save_results']:
+        if 'panelwise' in settings.settings['save_results']:
             io_results.save_panelwise(cur_state, vlmdata, settings)
 
-        if 'global' in settings.outputs['save_results']:
+        if 'global' in settings.settings['save_results']:
             io_results.save_glob_results(cur_state, vlmdata, settings)
 
-        if 'loads_with_deformed_mesh' in settings.outputs['save_results']:
+        if 'loads_with_deformed_mesh' in settings.settings['save_results']:
             io_results.save_loads(aircraft, settings, cur_state, vlmdata, lattice)
 
-        if 'loads_with_undeformed_mesh' in settings.outputs['save_results']:
+        if 'loads_with_undeformed_mesh' in settings.settings['save_results']:
             io_results.save_loads(aircraft, settings, cur_state, vlmdata, lattice=None)
 
         # ===== Generate plots =====
