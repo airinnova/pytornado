@@ -145,7 +145,7 @@ def cpacs2pytornado(file_cpacs):
     file_cpacs = os.path.abspath(file_cpacs)
 
     settings = Settings(project_basename, wkdir=os.path.abspath(os.getcwd()))
-    settings.files['aircraft'] = file_cpacs
+    settings.paths('f_aircraft') = file_cpacs
 
     aircraft = Aircraft()
     state = FlightState()
@@ -157,7 +157,7 @@ def cpacs2pytornado(file_cpacs):
     # Modify file extension
     file_cpacs = file_cpacs.replace('.xml', '.json')
     file_cpacs = file_cpacs.replace('.XML', '.json')
-    settings.files['aircraft'] = file_cpacs
+    settings.paths('f_aircraft') = file_cpacs
 
     # Finally, serialise...
     io_model.save(aircraft, settings)

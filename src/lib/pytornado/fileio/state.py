@@ -49,7 +49,7 @@ def load(state, settings):
         :settings: (object) data structure for execution settings
     """
 
-    state_file = settings.files['state']
+    state_file = settings.paths('f_state')
     logger.info(f"Reading flight state from file '{truncate_filepath(state_file)}'...")
 
     if not os.path.exists(state_file):
@@ -70,7 +70,7 @@ def save(state, settings):
         :settings: (object) data structure for execution settings
     """
 
-    state_file = settings.files['state']
+    state_file = settings.paths('f_state')
     logger.info(f"Writing flight state to file '{truncate_filepath(state_file)}'")
 
     output = {}

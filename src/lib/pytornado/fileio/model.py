@@ -49,7 +49,7 @@ def load(aircraft, settings):
         :settings: (object) data structure for execution settings
     """
 
-    aircraft_file = settings.files['aircraft']
+    aircraft_file = settings.paths('f_aircraft')
     logger.info(f"Reading aircraft model from file '{truncate_filepath(aircraft_file)}'...")
 
     if not os.path.exists(aircraft_file):
@@ -118,7 +118,7 @@ def save(aircraft, settings):
         :settings: (object) data structure for execution settings
     """
 
-    filepath = settings.files['aircraft']
+    filepath = settings.paths('f_aircraft')
     logger.info(f"Writing aircraft model to file '{truncate_filepath(filepath)}'...")
 
     # ====== Aircraft top level =====

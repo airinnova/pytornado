@@ -70,7 +70,7 @@ def save(settings):
         :settings: (object) data structure for execution settings
     """
 
-    set_file = settings.files['settings']
+    set_file = settings.paths('f_settings')
     logger.info(f"Saving settings to file '{truncate_filepath(set_file)}'...")
 
     output = {}

@@ -173,7 +173,7 @@ def standard_run(args):
 
         # ===== Generate plots =====
         plt_settings = {
-            "plot_dir": settings.dirs['plots'],
+            "plot_dir": settings.paths('d_plots'),
             "save": settings.plot['save'],
             "show": settings.plot['show']
         }

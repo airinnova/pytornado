@@ -446,10 +446,10 @@ def get_aircraft_airfoils(aircraft, settings, tigl, wing_uid, segment_uid, idx_w
             * Wing: {idx_wing}
             * Segment: {idx_section}
             """
-            raise ValueError(msg)
+            raise ValueError(err_msg)
 
         file_airfoil = f"blade.{name_airfoil}"
-        file_airfoil = os.path.join(settings.dirs['airfoils'], file_airfoil)
+        file_airfoil = os.path.join(settings.paths('f_airfoils'), file_airfoil)
         aircraft.wing[wing_uid].segment[segment_uid].airfoils[position] = file_airfoil
 
 
@@ -473,7 +473,7 @@ def write_airfoil_files(settings, tixi):
         except tixiwrapper.TixiException:
             name_airfoil = f'AIRFOIL{i:02d}'
 
-        file_airfoil = os.path.join(settings.dirs['airfoils'], f"blade.{name_airfoil}")
+        file_airfoil = os.path.join(settings.paths('f_airfoils'), f"blade.{name_airfoil}")
 
         # Convert string to numpy array
         coords_x = np.fromstring(tixi.getTextElement(node_data + '/x'), sep=';')
@@ -522,7 +522,7 @@ def load(aircraft, settings):
         :settings: Settings object
     """
 
-    cpacs_file = settings.files['aircraft']
+    cpacs_file = settings.paths('f_aircraft')
     logger.info(f"Loading aircraft from CPACS file: {cpacs_file}...")
     if not os.path.exists(cpacs_file):
         err_msg = f"File '{cpacs_file}' not found"

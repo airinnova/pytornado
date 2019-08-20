@@ -48,7 +48,7 @@ def load_deformation(aircraft, settings):
         :settings: (obj) settings
     """
 
-    filepath = settings.files['deformation']
+    filepath = settings.paths('f_deformation')
     logger.info(f"Reading deformation from file '{truncate_filepath(filepath)}'")
 
     if not os.path.exists(filepath):

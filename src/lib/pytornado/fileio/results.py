@@ -51,7 +51,7 @@ def save_glob_results(state, vlmdata, settings):
 
     # TODO: make numpy-->list conversion more general
 
-    filepath = settings.files['results_global']
+    filepath = settings.paths('f_results_global')
     logger.info(f"Writing global results to file '{truncate_filepath(filepath)}'")
 
     output = {}
@@ -78,7 +78,7 @@ def save_panelwise(state, vlmdata, settings):
     # * Make a fast alternative (save tabluated as before)
     # * Save panel points?
 
-    filepath = settings.files['results_panelwise']
+    filepath = settings.paths('f_results_panelwise')
     logger.info(f"Writing panelwise results to file '{truncate_filepath(filepath)}'")
 
     output = {}
@@ -138,7 +138,7 @@ def save_loads(aircraft, settings, state, vlmdata, lattice=None):
                 fz = vlmdata.panelwise['fz'][i]
                 output.append({"coord": list(force_point), "load": [fx, fy, fz, 0, 0, 0]})
 
-        filepath = os.path.join(settings.dirs['results'], f"loads_UID_{wing_uid}.json")
+        filepath = os.path.join(settings.paths('d_results'), f"loads_UID_{wing_uid}.json")
         logger.info(f"Writing loads to file '{truncate_filepath(filepath)}'")
         with open(filepath, "w") as fp:
             dump_pretty_json(output, fp)
@@ -154,7 +154,7 @@ def save_loads(aircraft, settings, state, vlmdata, lattice=None):
                 fz = vlmdata.panelwise['fz'][i]
                 output.append({"coord": list(force_point), "load": [fx, fy, fz, 0, 0, 0]})
 
-        filepath = os.path.join(settings.dirs['results'], f"loads_mirror_UID_{wing_uid}.json")
+        filepath = os.path.join(settings.paths('d_results'), f"loads_mirror_UID_{wing_uid}.json")
         logger.info(f"Writing loads to file '{truncate_filepath(filepath)}'")
         with open(filepath, "w") as fp:
             dump_pretty_json(output, fp)
@@ -169,7 +169,7 @@ def save_aeroperformance_map(state, settings):
         :settings: (object) data structure for execution settings
     """
 
-    filepath = settings.files['results_apm_global']
+    filepath = settings.paths('f_results_apm_global')
     logger.info(f"Writing panelwise results to file '{truncate_filepath(filepath)}'")
 
     output = {}
