@@ -1,7 +1,7 @@
 {
     "settings": {
         "aircraft": "test.json",
-        "state": "test",
+        "state": "test.json",
         "deformation": false,
         "horseshoe_type": 2,
         "epsilon": 1e-06,

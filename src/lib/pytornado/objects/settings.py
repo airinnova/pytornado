@@ -237,7 +237,7 @@ class Settings:
         self.settings = {}
         self.settings['aircraft'] = None
         self.settings['state'] = None
-        self.settings['deformation'] = False
+        self.settings['deformation'] = None
         self.settings['horseshoe_type'] = 2
         self.settings['epsilon'] = 1e-6
         self.settings['_do_normal_rotations'] = True
@@ -285,22 +285,23 @@ class Settings:
 
         output_subdir = f"/{self.project_basename}" + "_{counter:03d}"
 
-        # Directories
+        # ===== Directories =====
         self.paths = ProjectPaths(self.wkdir)
         self.paths.add_path(uid='d_aircraft', path=DIR_AIRCRAFT, uid_group='dir')
         self.paths.add_path(uid='d_airfoils', path=DIR_AIRFOILS, uid_group='dir')
         self.paths.add_path(uid='d_deformation', path=DIR_DEFORMATION, uid_group='dir')
         self.paths.add_path(uid='d_settings', path=DIR_SETTINGS, uid_group='dir')
         self.paths.add_path(uid='d_state', path=DIR_STATE, uid_group='dir')
-
+        # Output directories
         self.paths.add_path(uid='d_plots', path=DIR_PLOTS+output_subdir, uid_group='dir')
         self.paths.add_path(uid='d_results', path=DIR_RESULTS+output_subdir, uid_group='dir')
 
-        # Files
+        # ===== Files =====
         self.paths.add_subpath(uid_parent='d_aircraft', uid='f_aircraft', path=f"{self.settings['aircraft']}")
-        self.paths.add_subpath(uid_parent='d_deformation', uid='f_deformation', path=f"{self.project_basename}.json")
+        self.paths.add_subpath(uid_parent='d_deformation', uid='f_deformation', path=f"{self.settings['deformation']}")
         self.paths.add_subpath(uid_parent='d_settings', uid='f_settings', path=f"{self.project_basename}.json")
-        self.paths.add_subpath(uid_parent='d_state', uid='f_state', path=f"{self.settings['state']}.json")
+        self.paths.add_subpath(uid_parent='d_state', uid='f_state', path=f"{self.settings['state']}")
+        # Output files
         self.paths.add_subpath(uid_parent='d_results', uid='f_results_global', path=f"{self.project_basename}_global.json")
         self.paths.add_subpath(uid_parent='d_results', uid='f_results_panelwise', path=f"{self.project_basename}_global.json")
         self.paths.add_subpath(uid_parent='d_results', uid='f_results_apm_global', path=f"{self.project_basename}_APM.json")
