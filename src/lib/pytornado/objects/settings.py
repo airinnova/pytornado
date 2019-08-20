@@ -43,8 +43,7 @@ DIR_SETTINGS = 'settings'
 DIR_STATE = 'state'
 DIR_TEMPLATE_WKDIR = 'pytornado'
 
-#####################
-#####################
+#############################################################################
 
 from pathlib import Path, PurePath
 from collections import defaultdict
@@ -191,13 +190,12 @@ class ProjectPaths:
         for uid in self.groups[uid_group]:
             yield self.abs_paths[uid]
 
-#####################
-#####################
+#############################################################################
 
 
 class Settings:
 
-    def __init__(self, project_basename, wkdir, settings_dict=None, make_dirs=True):
+    def __init__(self, project_basename, wkdir, *, settings_dict=None, make_dirs=True, check_ac_file_type=True):
         """
         Data structure with execution settings
 
@@ -207,10 +205,10 @@ class Settings:
             :wkdir: (string) location of project files
         """
 
+        self.wkdir = wkdir
+        self.project_basename = project_basename
 
-        make_template_only = True if settings_dict is None else False
-
-        self.settings = FixedOrderedDict()
+        self.settings = {}
         self.settings['aircraft'] = None
         self.settings['state'] = None
         self.settings['deformation'] = False
@@ -226,32 +224,41 @@ class Settings:
             "NO_loads_with_undeformed_mesh",
             "NO_loads_with_deformed_mesh"
         ]
-        self.settings._freeze()
 
-        # SETTINGS -- user-provided visualisation tasks
-        self.plot = FixedOrderedDict()
+        self.plot = {}
         self.plot['geometry_aircraft'] = False
-        self.plot['geometry_wing'] = None
-        self.plot['geometry_segment'] = None
-        self.plot['geometry_property'] = None
+        self.plot['geometry_wing'] = []
+        self.plot['geometry_segment'] = []
+        self.plot['geometry_property'] = []
         self.plot['lattice_aircraft'] = False
         self.plot['lattice_aircraft_optional'] = []
-        self.plot['lattice_wing'] = None
-        self.plot['lattice_segment'] = None
+        self.plot['lattice_wing'] = []
+        self.plot['lattice_segment'] = []
         self.plot['results_downwash'] = False
-        self.plot['results_panelwise'] = None
+        self.plot['results_panelwise'] = []
         self.plot['show'] = True
         self.plot['save'] = False
-        self.plot._freeze()
 
-        self.aircraft_name = None
-
-        if not make_template_only:
+        if settings_dict is not None:
             self.update_from_dict(**settings_dict)
-            self.aircraft_name = os.path.splitext(self.settings['aircraft'])[0]
 
-        # Paths
-        self.paths = ProjectPaths(wkdir)
+        self.paths = None
+        self.generate_paths()
+
+        self.aircraft_is_cpacs = None
+        if check_ac_file_type:
+            self.check_aircraft_file_type()
+
+        if make_dirs:
+            self.make_project_subdirs()
+
+    def generate_paths(self):
+        """
+        Initialise the file structure
+        """
+
+        # Directories
+        self.paths = ProjectPaths(self.wkdir)
         self.paths.add_path(uid='d_aircraft', path=DIR_AIRCRAFT, uid_group='dir')
         self.paths.add_path(uid='d_airfoils', path=DIR_AIRFOILS, uid_group='dir')
         self.paths.add_path(uid='d_deformation', path=DIR_DEFORMATION, uid_group='dir')
@@ -261,27 +268,23 @@ class Settings:
         self.paths.add_path(uid='d_state', path=DIR_STATE, uid_group='dir')
 
         # Files
-        self.paths.add_subpath(uid_parent='d_aircraft', uid='f_aircraft', path=f"{self.settings['aircraft']}", uid_group='file')
-        self.paths.add_subpath(uid_parent='d_deformation', uid='f_deformation', path=f"{self.aircraft_name}.json", uid_group='file')
-        self.paths.add_subpath(uid_parent='d_settings', uid='f_settings', path=f"{project_basename}.json", uid_group='file')
-        self.paths.add_subpath(uid_parent='d_state', uid='f_state', path=f"{self.settings['state']}.json", uid_group='file')
-        self.paths.add_subpath(uid_parent='d_results', uid='f_results_global', path=f"{project_basename}_global.json", uid_group='file')
-        self.paths.add_subpath(uid_parent='d_results', uid='f_results_panelwise', path=f"{project_basename}_global.json", uid_group='file')
-        self.paths.add_subpath(uid_parent='d_results', uid='f_results_apm_global', path=f"{project_basename}_APM.json", uid_group='file')
-        ####################################################
+        self.paths.add_subpath(uid_parent='d_aircraft', uid='f_aircraft', path=f"{self.settings['aircraft']}")
+        self.paths.add_subpath(uid_parent='d_deformation', uid='f_deformation', path=f"{self.project_basename}.json")
+        self.paths.add_subpath(uid_parent='d_settings', uid='f_settings', path=f"{self.project_basename}.json")
+        self.paths.add_subpath(uid_parent='d_state', uid='f_state', path=f"{self.settings['state']}.json")
+        self.paths.add_subpath(uid_parent='d_results', uid='f_results_global', path=f"{self.project_basename}_global.json")
+        self.paths.add_subpath(uid_parent='d_results', uid='f_results_panelwise', path=f"{self.project_basename}_global.json")
+        self.paths.add_subpath(uid_parent='d_results', uid='f_results_apm_global', path=f"{self.project_basename}_APM.json")
 
-        if make_dirs:
-            self.make_project_subdirs()
+    def check_aircraft_file_type(self):
+        """Check whether aircraft is CPACS or JSON"""
 
-        if not make_template_only:
-            ac_file_extension = self.paths('f_aircraft').suffix
-            if ac_file_extension not in ['.xml', '.json']:
-                raise ValueError("Aircraft file must have extension '.json' or '.xml'")
+        ac_file_extension = self.paths('f_aircraft').suffix
+        if ac_file_extension not in ['.xml', '.json']:
+            raise ValueError("Aircraft file must have extension '.json' or '.xml'")
 
-            if ac_file_extension.lower() == '.json':
-                self.aircraft_is_cpacs = False
-            else:
-                self.aircraft_is_cpacs = True
+        if ac_file_extension.lower() == '.json':
+            self.aircraft_is_cpacs = False
 
     def make_project_subdirs(self):
         """Create project subdirectories"""
