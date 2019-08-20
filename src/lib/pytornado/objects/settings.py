@@ -31,8 +31,7 @@ import os
 import logging
 import shutil
 
-from pytornado.objects.utils import FixedNamespace, FixedOrderedDict
-from pytornado.aero.vlm import MIN_AUTOPANELS
+from pytornado.objects.utils import FixedOrderedDict
 
 logger = logging.getLogger(__name__)
 
@@ -45,14 +44,97 @@ DIR_SETTINGS = 'settings'
 DIR_STATE = 'state'
 DIR_TEMPLATE_WKDIR = 'pytornado'
 
+#####################
+#####################
 
-class SettingsDefinitionError(Exception):
-    """Raised when properties of SETTINGS are ill-defined"""
-
-    pass
+from pathlib import Path, PurePath
 
 
-class Settings(FixedNamespace):
+class ProjectPaths:
+
+    UID_ROOT = 'root'
+
+    def __init__(self, root_dir):
+        """
+        Class providing tools for filepath handling
+
+        Args:
+            :root_dir: Project root directory
+        """
+
+        self.abs_paths = {}
+        self._set_project_root_dir(root_dir)
+
+    @property
+    def root(self):
+        """TODO"""
+
+        return self.abs_paths[self.UID_ROOT]
+
+    def _set_project_root_dir(self, root_dir):
+        """
+        Set the project root directory
+
+        Args:
+            :root_dir: Project root directory
+        """
+
+        self.abs_paths[self.UID_ROOT] = Path(root_dir).resolve()
+
+    def add_path(self, uid, path, is_absolute=False):
+        """
+        Add a path
+
+        Args:
+            :uid: unique identifier
+            :path: path string
+            :is_absolute: flag
+        """
+
+        if uid in self.abs_paths.keys():
+            raise ValueError(f"UID {uid} already used")
+
+        path = Path(path)
+
+        if not is_absolute:
+            path = self.__class__.join_paths(self.root, path)
+
+        self.abs_paths[uid] = path
+
+    def add_sub_path(self, parent_uid, uid, path):
+        """
+        TODO
+        """
+
+        if uid_parent not in self.abs_paths.keys():
+            raise ValueError(f"Parent UID {uid_parent} not found")
+
+        parent_path = self.abs_paths[uid_parent]
+
+        assembled_path = self.__class__.join_paths(parent_path, path2)
+        self.abs_path
+
+    def format_path(self, *args, **kwargs):
+        """
+        TODO
+        """
+
+        pass
+
+    @staticmethod
+    def join_paths(path1, path2):
+        """
+        TODO
+        """
+
+        path = PurePath(path1).joinpath(path2)
+        return Path(path)
+
+#####################
+#####################
+
+
+class Settings:
     """
     Data structure for the PyTornado execution settings
 
@@ -72,8 +154,6 @@ class Settings(FixedNamespace):
 
         make_template_only = True if settings_dict is None else False
 
-        super().__init__()
-
         self.settings = FixedOrderedDict()
         self.settings['aircraft'] = None
         self.settings['state'] = None
@@ -85,10 +165,11 @@ class Settings(FixedNamespace):
         self.settings['vlm_autopanels_c'] = None
         self.settings['vlm_autopanels_s'] = None
         self.settings['save_results'] = [
-                                        "NO_global",
-                                        "NO_panelwise",
-                                        "NO_loads_with_undeformed_mesh",
-                                        "NO_loads_with_deformed_mesh"]
+            "NO_global",
+            "NO_panelwise",
+            "NO_loads_with_undeformed_mesh",
+            "NO_loads_with_deformed_mesh"
+        ]
         self.settings._freeze()
 
         # SETTINGS -- user-provided visualisation tasks
@@ -97,15 +178,12 @@ class Settings(FixedNamespace):
         self.plot['geometry_wing'] = None
         self.plot['geometry_segment'] = None
         self.plot['geometry_property'] = None
-
         self.plot['lattice_aircraft'] = False
         self.plot['lattice_aircraft_optional'] = []
         self.plot['lattice_wing'] = None
         self.plot['lattice_segment'] = None
-
         self.plot['results_downwash'] = False
         self.plot['results_panelwise'] = None
-
         self.plot['show'] = True
         self.plot['save'] = False
         self.plot._freeze()
@@ -115,6 +193,28 @@ class Settings(FixedNamespace):
         if not make_template_only:
             self.update_from_dict(**settings_dict)
             self.aircraft_name = os.path.splitext(self.settings['aircraft'])[0]
+
+    ####################################################
+        self.paths = ProjectPaths(wkdir)
+        self.paths.add_path(uid='dir_aircraft', path=DIR_AIRCRAFT)
+        self.paths.add_path(uid='dir_airfoils', path=DIR_AIRFOILS)
+        self.paths.add_path(uid='dir_deformation', path=DIR_DEFORMATION)
+        self.paths.add_path(uid='dir_plots', path=DIR_PLOTS)
+        self.paths.add_path(uid='dir_results', path=DIR_RESULTS)
+        self.paths.add_path(uid='dir_settings', path=DIR_SETTINGS)
+        self.paths.add_path(uid='dir_state', path=DIR_STATE)
+
+
+#         self.files = {
+#                 "aircraft": ,
+#                 "deformation": f"{DIR_DEFORMATION}/{self.aircraft_name}.json",
+#                 "settings": f"{DIR_SETTINGS}/{self.project_basename}.json",
+#                 "state": f"{DIR_STATE}/{self.settings['state']}.json",
+#                 "results_global": f"{DIR_RESULTS}/{self.project_basename}_global.json",
+#                 "results_panelwise": f"{DIR_RESULTS}/{self.project_basename}_panelwise.json",
+#                 "results_apm_global": f"{DIR_RESULTS}/{self.project_basename}_APM.json",
+#                 }
+    ####################################################
 
         # Project directories (will be converted to abs. paths when wkdir is set)
         self.dirs = {
@@ -146,8 +246,6 @@ class Settings(FixedNamespace):
                 self.aircraft_is_cpacs = False
             else:
                 self.aircraft_is_cpacs = True
-
-        self._freeze()
 
         if make_template_only is False:
             self.check()
@@ -216,10 +314,10 @@ class Settings(FixedNamespace):
             raise TypeError("'settings.aircraft' must be a valid STRING")
 
         if not self.settings['aircraft']:
-            raise SettingsDefinitionError("Must provide AIRCRAFT file!")
+            raise ValueError("Must provide AIRCRAFT file!")
 
         if self.settings['state'] is None:
-            raise SettingsDefinitionError("must provide CPACS state uID or PyTornado state file!")
+            raise ValueError("must provide CPACS state uID or PyTornado state file!")
         elif not isinstance(self.settings['state'], str):
             raise TypeError("'settings.state' must be valid STRING")
 
