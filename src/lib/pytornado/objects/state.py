@@ -127,8 +127,9 @@ class FlightState:
         return free_stream_vel
 
     def update_from_dict(self, aero):
-        """Update state"""
+        """Update state using a dictionary"""
 
+        # ----- Make everything into lists -----
         array_lenghts = set()
         for key, value in aero.items():
             if not isinstance(value, list):
@@ -138,54 +139,46 @@ class FlightState:
             self.aero[key] = value
 
         if len(array_lenghts) > 1:
-            msg = "State arrays have different lenghts!"
-            raise ValueError(msg)
+            raise ValueError("State arrays have different lenghts!")
 
         self.num_apm_values = int(list(array_lenghts)[0])
 
-#####################################################
-        # UPDATE!!!
-#####################################################
-        # # We can allow either "airspeed and density" or "mach number and altitude"
-        # all_values = {'airspeed', 'mach', 'density', 'altitude'}
-        # pairs = [
-        #     {'airspeed', 'density'},
-        #     {'airspeed', 'altitude'},
-        #     {'mach', 'altitude'},
-        # ]
+        # ----- We can allow different input combinations -----
+        all_props = {'airspeed', 'mach', 'density', 'altitude'}
+        valid_prop_pairs = [
+            {'airspeed', 'density'},
+            {'airspeed', 'altitude'},
+            {'mach', 'altitude'},
+        ]
 
-        # err_msg = """
-        # Invalid combination: You may set:
-        # (1) 'airspeed' and 'density' or
-        # (2) 'airspeed' and 'altitude' or
-        # (3) 'mach' and 'altitude'
-        # Make sure the remaining values are all set to 'None'.
-        # """
+        is_input = {prop: False for prop in all_props}
+        for prop in all_props:
+            if self.aero[prop] is not None:
+                if all(isinstance(value, (int, float)) for value in self.aero[prop]):
+                    is_input[prop] = True
 
-        # for pair in pairs:
-        #     pair_values = [self.aero.get(v, None) for v in pair]
-        #     other_values = [self.aero.get(v, None) for v in all_values.difference(pair)]
+        input_props = set(prop for prop in all_props if is_input[prop] is True)
+        if input_props not in valid_prop_pairs:
+            err_msg = """
+            Invalid combination: You may set:
+            (1) 'airspeed' and 'density' or
+            (2) 'airspeed' and 'altitude' or
+            (3) 'mach' and 'altitude'
+            Make sure the remaining values are all set to 'None'.
+            """
+            raise ValueError(err_msg)
 
-        #     if all(v is not None for v in pair_values):
-        #         if any(v is not None for v in other_values):
-        #             raise ValueError(err_msg)
+        # ----- Compute airspeed and density if necessary -----
+        if is_input['altitude']:
+            atmosphere = Atmosphere(self.aero['altitude'])
+            density = list(atmosphere.density)
+            speed_of_sound = list(atmosphere.speed_of_sound)
 
-        # # Compute airspeed and density if necessary
-        # density = None
-        # speed_of_sound = None
-        # if self.aero['altitude'] is not None:
-        #     atmosphere = Atmosphere(self.aero['altitude'])
-        #     density = float(atmosphere.density)
-        #     speed_of_sound = float(atmosphere.speed_of_sound)
+        if not is_input['density']:
+            self.aero['density'] = density
 
-        # if self.aero['density'] is None:
-        #     self.aero['density'] = density
-
-        # if self.aero['mach'] is not None:
-        #     self.aero['airspeed'] = self.aero['mach']*speed_of_sound
-####################################################
-        # UPDATE!!!
-#####################################################
+        if is_input['mach']:
+            self.aero['airspeed'] = np.array(self.aero['mach'])*np.array(speed_of_sound)
 
     def check(self):
         pass
