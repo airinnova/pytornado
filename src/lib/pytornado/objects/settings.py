@@ -71,12 +71,13 @@ class ProjectPaths:
         absolute file paths are assembled based on the 'root_dir'.
 
         Attributes:
-            :abs_paths: Dictionary with absolute paths
+            :counter: Index to create numbered paths
+            :_abs_paths: Dictionary with absolute paths
             :groups: Dictionary with grouped file UIDs
         """
 
         self._counter = 0
-        self.abs_paths = {}
+        self._abs_paths = {}
         self.groups = defaultdict(list)
         self._set_project_root_dir(root_dir)
 
@@ -108,7 +109,7 @@ class ProjectPaths:
     def root(self):
         """Return the Path object for the project root directory"""
 
-        return self.abs_paths[self.UID_ROOT]
+        return self._abs_paths[self.UID_ROOT]
 
     def _set_project_root_dir(self, root_dir):
         """
@@ -119,7 +120,7 @@ class ProjectPaths:
         """
 
         # Save the absolute path
-        self.abs_paths[self.UID_ROOT] = Path(root_dir).resolve()
+        self._abs_paths[self.UID_ROOT] = Path(root_dir).resolve()
 
     def add_path(self, uid, path, uid_group=None, is_absolute=False):
         """
@@ -132,7 +133,7 @@ class ProjectPaths:
             :is_absolute: Flag indicating if given 'path' is absolute
         """
 
-        if uid in self.abs_paths.keys():
+        if uid in self._abs_paths.keys():
             raise ValueError(f"UID '{uid}' already used")
 
         path = Path(path)
@@ -140,7 +141,7 @@ class ProjectPaths:
         if not is_absolute:
             path = self.__class__.join_paths(self.root, path)
 
-        self.abs_paths[uid] = path
+        self._abs_paths[uid] = path
 
         if uid_group is not None:
             self.groups[uid_group].append(uid)
@@ -156,11 +157,11 @@ class ProjectPaths:
             :uid_group: Optional UID to identify files by groups
         """
 
-        if uid_parent not in self.abs_paths.keys():
+        if uid_parent not in self._abs_paths.keys():
             raise ValueError(f"Parent UID '{uid_parent}' not found")
 
-        parent_path = self.abs_paths[uid_parent]
-        self.abs_paths[uid] = self.__class__.join_paths(parent_path, path)
+        parent_path = self._abs_paths[uid_parent]
+        self._abs_paths[uid] = self.__class__.join_paths(parent_path, path)
 
         if uid_group is not None:
             self.groups[uid_group].append(uid)
@@ -176,11 +177,11 @@ class ProjectPaths:
         format() method of 'str'
         """
 
-        if uid not in self.abs_paths.keys():
+        if uid not in self._abs_paths.keys():
             raise ValueError(f"UID '{uid}' not found")
 
-        formatted_path = str(self.abs_paths[uid])
-        # formatted_path = str(self.abs_paths[uid]).format(*args, **kwargs)
+        formatted_path = str(self._abs_paths[uid])
+        # formatted_path = str(self._abs_paths[uid]).format(*args, **kwargs)
 
         ##### TODO: IMPROVE!!! ####
         # - Make more general
