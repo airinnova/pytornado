@@ -158,3 +158,24 @@ def save_loads(aircraft, settings, state, vlmdata, lattice=None):
         logger.info(f"Writing loads to file '{truncate_filepath(filepath)}'")
         with open(filepath, "w") as fp:
             dump_pretty_json(output, fp)
+
+
+def save_aeroperformance_map(state, settings):
+    """
+    Save the aeroperformance map
+
+    Args:
+        :state: (object) data structure for operating conditions
+        :settings: (object) data structure for execution settings
+    """
+
+    filepath = settings.files['results_apm_global']
+    logger.info(f"Writing panelwise results to file '{truncate_filepath(filepath)}'")
+
+    output = {}
+    for dictionary in [state.aero, state.results]:
+        for k, v in dictionary.items():
+            output[k] = list(v) if v is not None else []
+
+    with open(filepath, "w") as fp:
+        dump_pretty_json(output, fp)

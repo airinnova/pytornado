@@ -230,6 +230,12 @@ def standard_run(args):
         state.results['Cn'].append(vlmdata.coeffs['n'])
         ###############################################
 
+
+    ###############################################
+    # Save aeroperformance map
+    io_results.save_aeroperformance_map(state, settings)
+    ###############################################
+
     logger.info(f"{__prog_name__} {__version__} terminated")
 
     # Return results to caller

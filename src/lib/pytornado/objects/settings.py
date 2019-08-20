@@ -168,6 +168,7 @@ class Settings(FixedNamespace):
                 "state": f"{DIR_STATE}/{self.inputs['state']}.json",
                 "results_global": f"{DIR_RESULTS}/{self.project_basename}_global.json",
                 "results_panelwise": f"{DIR_RESULTS}/{self.project_basename}_panelwise.json",
+                "results_apm_global": f"{DIR_RESULTS}/{self.project_basename}_APM.json",
                 }
 
     def make_abs_paths(self):

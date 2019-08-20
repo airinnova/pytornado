@@ -29,7 +29,7 @@
         "results_panelwise": [
             "cp"
         ],
-        "show": true,
+        "show": false,
         "save": false
     }
 }
