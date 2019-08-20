@@ -39,6 +39,14 @@ from pytornado.objects.utils import FixedNamespace, FixedOrderedDict
 logger = logging.getLogger(__name__)
 
 
+AIRSPEED = 'airspeed'
+DENSITY = 'density'
+ALPHA = 'alpha'
+BETA = 'beta'
+RATE_P = 'rate_P'
+RATE_Q = 'rate_Q'
+RATE_R = 'rate_R'
+
 # Fundamental parameters used to define a flight state
 STATE_BASE_PARAMS = [
     'airspeed', 'density', 'alpha', 'beta',
@@ -52,6 +60,18 @@ GLOBAL_COEFFS = [
     'Cx', 'Cy', 'Cz',
     'CD', 'CC', 'CL',
     'Cl', 'Cm', 'Cn',
+]
+
+FLIGH_STATE_PROPS = [
+    'alpha',
+    'beta',
+    'rate_P',
+    'rate_Q',
+    'rate_R',
+    'mach',
+    'altitude',
+    'airspeed',
+    'density',
 ]
 
 
@@ -90,15 +110,8 @@ class FlightState:
         """
 
         self.aero = FixedOrderedDict()
-        self.aero['alpha'] = None
-        self.aero['beta'] = None
-        self.aero['rate_P'] = None
-        self.aero['rate_Q'] = None
-        self.aero['rate_R'] = None
-        self.aero['mach'] = None
-        self.aero['altitude'] = None
-        self.aero['airspeed'] = None
-        self.aero['density'] = None
+        for prop in FLIGH_STATE_PROPS:
+            self.aero[prop] = None
         self.aero._freeze()
 
         self.results = {}
@@ -180,83 +193,26 @@ class FlightState:
         if is_input['mach']:
             self.aero['airspeed'] = np.array(self.aero['mach'])*np.array(speed_of_sound)
 
-    def check(self):
-        pass
-    #     """Check properties of state settings"""
+        self.check_values()
 
-    #     logger.info("Checking aerodynamic settings...")
+    def check_values(self):
+        """Make sure input values have correct format"""
 
-    #     # Airspeed
-    #     if self.aero['airspeed'] is None:
-    #         raise ValueError("'aero.airspeed' is not defined.")
-    #     elif not isinstance(self.aero['airspeed'], (float, int)):
-    #         raise TypeError("'aero.airspeed' must be FLOAT [m/s].")
-    #     else:
-    #         self.aero['airspeed'] = float(self.aero['airspeed'])
-    #     # ------------------------------------------------------------
+        # Make sure to always use float arrays
+        for prop in FLIGH_STATE_PROPS:
+            if self.aero[prop] is not None:
+                self.aero[prop] = np.array(self.aero[prop], dtype=float)
 
-    #     # angle of attack
-    #     if self.aero['alpha'] is None:
-    #         raise ValueError("'aero.alpha' is not defined.")
-    #     elif not isinstance(self.aero['alpha'], (float, int)):
-    #         raise TypeError("'aero.alpha' must be FLOAT [deg].")
-    #     elif not -90.0 <= self.aero['alpha'] <= +90.0:
-    #         raise ValueError("'aero.alpha' too large.")
-    #     else:
-    #         self.aero['alpha'] = float(self.aero['alpha'])
-
-    #     # sideslip angle
-    #     if self.aero['beta'] is None:
-    #         raise ValueError("'aero.beta' is not defined.")
-    #     elif not isinstance(self.aero['beta'], (float, int)):
-    #         raise TypeError("'aero.beta' must be FLOAT [deg].")
-    #     elif not -90.0 <= self.aero['beta'] <= +90.0:
-    #         raise ValueError("'aero.beta' too large.")
-    #     else:
-    #         self.aero['beta'] = float(self.aero['beta'])
-
-    #     # x-rotation rate
-    #     if self.aero['rate_P'] is None:
-    #         raise ValueError("'aero.rate_P' is not defined.")
-    #     elif not isinstance(self.aero['rate_P'], (float, int)):
-    #         raise TypeError("'aero.rate_P' must be FLOAT [rad/s].")
-    #     else:
-    #         self.aero['rate_P'] = float(self.aero['rate_P'])
-
-    #     # y-rotation rate
-    #     if self.aero['rate_Q'] is None:
-    #         raise ValueError("'aero.rate_Q' is not defined.")
-    #     elif not isinstance(self.aero['rate_Q'], (float, int)):
-    #         raise TypeError("'aero.rate_Q' must be FLOAT [rad/s].")
-    #     else:
-    #         self.aero['rate_Q'] = float(self.aero['rate_Q'])
-
-    #     # z-rotation rate
-    #     if self.aero['rate_R'] is None:
-    #         raise ValueError("'aero.rate_R' is not defined.")
-    #     elif not isinstance(self.aero['rate_R'], (float, int)):
-    #         raise TypeError("'aero.rate_R' must be FLOAT [rad/s].")
-    #     else:
-    #         self.aero['rate_R'] = float(self.aero['rate_R'])
-
-    #     # density
-    #     if self.aero['density'] is None:
-    #         raise ValueError("'aero.density' is not defined.")
-    #     elif not isinstance(self.aero['density'], (float, int)):
-    #         raise TypeError("'aero.density' must be positive FLOAT [kgm-3].")
-    #     elif not self.aero['density'] >= 0.0:
-    #         raise ValueError("'aero.density' must be positive.")
-    #     else:
-    #         self.aero['density'] = float(self.aero['density'])
-
-    #     # 2. SET STATE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-    #     self.state = True
+        # Check that angles are in correct range
+        for angle in ['alpha', 'beta']:
+            range_is_not_ok = (self.aero['alpha'] < -90) & (self.aero['alpha'] > 90)
+            if any(range_is_not_ok):
+                raise ValueError(f"Angle '{angle}' must be in range [-90, 90] degrees")
 
     def iter_states(self):
         """
         Iterator which yields a dictionary for each flight state
         """
-
 
         for i in range(0, self.num_apm_values):
             self.idx_current_state = i
