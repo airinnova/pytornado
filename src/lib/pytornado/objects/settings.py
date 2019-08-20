@@ -47,11 +47,12 @@ DIR_TEMPLATE_WKDIR = 'pytornado'
 
 from pathlib import Path, PurePath
 from collections import defaultdict
-
+import string
 
 class ProjectPaths:
 
     UID_ROOT = 'root'
+    FORMATTER_COUNTER = 'counter'
 
     def __init__(self, root_dir):
         """
@@ -74,11 +75,23 @@ class ProjectPaths:
             :groups: Dictionary with grouped file UIDs
         """
 
+        self._counter = 0
         self.abs_paths = {}
         self.groups = defaultdict(list)
         self._set_project_root_dir(root_dir)
 
-    def __call__(self, uid):
+    @property
+    def counter(self):
+        return self._counter
+
+    @counter.setter
+    def counter(self, counter):
+        if not isinstance(counter, int):
+            raise ValueError("Counter must be of type 'int'")
+
+        self._counter = counter
+
+    def __call__(self, uid, make_dirs=True):
         """
         Shortcut to return a path
 
@@ -86,7 +99,10 @@ class ProjectPaths:
             :uid: Path UID
         """
 
-        return self.abs_paths[uid]
+        path = self.format_path(uid)
+        if make_dirs:
+            path.parent.mkdir(parents=True, exist_ok=True)
+        return path
 
     @property
     def root(self):
@@ -149,7 +165,7 @@ class ProjectPaths:
         if uid_group is not None:
             self.groups[uid_group].append(uid)
 
-    def format_path(self, uid, *args, **kwargs):
+    def format_path(self, uid):
         """
         Run a string format() method on a path and return new path
 
@@ -160,11 +176,20 @@ class ProjectPaths:
         format() method of 'str'
         """
 
-        if uid in self.abs_paths.keys():
-            raise ValueError(f"Parent UID '{uid_parent}' not found")
+        if uid not in self.abs_paths.keys():
+            raise ValueError(f"UID '{uid}' not found")
 
-        formatted_path = str(self.abs_paths[uid]).format(*args, **kwargs)
-        return formatted_path
+        formatted_path = str(self.abs_paths[uid])
+        # formatted_path = str(self.abs_paths[uid]).format(*args, **kwargs)
+
+        ##### TODO: IMPROVE!!! ####
+        # - Make more general
+        formatters = [f for (_, f, _, _) in string.Formatter().parse(formatted_path)]
+        if self.FORMATTER_COUNTER in formatters:
+            formatted_path = formatted_path.format(counter=self.counter)
+        ###########################
+
+        return Path(formatted_path)
 
     @staticmethod
     def join_paths(path1, path2):
@@ -188,7 +213,7 @@ class ProjectPaths:
         """
 
         for uid in self.groups[uid_group]:
-            yield self.abs_paths[uid]
+            yield self.__call__(uid, make_dirs=False)
 
 #############################################################################
 
@@ -257,15 +282,18 @@ class Settings:
         Initialise the file structure
         """
 
+        output_subdir = f"/{self.project_basename}" + "_{counter:03d}"
+
         # Directories
         self.paths = ProjectPaths(self.wkdir)
         self.paths.add_path(uid='d_aircraft', path=DIR_AIRCRAFT, uid_group='dir')
         self.paths.add_path(uid='d_airfoils', path=DIR_AIRFOILS, uid_group='dir')
         self.paths.add_path(uid='d_deformation', path=DIR_DEFORMATION, uid_group='dir')
-        self.paths.add_path(uid='d_plots', path=DIR_PLOTS, uid_group='dir')
-        self.paths.add_path(uid='d_results', path=DIR_RESULTS, uid_group='dir')
         self.paths.add_path(uid='d_settings', path=DIR_SETTINGS, uid_group='dir')
         self.paths.add_path(uid='d_state', path=DIR_STATE, uid_group='dir')
+
+        self.paths.add_path(uid='d_plots', path=DIR_PLOTS+output_subdir, uid_group='dir')
+        self.paths.add_path(uid='d_results', path=DIR_RESULTS+output_subdir, uid_group='dir')
 
         # Files
         self.paths.add_subpath(uid_parent='d_aircraft', uid='f_aircraft', path=f"{self.settings['aircraft']}")

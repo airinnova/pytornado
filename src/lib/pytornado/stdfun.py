@@ -140,6 +140,8 @@ def standard_run(args):
 
     # ----- Iterate through the flight states -----
     for i, cur_state in enumerate(state.iter_states()):
+        settings.paths.counter = i
+
         ##########################################################
         # TODO: Don't set refs here. Find better solution!
         cur_state.refs = aircraft.refs
