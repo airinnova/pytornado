@@ -513,13 +513,12 @@ def get_aircraft_refs(aircraft, tixi):
     aircraft.refs['chord'] = tixi.getDoubleElement(XPATH_REFS + '/length')
 
 
-def load(aircraft, state, settings):
+def load(aircraft, settings):
     """
-    Get aircraft model, flight state and settings data from a CPACS file
+    Get aircraft model from CPACS
 
     Args:
         :aircraft: Aircraft model
-        :state: (object) Data structure for flight state
         :settings: Settings object
     """
 

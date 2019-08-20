@@ -59,6 +59,7 @@ def load(state, settings):
         state_dict = json.load(fp)
 
     state.update_from_dict(**state_dict)
+    state.check()
 
 
 def save(state, settings):

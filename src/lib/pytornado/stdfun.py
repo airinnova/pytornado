@@ -122,21 +122,15 @@ def standard_run(args):
 
     # ===== Setup aircraft model and flight state =====
     aircraft = Aircraft()
-    state = FlightState()
-
     if settings.aircraft_is_cpacs:
-        logger.debug("Getting CPACS aircraft model...")
-        io_cpacs.load(aircraft, state, settings)
+        io_cpacs.load(aircraft, settings)
     else:
-        logger.debug("Getting JSON aircraft model...")
         io_model.load(aircraft, settings)
 
-    logger.debug("Getting flight state...")
+    state = FlightState()
     io_state.load(state, settings)
-    state.check()
 
     if settings.inputs['deformation']:
-        logger.debug("Loading aircraft deformation...")
         io_deformation.load_deformation(aircraft, settings)
 
     # ===== Generate lattice =====
@@ -146,16 +140,15 @@ def standard_run(args):
 
     # ----- Iterate through the flight states -----
     for i, cur_state in enumerate(state.iter_states()):
-
-##########################################################
-        # TODO: Don't set here. Find better solution
+        ##########################################################
+        # TODO: Don't set refs here. Find better solution!
         cur_state.refs = aircraft.refs
-##########################################################
+        ##########################################################
 
-##########################################################
+        ##########################################################
         # TODO: Find better solution for pre_panelling() function
         make_new_subareas = True if i == 0 else False
-##########################################################
+        ##########################################################
 
         vlm.gen_lattice(aircraft, lattice, cur_state, settings, make_new_subareas)
 
@@ -211,12 +204,10 @@ def standard_run(args):
             if settings.plot['results_panelwise']:
                 for result in settings.plot['results_panelwise']:
                     pl_results.view_panelwise(aircraft, cur_state, lattice, vlmdata, result, plt_settings)
-        else:
-            logger.info("No plots to save or show...")
 
-###############################################
-        # TODO: find better solution
-###############################################
+        ###############################################
+        # TODO: Find better solution
+        ###############################################
         # Save AeroPerformance map results
         state.results['Fx'].append(vlmdata.forces['x'])
         state.results['Fy'].append(vlmdata.forces['y'])
@@ -237,7 +228,7 @@ def standard_run(args):
         state.results['Cl'].append(vlmdata.coeffs['l'])
         state.results['Cm'].append(vlmdata.coeffs['m'])
         state.results['Cn'].append(vlmdata.coeffs['n'])
-###############################################
+        ###############################################
 
     logger.info(f"{__prog_name__} {__version__} terminated")
 
