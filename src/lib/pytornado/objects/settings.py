@@ -81,35 +81,20 @@ class ProjectPaths:
         self.groups = defaultdict(list)
         self._set_project_root_dir(root_dir)
 
-    @property
-    def counter(self):
-        return self._counter
-
-    @counter.setter
-    def counter(self, counter):
-        if not isinstance(counter, int):
-            raise ValueError("Counter must be of type 'int'")
-
-        self._counter = counter
-
-    def __call__(self, uid, make_dirs=True):
+    def __call__(self, uid, make_dirs=False):
         """
-        Shortcut to return a path
+        Return a path for given UID
 
         Args:
             :uid: Path UID
         """
 
-        path = self.format_path(uid)
+        path = self._format_path(uid)
+
         if make_dirs:
             path.parent.mkdir(parents=True, exist_ok=True)
+
         return path
-
-    @property
-    def root(self):
-        """Return the Path object for the project root directory"""
-
-        return self._abs_paths[self.UID_ROOT]
 
     def _set_project_root_dir(self, root_dir):
         """
@@ -121,6 +106,23 @@ class ProjectPaths:
 
         # Save the absolute path
         self._abs_paths[self.UID_ROOT] = Path(root_dir).resolve()
+
+    @property
+    def root(self):
+        """Return the Path object for the project root directory"""
+
+        return self.__call__(self.UID_ROOT)
+
+    @property
+    def counter(self):
+        return self._counter
+
+    @counter.setter
+    def counter(self, counter):
+        if not isinstance(counter, int):
+            raise ValueError("Counter must be of type 'int'")
+
+        self._counter = counter
 
     def add_path(self, uid, path, uid_group=None, is_absolute=False):
         """
@@ -161,12 +163,10 @@ class ProjectPaths:
             raise ValueError(f"Parent UID '{uid_parent}' not found")
 
         parent_path = self._abs_paths[uid_parent]
-        self._abs_paths[uid] = self.__class__.join_paths(parent_path, path)
+        assembled_path = self.__class__.join_paths(parent_path, path)
+        self.add_path(uid, assembled_path, uid_group)
 
-        if uid_group is not None:
-            self.groups[uid_group].append(uid)
-
-    def format_path(self, uid):
+    def _format_path(self, uid):
         """
         Run a string format() method on a path and return new path
 
