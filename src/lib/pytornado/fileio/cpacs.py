@@ -542,4 +542,5 @@ def load(aircraft, state, settings):
     write_airfoil_files(settings, tixi)
     get_aircraft_refs(aircraft, tixi)
 
+    aircraft.generate()
     tixi.close()

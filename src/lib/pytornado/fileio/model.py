@@ -106,6 +106,8 @@ def load(aircraft, settings):
             control.panels['num_c'] = control_entry['panels']['num_c']
             control.check()
 
+    aircraft.generate()
+
 
 def save(aircraft, settings):
     """

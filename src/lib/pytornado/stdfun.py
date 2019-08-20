@@ -51,7 +51,7 @@ from pytornado.objects.vlm_struct import VLMData, VLMLattice
 logger = logging.getLogger(__name__)
 
 FILE_LOG = os.path.join(os.getcwd(), 'log.txt')
-__prog_name__ = 'py3tornado'
+__prog_name__ = 'pytornado'
 
 
 class StdRunArgs:
@@ -95,7 +95,7 @@ def clean_project_dir(settings):
 
 def standard_run(args):
     """
-    Run py3tornado
+    Run a standard analysis
 
     Args:
         :args: arguments (see StdRunArgs())
@@ -111,8 +111,7 @@ def standard_run(args):
     else:
         level = 'default'
 
-    log_filename = os.path.join(FILE_LOG)
-    hlogger.init(log_filename, level)
+    hlogger.init(FILE_LOG, level)
     logger = logging.getLogger(__name__)
 
     # ===== Setup =====
@@ -129,10 +128,8 @@ def standard_run(args):
         logger.debug("Getting CPACS aircraft model...")
         io_cpacs.load(aircraft, state, settings)
     else:
-        logger.debug("Getting native aircraft model...")
+        logger.debug("Getting JSON aircraft model...")
         io_model.load(aircraft, settings)
-
-    aircraft.generate()
 
     logger.debug("Getting flight state...")
     io_state.load(state, settings)
