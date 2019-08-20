@@ -49,6 +49,12 @@ def setup_wkdir():
         * This includes flight state definitions and execution settings
     """
 
+#####################################################
+#####################################################
+    # TODO: UPDATE!!!
+#####################################################
+#####################################################
+
     # We create a separate directory for the template data
     # to avoid potential cluttering the user's directory
     wkdir = DIR_TEMPLATE_WKDIR

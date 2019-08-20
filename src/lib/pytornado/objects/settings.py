@@ -81,7 +81,7 @@ class ProjectPaths:
         self.groups = defaultdict(list)
         self._set_project_root_dir(root_dir)
 
-    def __call__(self, uid, make_dirs=False):
+    def __call__(self, uid, make_dirs=False, is_dir=False):
         """
         Return a path for given UID
 
@@ -92,7 +92,8 @@ class ProjectPaths:
         path = self._format_path(uid)
 
         if make_dirs:
-            path.parent.mkdir(parents=True, exist_ok=True)
+            parent_dirs = path if is_dir else path.parent
+            parent_dirs.mkdir(parents=True, exist_ok=True)
 
         return path
 
@@ -221,7 +222,7 @@ class ProjectPaths:
 
 class Settings:
 
-    def __init__(self, project_basename, wkdir, *, settings_dict=None, make_dirs=True, check_ac_file_type=True):
+    def __init__(self, settings_filename, wkdir, *, settings_dict=None, make_dirs=True, check_ac_file_type=True):
         """
         Data structure with execution settings
 
@@ -232,7 +233,7 @@ class Settings:
         """
 
         self.wkdir = wkdir
-        self.project_basename = project_basename
+        self.project_basename = os.path.splitext(settings_filename)[0]
 
         self.settings = {}
         self.settings['aircraft'] = None

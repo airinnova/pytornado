@@ -30,6 +30,7 @@ Developed at Airinnova AB, Stockholm, Sweden.
 import os
 import logging
 import json
+from pathlib import Path
 
 from commonlibs.logger import truncate_filepath
 
@@ -39,7 +40,7 @@ from pytornado.fileio.utils import dump_pretty_json
 logger = logging.getLogger(__name__)
 
 
-def load(project_basename):
+def load(settings_filepath):
     """
     Read PyTornado settings from PyTornado settings file.
 
@@ -47,18 +48,23 @@ def load(project_basename):
         :settings: (object) data structure for execution settings
     """
 
-    set_file = os.path.join(os.getcwd(), "settings", f"{project_basename}.json")
-    logger.info(f"Reading settings from file '{truncate_filepath(set_file)}'...")
+    settings_filepath = Path(settings_filepath).resolve()
+    if not settings_filepath.exists:
+        raise IOError(f"File '{settings_filepath}' not found")
 
-    if not os.path.exists(set_file):
-        raise IOError(f"File '{set_file}' not found")
+    settings_filename = settings_filepath.name
+    wkdir = settings_filepath.parent
 
-    with open(set_file, 'r') as fp:
+    # ==================================
+    # TODO: make more general!!!!
+    if str(wkdir.name) == 'settings':
+        wkdir = wkdir.parent
+    # ==================================
+
+    with open(settings_filepath, 'r') as fp:
         settings_dict = json.load(fp)
 
-    settings = Settings(project_basename=project_basename,
-                        wkdir=os.path.abspath(os.getcwd()),
-                        settings_dict=settings_dict)
+    settings = Settings(settings_filename, wkdir, settings_dict=settings_dict)
     return settings
 
 

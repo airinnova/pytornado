@@ -82,15 +82,16 @@ def get_settings(project_basename):
 
 
 def clean_project_dir(settings):
-    """
-    Remove old files in project directory
+    pass
+#     """
+#     Remove old files in project directory
 
-    Args:
-        :settings: settings instance
-    """
+#     Args:
+#         :settings: settings instance
+#     """
 
-    logger.info("Removing old files...")
-    settings.clean()
+#     logger.info("Removing old files...")
+#     settings.clean()
 
 
 def standard_run(args):
@@ -118,7 +119,7 @@ def standard_run(args):
     logger.info(hlogger.decorate(f"{__prog_name__} {__version__}"))
 
     logger.info("Getting configuration file...")
-    settings = io_settings.load(project_basename=args.run)
+    settings = io_settings.load(settings_filepath=args.run)
 
     # ===== Setup aircraft model and flight state =====
     aircraft = Aircraft()
@@ -141,6 +142,12 @@ def standard_run(args):
     # ----- Iterate through the flight states -----
     for i, cur_state in enumerate(state.iter_states()):
         settings.paths.counter = i
+
+        ##########################################################
+        # TODO: Temporary workaround!
+        settings.paths('d_results', make_dirs=True, is_dir=True)
+        settings.paths('d_plots', make_dirs=True, is_dir=True)
+        ##########################################################
 
         ##########################################################
         # TODO: Don't set refs here. Find better solution!

@@ -10,7 +10,7 @@ import pytest
 from pytornado.stdfun import StdRunArgs, standard_run
 
 
-here = os.path.abspath(os.path.dirname(__file__))
+HERE = os.path.abspath(os.path.dirname(__file__))
 
 def test_panel_forces():
     """
@@ -18,18 +18,17 @@ def test_panel_forces():
     """
 
     testdir = "test1"
-    run_name = "test"
 
-    os.chdir(os.path.join(here, testdir))
     args = StdRunArgs()
-    args.run = run_name
+    args.run = os.path.join(HERE, testdir, 'settings', 'test.json')
     standard_run(args)
 
     # -------------------------------------------------------------------------
     # Panel forces should act at theses coordinates
     # -------------------------------------------------------------------------
 
-    with open("_results/loads_UID_wing1.json", "r") as fp:
+    path = os.path.join(HERE, testdir, "_results/loads_UID_wing1.json")
+    with open(path, "r") as fp:
         loads = json.load(fp)
 
     exp_coords = np.array([
@@ -55,7 +54,8 @@ def test_panel_forces():
         Fy += fy
         Fz += fz
 
-    with open("_results/test_global.json", "r") as fp:
+    path = os.path.join(HERE, testdir, "_results/test_global.json")
+    with open(path, "r") as fp:
         glob_results = json.load(fp)
 
     assert Fx == pytest.approx(glob_results['global_forces']['x'])

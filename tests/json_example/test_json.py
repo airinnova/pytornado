@@ -10,12 +10,12 @@ from pytornado.stdfun import StdRunArgs, standard_run
 
 
 HERE = os.path.abspath(os.path.dirname(__file__))
-RUN_NAME = "D150_AGILE_Hangar"
 WKDIR = "wkdir"
+SETTINGS_FILE = os.path.join(HERE, WKDIR, 'settings', 'D150_AGILE_Hangar.json')
 STATE_FILE = os.path.join(HERE, WKDIR, 'state', 'example.json')
 
 ARGS = StdRunArgs()
-ARGS.run = RUN_NAME
+ARGS.run = SETTINGS_FILE
 
 
 def set_state_file(state):
