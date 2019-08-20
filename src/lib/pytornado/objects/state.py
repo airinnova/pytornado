@@ -40,17 +40,42 @@ logger = logging.getLogger(__name__)
 
 
 AIRSPEED = 'airspeed'
-DENSITY = 'density'
 ALPHA = 'alpha'
+ALTITUDE = 'altitude'
 BETA = 'beta'
+DENSITY = 'density'
+MACH = 'mach'
 RATE_P = 'rate_P'
 RATE_Q = 'rate_Q'
 RATE_R = 'rate_R'
 
-# Fundamental parameters used to define a flight state
-STATE_BASE_PARAMS = [
-    'airspeed', 'density', 'alpha', 'beta',
-    'rate_P', 'rate_Q', 'rate_R'
+STATE_ALL_PARAMS = [
+    AIRSPEED,
+    ALPHA,
+    ALTITUDE,
+    BETA,
+    DENSITY,
+    MACH,
+    RATE_P,
+    RATE_Q,
+    RATE_R,
+]
+
+# Fundamental parameters used to define a flight state for a VLM calculation
+STATE_PRIMARY_PARAMS = [
+    AIRSPEED,
+    ALPHA,
+    BETA,
+    DENSITY,
+    RATE_P,
+    RATE_Q,
+    RATE_R,
+]
+
+# Alternative input parameters
+STATE_SECONDARY_PARAMS = [
+    ALTITUDE,
+    MACH,
 ]
 
 GLOBAL_COEFFS = [
@@ -60,18 +85,6 @@ GLOBAL_COEFFS = [
     'Cx', 'Cy', 'Cz',
     'CD', 'CC', 'CL',
     'Cl', 'Cm', 'Cn',
-]
-
-FLIGH_STATE_PROPS = [
-    'alpha',
-    'beta',
-    'rate_P',
-    'rate_Q',
-    'rate_R',
-    'mach',
-    'altitude',
-    'airspeed',
-    'density',
 ]
 
 
@@ -100,7 +113,8 @@ class FlightState:
 
         Attributes:
             :aero: (dict) aerodynamic operating parameters
-            :num_apm_values: (int) Number of values is APM
+            :results: (dict) aeroperformance map results
+            :num_apm_entries: (int) Number of values is APM
             :idx_current_state: (int) Index of the current flight state
 
         Note:
@@ -110,7 +124,7 @@ class FlightState:
         """
 
         self.aero = FixedOrderedDict()
-        for prop in FLIGH_STATE_PROPS:
+        for prop in STATE_ALL_PARAMS:
             self.aero[prop] = None
         self.aero._freeze()
 
@@ -119,7 +133,7 @@ class FlightState:
             self.results[param] = []
 
         # Number of values in the aeroperformance map
-        self.num_apm_values = 0
+        self.num_apm_entries = 0
         self.idx_current_state = None
 
     @property
@@ -127,9 +141,9 @@ class FlightState:
         """Return the free stream velocity vector (incoming flow)"""
 
         i = self.idx_current_state
-        alpha = deg2rad(self.aero['alpha'][i])
-        beta = deg2rad(self.aero['beta'][i])
-        airspeed = self.aero['airspeed'][i]
+        alpha = deg2rad(self.aero[ALPHA][i])
+        beta = deg2rad(self.aero[BETA][i])
+        airspeed = self.aero[AIRSPEED][i]
 
         if None in [alpha, beta, airspeed]:
             raise RuntimeError("'alpha', 'beta' and 'airspeed' must be set")
@@ -140,7 +154,9 @@ class FlightState:
         return free_stream_vel
 
     def update_from_dict(self, aero):
-        """Update state using a dictionary"""
+        """
+        Update state using a dictionary
+        """
 
         # ----- Make everything into lists -----
         array_lenghts = set()
@@ -154,14 +170,14 @@ class FlightState:
         if len(array_lenghts) > 1:
             raise ValueError("State arrays have different lenghts!")
 
-        self.num_apm_values = int(list(array_lenghts)[0])
+        self.num_apm_entries = int(list(array_lenghts)[0])
 
         # ----- We can allow different input combinations -----
-        all_props = {'airspeed', 'mach', 'density', 'altitude'}
+        all_props = {AIRSPEED, MACH, DENSITY, ALTITUDE}
         valid_prop_pairs = [
-            {'airspeed', 'density'},
-            {'airspeed', 'altitude'},
-            {'mach', 'altitude'},
+            {AIRSPEED, DENSITY},
+            {AIRSPEED, ALTITUDE},
+            {MACH, ALTITUDE},
         ]
 
         is_input = {prop: False for prop in all_props}
@@ -181,31 +197,31 @@ class FlightState:
             """
             raise ValueError(err_msg)
 
+        # ----- Only numpy float arrays from now on -----
+        for prop in STATE_ALL_PARAMS:
+            if self.aero[prop] is not None:
+                self.aero[prop] = np.array(self.aero[prop], dtype=float)
+
         # ----- Compute airspeed and density if necessary -----
-        if is_input['altitude']:
-            atmosphere = Atmosphere(self.aero['altitude'])
-            density = list(atmosphere.density)
-            speed_of_sound = list(atmosphere.speed_of_sound)
+        if is_input[ALTITUDE]:
+            atmosphere = Atmosphere(self.aero[ALTITUDE])
+            density = np.array(atmosphere.density)
+            speed_of_sound = np.array(atmosphere.speed_of_sound)
 
-        if not is_input['density']:
-            self.aero['density'] = density
+        if not is_input[DENSITY]:
+            self.aero[DENSITY] = density
 
-        if is_input['mach']:
-            self.aero['airspeed'] = np.array(self.aero['mach'])*np.array(speed_of_sound)
+        if is_input[MACH]:
+            self.aero[AIRSPEED] = self.aero[MACH]*speed_of_sound
 
         self.check_values()
 
     def check_values(self):
         """Make sure input values have correct format"""
 
-        # Make sure to always use float arrays
-        for prop in FLIGH_STATE_PROPS:
-            if self.aero[prop] is not None:
-                self.aero[prop] = np.array(self.aero[prop], dtype=float)
-
         # Check that angles are in correct range
-        for angle in ['alpha', 'beta']:
-            range_is_not_ok = (self.aero['alpha'] < -90) & (self.aero['alpha'] > 90)
+        for angle in [ALPHA, BETA]:
+            range_is_not_ok = (self.aero[angle] < -90) & (self.aero[angle] > 90)
             if any(range_is_not_ok):
                 raise ValueError(f"Angle '{angle}' must be in range [-90, 90] degrees")
 
@@ -214,13 +230,13 @@ class FlightState:
         Iterator which yields a dictionary for each flight state
         """
 
-        for i in range(0, self.num_apm_values):
+        for i in range(0, self.num_apm_entries):
             self.idx_current_state = i
 
             current_state = CurrentState()
 
             current_aero = FixedOrderedDict()
-            for param in STATE_BASE_PARAMS:
+            for param in STATE_PRIMARY_PARAMS:
                 current_aero[param] = float(self.aero[param][i])
             current_aero._freeze()
 
