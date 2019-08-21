@@ -28,20 +28,23 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-TIXI_INSTALLED = True
 try:
     import tixi3.tixi3wrapper as tixiwrapper
     tixiwrapper.Tixi = tixiwrapper.Tixi3
     tixiwrapper.TixiException = tixiwrapper.Tixi3Exception
 except ImportError:
     TIXI_INSTALLED = False
+else:
+    TIXI_INSTALLED = True
 
-TIGL_INSTALLED = True
 try:
     import tigl3.tigl3wrapper as tiglwrapper
     tiglwrapper.Tigl = tiglwrapper.Tigl3
 except ImportError:
     TIGL_INSTALLED = False
+else:
+    TIGL_INSTALLED = True
+
 
 class _XPaths:
     """
@@ -65,6 +68,20 @@ class _XPaths:
             + '/wing[{0:d}]/componentSegments/componentSegment[{1:d}]' \
             + '/controlSurfaces/{3:s}EdgeDevices/{3:s}EdgeDevice[{2:d}]'
         return _control.format(idx_wing, idx_comp_section, idx_control, device_pos)
+
+    @classmethod
+    def APM(cls, tixi, uid_apm):
+        """
+        Return the AeroPerformanceMap for a given UID
+
+        Args:
+            :tixi: Tixi handle
+            :uid_apm: AeroPerformanceMap UID
+        """
+
+        xpath_apm = tixi.uIDGetXPath(uid_apm)
+        xpath_apm += '/aeroPerformanceMap'
+        return xpath_apm
 
 XPATHS = _XPaths
 

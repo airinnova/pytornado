@@ -39,6 +39,7 @@ from pytornado.fileio.utils import parse_str
 from pytornado.objects.model import ComponentDefinitionError
 from pytornado.objects.objecttools import all_controls, all_wings
 from pytornado.fileio.cpacs_utils import open_tixi, open_tigl, XPATHS, get_segment_mid_point
+from pytornado.objects.state import FlightState
 
 # ----- (START) Temporary fix -----
 from pytornado.fileio.__cpacs_patch import PATCH_getControlSurfaceCount, PATCH_getControlSurfaceUID
@@ -48,6 +49,10 @@ logger = logging.getLogger(__name__)
 
 COORD_FORMAT = '%+.7f'
 
+
+# ======================================================================
+# Build the aircraft model
+# ======================================================================
 
 def get_aircraft_name(aircraft, tixi):
     """
@@ -448,11 +453,32 @@ def load(aircraft, settings):
 # AeroPerformanceMap
 # ======================================================================
 
-def get_aero_map():
+def load_state():
+
+    state = FlightState()
+    aero = {}
+
+    # Fill aero dictionary
+
+    state.update_from_dict(aero)
+
+    return state
+
+
+def get_aero_map(tixi):
     """
     Extract the aeroperformance map from CPACS and return a FlightState() object
 
     TODO
     """
 
-    pass
+    xpath_apm = XPATHS.APM(tixi, 'aeroMap_Test')
+    print(xpath_apm)
+
+    a = tixi.getVectorSize(xpath_apm + '/altitude')
+    print(a)
+    c = tixi.getFloatVector(xpath_apm + '/altitude', a)
+    print(c)
+
+
+
