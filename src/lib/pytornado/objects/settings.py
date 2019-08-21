@@ -47,8 +47,10 @@ DIR_TEMPLATE_WKDIR = 'pytornado'
 
 #############################################################################
 
-from pathlib import Path, PurePath
 from collections import defaultdict
+from pathlib import Path, PurePath
+import os
+import shutil
 import string
 
 
@@ -222,20 +224,9 @@ class ProjectPaths:
         path = PurePath(path1).joinpath(path2)
         return Path(path)
 
-    def iter_group_paths(self, uid_group, make_dirs=False):
+    def iter_group_paths(self, uid_groups, make_dirs=False):
         """
         Return a generator with paths belong to group with given UID
-
-        Args:
-            :uid_group: Group UID
-        """
-
-        for uid in self._groups[uid_group]:
-            yield self.__call__(uid, make_dirs=make_dirs)
-
-    def make_dirs_for_groups(self, uid_groups):
-        """
-        Create directories for all paths belonging to specified group(s)
 
         Args:
             :uid_groups: Optional UID(s) to identify files by groups
@@ -247,9 +238,40 @@ class ProjectPaths:
         if isinstance(uid_groups, str):
             uid_groups = (uid_groups,)
 
+
         for uid_group in uid_groups:
-            for _ in self.iter_group_paths(uid_group, make_dirs=True):
-                pass
+            for uid in self._groups[uid_group]:
+                yield self.__call__(uid, make_dirs=make_dirs)
+
+    def make_dirs_for_groups(self, uid_groups):
+        """
+        Create directories for all paths belonging to specified group(s)
+
+        Args:
+            :uid_groups: Optional UID(s) to identify files by groups
+        """
+
+        for _ in self.iter_group_paths(uid_groups, make_dirs=True):
+            pass
+
+    def rm_dirs_for_groups(self, uid_groups):
+        """
+        TODO
+
+        Args:
+            :uid_groups: Optional UID(s) to identify files by groups
+        """
+
+        for path in self.iter_group_paths(uid_groups):
+            if path.is_dir():
+                shutil.rmtree(path, ignore_errors=True)
+            else:
+                ############## TODO : better
+                # - ignore_errors etc...
+                try:
+                    os.remove(path)
+                except:
+                    pass
 
 #############################################################################
 
@@ -332,6 +354,8 @@ class Settings:
         self.paths.add_path(uid='d_settings', path=DIR_SETTINGS, uid_groups='dir')
         self.paths.add_path(uid='d_state', path=DIR_STATE, uid_groups='dir')
         # Output directories
+        self.paths.add_path(uid='d_plots_TOP', path=DIR_PLOTS, uid_groups=('dir', 'tmp'))
+        self.paths.add_path(uid='d_results_TOP', path=DIR_RESULTS, uid_groups=('dir', 'tmp'))
         self.paths.add_path(uid='d_plots', path=DIR_PLOTS+output_subdir, uid_groups=('dir', 'tmp'))
         self.paths.add_path(uid='d_results', path=DIR_RESULTS+output_subdir, uid_groups=('dir', 'tmp'))
 
@@ -360,27 +384,23 @@ class Settings:
 
     def update_from_dict(self, settings, plot):
         """
-        Update settings
+        Update settings from dictionary structures
+
+        Args:
+            :settings: Dictionary with general settings
+            :plot: Dictionary with plot settings
         """
 
-        for key, value in settings.items():
-            self.settings[key] = value
+        for dictionary in [settings, plot]:
+            for key, value in dictionary.items():
+                self.settings[key] = value
 
-        for key, value in plot.items():
-            self.plot[key] = value
+    def clean(self):
+        """
+        Remove old files in project directory
+        """
 
-###################################################
-
-    # def clean(self):
-    #     """
-    #     Remove old files in project directory
-    #     """
-
-    #     dir_keys = ['plots', 'results']
-
-    #     for dir_key in dir_keys:
-    #         abs_dir = self.dirs[dir_key]
-    #         shutil.rmtree(abs_dir, ignore_errors=True)
+        self.paths.rm_dirs_for_groups('tmp')
 
 ###################################################
 

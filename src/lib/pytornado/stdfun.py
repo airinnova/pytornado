@@ -71,27 +71,26 @@ class StdRunArgs:
     quiet = False
 
 
-def get_settings(project_basename):
+def get_settings(settings_filepath):
     """
     Read settings and return a settings instance
     """
 
     logger.info("Getting configuration file...")
-    settings = io_settings.load(project_basename)
+    settings = io_settings.load(settings_filepath)
     return settings
 
 
 def clean_project_dir(settings):
-    pass
-#     """
-#     Remove old files in project directory
+    """
+    Remove old files in project directory
 
-#     Args:
-#         :settings: settings instance
-#     """
+    Args:
+        :settings: settings instance
+    """
 
-#     logger.info("Removing old files...")
-#     settings.clean()
+    logger.info("Removing old files...")
+    settings.clean()
 
 
 def standard_run(args):
