@@ -44,7 +44,7 @@ def main():
     group = parser.add_mutually_exclusive_group()
     group.add_argument('-r', '--run', metavar='<Settings file>', type=str, help=HELP_SET)
     group.add_argument('--cpacs2json', metavar='<CPACS file>', type=str, help=HELP_CPACS2JSON)
-    group.add_argument('--make-wkdir', action='store_true', help=HELP_WKDIR)
+    group.add_argument('--make-example', action='store_true', help=HELP_WKDIR)
 
     group = parser.add_mutually_exclusive_group()
     group.add_argument('-v', '--verbose', action='store_true')
@@ -70,7 +70,7 @@ def main():
         standard_run(args)
     elif args.cpacs2json:
         io_setup.cpacs2pytornado(args.cpacs2json)
-    elif args.make_wkdir:
+    elif args.make_example:
         io_setup.setup_wkdir()
     else:
         parser.print_help()

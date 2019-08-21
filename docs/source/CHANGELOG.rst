@@ -4,8 +4,10 @@ Changelog
 Changelog for PyTornado. Version numbers try to follow `Semantic
 Versioning <https://semver.org/spec/v2.0.0.html>`__.
 
-[*****] -- 2019-08-19
+[0.3.0] -- 2019-08-21
 ---------------------
+
+* Renamed '--make-wkdir' to '--make-example'
 
 Removed
 ~~~~~~~
