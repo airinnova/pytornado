@@ -38,117 +38,15 @@ import numpy as np
 from pytornado.fileio.utils import parse_str
 from pytornado.objects.model import ComponentDefinitionError
 from pytornado.objects.objecttools import all_controls, all_wings
+from pytornado.fileio.cpacs_utils import open_tixi, open_tigl, XPATHS, get_segment_mid_point
 
 # ----- (START) Temporary fix -----
-from pytornado.fileio.cpacs_patch import PATCH_getControlSurfaceCount, PATCH_getControlSurfaceUID
+from pytornado.fileio.__cpacs_patch import PATCH_getControlSurfaceCount, PATCH_getControlSurfaceUID
 # ----- (END) Temporary fix -----
 
 logger = logging.getLogger(__name__)
 
-TIXI_INSTALLED = True
-try:
-    import tixi3.tixi3wrapper as tixiwrapper
-    tixiwrapper.Tixi = tixiwrapper.Tixi3
-    tixiwrapper.TixiException = tixiwrapper.Tixi3Exception
-except ImportError:
-    TIXI_INSTALLED = False
-
-TIGL_INSTALLED = True
-try:
-    import tigl3.tigl3wrapper as tiglwrapper
-    tiglwrapper.Tigl = tiglwrapper.Tigl3
-except ImportError:
-    TIGL_INSTALLED = False
-
-# ----- CPACS paths -----
-XPATH_MODEL = '/cpacs/vehicles/aircraft/model'
-XPATH_REFS = XPATH_MODEL + '/reference'
-XPATH_WINGS = XPATH_MODEL + '/wings'
-XPATH_AIRFOILS = '/cpacs/vehicles/profiles/wingAirfoils'
-XPATH_APMAP = '/cpacs/vehicles/aircraft/analyes/aeroPerformanceMap'
-XPATH_TOOLSPEC = '/cpacs/toolspecific/CEASIOMpy/PyTornado'
-
-XPATH_CONTROL = XPATH_WINGS \
-    + '/wing[{0:d}]/componentSegments/componentSegment[{1:d}]' \
-    + '/controlSurfaces/{3:s}EdgeDevices/{3:s}EdgeDevice[{2:d}]'
-
-XPATH_TOOLSPEC_CONTROL = XPATH_TOOLSPEC + '/controlDevices'
-
-
 COORD_FORMAT = '%+.7f'
-
-
-def open_tixi(cpacs_file):
-    """
-    Return a Tixi handle
-
-    Args:
-        :cpacs_file: CPACS file path
-
-    Returns:
-        :tixi: Tixi handle
-    """
-
-    logger.debug("Checking Tixi installation...")
-    if not TIXI_INSTALLED:
-        err_msg = """
-        Unable to import Tixi. Please make sure Tixi is accessible to Python.
-        Please refer to the documentation to check supported versions of Tixi.
-        """
-        logger.error(err_msg)
-        raise ModuleNotFoundError(err_msg)
-
-    # Note: Casting of filepath to string is necessary, because Tixi only
-    # handles string (not Path() objects)
-    tixi = tixiwrapper.Tixi()
-    tixi.open(str(cpacs_file))
-    return tixi
-
-
-def open_tigl(tixi):
-    """
-    Return a Tigl handle
-
-    Args:
-        :tixi: Tixi handle
-
-    Returns:
-        :tigl: Tigl handle
-    """
-
-    logger.debug("Checking Tigl installation...")
-    if not TIGL_INSTALLED:
-        err_msg = """
-        Unable to import Tigl. Please make sure Tigl is accessible to Python.
-        Please refer to the documentation to check supported versions of Tigl.
-        """
-        logger.error(err_msg)
-        raise ModuleNotFoundError(err_msg)
-
-    tigl = tiglwrapper.Tigl()
-    # On argument 'uid' from Tigl documentation: The UID of the configuration
-    # that should be loaded by TIGL. Could be NULL or an empty string if the
-    # data set contains only one configuration.
-    tigl.open(tixi, uid='')
-    return tigl
-
-
-def get_segment_mid_point(tigl, idx_wing, idx_segment, eta, xsi):
-    """
-    Return a mid point for a segment
-
-    Args:
-        :tigl: Tigl handle
-        :idx_wing: Wing index
-        :idx_segment: Segment index
-        :eta: Relative segment coordinate
-        :xsi: Relative segment coordinate
-    """
-
-    lower = tigl.wingGetLowerPoint(idx_wing, idx_segment, eta, xsi)
-    upper = tigl.wingGetUpperPoint(idx_wing, idx_segment, eta, xsi)
-    mid_point = [(l + u)/2.0 for l, u in zip(lower, upper)]
-    return mid_point
 
 
 def get_aircraft_name(aircraft, tixi):
@@ -160,11 +58,11 @@ def get_aircraft_name(aircraft, tixi):
         :tixi: Tixi handle
     """
 
-    if tixi.checkElement(XPATH_MODEL):
-        aircraft_uid = parse_str(tixi.getTextAttribute(XPATH_MODEL, 'uID'))
+    if tixi.checkElement(XPATHS.MODEL):
+        aircraft_uid = parse_str(tixi.getTextAttribute(XPATHS.MODEL, 'uID'))
         logger.debug(f"Aircraft name: '{aircraft.uid}'")
     else:
-        logger.warning(f"Could not find path '{XPATH_MODEL}'")
+        logger.warning(f"Could not find path '{XPATHS.MODEL}'")
         aircraft_uid = 'NAME_NOT_FOUND'
 
     aircraft.uid = aircraft_uid
@@ -181,18 +79,18 @@ def get_aircraft_wings(aircraft, settings, tixi, tigl):
     """
 
     logger.info("Loading aircraft wings...")
-    if not tixi.checkElement(XPATH_WINGS):
+    if not tixi.checkElement(XPATHS.WINGS):
         err_msg = f"""
-        Could not find path '{XPATH_WINGS}'.
+        Could not find path '{XPATHS.WINGS}'.
         The aircraft must have at least one wing.
         """
         logger.error(err_msg)
         raise ValueError(err_msg)
 
     # ---------- Iterate through wings ----------
-    num_wings = tixi.getNamedChildrenCount(XPATH_WINGS, 'wing')
+    num_wings = tixi.getNamedChildrenCount(XPATHS.WINGS, 'wing')
     for idx_wing in range(1, num_wings + 1):
-        xpath_wing = XPATH_WINGS + f"/wing[{idx_wing}]"
+        xpath_wing = XPATHS.WINGS + f"/wing[{idx_wing}]"
 
         try:
             wing_uid = parse_str(tixi.getTextAttribute(xpath_wing, 'uID'))
@@ -313,7 +211,7 @@ def get_aircraft_controls(aircraft, wing_uid, idx_wing, tixi, tigl):
                 # PATCHED # control_uid = tigl.getControlSurfaceUID(name_comp_section, idx_control)
                 control_uid = PATCH_getControlSurfaceUID(tixi, name_comp_section, idx_control)
                 logger.debug(f"Wing {idx_wing:d} has control '{control_uid:s}'")
-                node_control = XPATH_CONTROL.format(idx_wing, idx_comp_section, idx_control, device_pos)
+                node_control = XPATHS.CONTROL.format(idx_wing, idx_comp_section, idx_control, device_pos)
 
                 # Try to read the relative coordinates for each control (eta, xsi)
                 # ======================================================
@@ -381,12 +279,12 @@ def get_aircraft_controls(aircraft, wing_uid, idx_wing, tixi, tigl):
 
     # ----- CONTROL SURFACE DEFLECTION -----
     try:
-        n_control_dev = tixi.getNamedChildrenCount(XPATH_TOOLSPEC_CONTROL, 'controlDevice')
+        n_control_dev = tixi.getNamedChildrenCount(XPATHS.TOOLSPEC_CONTROL, 'controlDevice')
     except:
         n_control_dev = 0
 
     for idx_control in range(1, n_control_dev + 1):
-        node_control_device = XPATH_TOOLSPEC_CONTROL + '/controlDevice[{}]'.format(idx_control)
+        node_control_device = XPATHS.TOOLSPEC_CONTROL + '/controlDevice[{}]'.format(idx_control)
         control_uid = tixi.getTextAttribute(node_control_device, 'uID')
         deflection = 0
         deflection_mirror = None
@@ -447,6 +345,7 @@ def get_aircraft_airfoils(aircraft, settings, tigl, wing_uid, segment_uid, idx_w
             CPACS error: Could not extract {position} airfoil name
             * Wing: {idx_wing}
             * Segment: {idx_section}
+            * Element: {idx_elem}
             """
             raise ValueError(err_msg)
 
@@ -464,9 +363,9 @@ def write_airfoil_files(settings, tixi):
     """
 
     logger.debug("Extracting airfoil data...")
-    num_airfoils = tixi.getNumberOfChilds(XPATH_AIRFOILS)
+    num_airfoils = tixi.getNumberOfChilds(XPATHS.AIRFOILS)
     for i in range(1, num_airfoils + 1):
-        node_airfoil = XPATH_AIRFOILS + f"/wingAirfoil[{i}]"
+        node_airfoil = XPATHS.AIRFOILS + f"/wingAirfoil[{i}]"
         node_data = node_airfoil + "/pointList"
 
         try:
@@ -500,18 +399,18 @@ def get_aircraft_refs(aircraft, tixi):
     """
 
     aircraft.refs['gcenter'] = np.zeros(3, dtype=float, order='C')
-    aircraft.refs['gcenter'][0] = tixi.getDoubleElement(XPATH_REFS + '/point/x')
-    aircraft.refs['gcenter'][1] = tixi.getDoubleElement(XPATH_REFS + '/point/y')
-    aircraft.refs['gcenter'][2] = tixi.getDoubleElement(XPATH_REFS + '/point/z')
+    aircraft.refs['gcenter'][0] = tixi.getDoubleElement(XPATHS.REFS + '/point/x')
+    aircraft.refs['gcenter'][1] = tixi.getDoubleElement(XPATHS.REFS + '/point/y')
+    aircraft.refs['gcenter'][2] = tixi.getDoubleElement(XPATHS.REFS + '/point/z')
 
     aircraft.refs['rcenter'] = np.zeros(3, dtype=float, order='C')
-    aircraft.refs['rcenter'][0] = tixi.getDoubleElement(XPATH_REFS + '/point/x')
-    aircraft.refs['rcenter'][1] = tixi.getDoubleElement(XPATH_REFS + '/point/y')
-    aircraft.refs['rcenter'][2] = tixi.getDoubleElement(XPATH_REFS + '/point/z')
+    aircraft.refs['rcenter'][0] = tixi.getDoubleElement(XPATHS.REFS + '/point/x')
+    aircraft.refs['rcenter'][1] = tixi.getDoubleElement(XPATHS.REFS + '/point/y')
+    aircraft.refs['rcenter'][2] = tixi.getDoubleElement(XPATHS.REFS + '/point/z')
 
-    aircraft.refs['area'] = tixi.getDoubleElement(XPATH_REFS + '/area')
-    aircraft.refs['span'] = tixi.getDoubleElement(XPATH_REFS + '/length')
-    aircraft.refs['chord'] = tixi.getDoubleElement(XPATH_REFS + '/length')
+    aircraft.refs['area'] = tixi.getDoubleElement(XPATHS.REFS + '/area')
+    aircraft.refs['span'] = tixi.getDoubleElement(XPATHS.REFS + '/length')
+    aircraft.refs['chord'] = tixi.getDoubleElement(XPATHS.REFS + '/length')
 
 
 def load(aircraft, settings):
@@ -544,3 +443,16 @@ def load(aircraft, settings):
 
     aircraft.generate()
     tixi.close()
+
+# ======================================================================
+# AeroPerformanceMap
+# ======================================================================
+
+def get_aero_map():
+    """
+    Extract the aeroperformance map from CPACS and return a FlightState() object
+
+    TODO
+    """
+
+    pass

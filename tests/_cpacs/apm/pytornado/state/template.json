@@ -1,0 +1,13 @@
+{
+    "aero": {
+        "airspeed": 100,
+        "alpha": 2,
+        "altitude": null,
+        "beta": 2,
+        "density": 1.225,
+        "mach": null,
+        "rate_P": 0,
+        "rate_Q": 0,
+        "rate_R": 0
+    }
+}
