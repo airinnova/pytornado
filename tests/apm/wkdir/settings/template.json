@@ -3,8 +3,6 @@
         "aircraft": "template_aircraft.json",
         "state": "template.json",
         "deformation": false,
-        "horseshoe_type": 2,
-        "epsilon": 1e-06,
         "vlm_autopanels_c": 5,
         "vlm_autopanels_s": 20,
         "save_results": [

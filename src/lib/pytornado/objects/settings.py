@@ -32,14 +32,16 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+# ===== Directories =====
+# Input directories
 DIR_AIRCRAFT = 'aircraft'
 DIR_AIRFOILS = 'airfoils'
 DIR_DEFORMATION = 'deformation'
-DIR_PLOTS = '_plots'
-DIR_RESULTS = '_results'
 DIR_SETTINGS = 'settings'
 DIR_STATE = 'state'
-
+# Output directories
+DIR_PLOTS = '_plots'
+DIR_RESULTS = '_results'
 # Template directory name
 DIR_TEMPLATE_WKDIR = 'pytornado'
 
@@ -59,35 +61,39 @@ class ProjectPaths:
         """
         Class providing tools for filepath handling
 
-        Paths stored and returned in this class are based on the 'Path' object
-        from the pathlib standard library, see also:
+        This class automatically converts filepaths into absolute paths,
+        which helps to avoid change directories during runtime of a script.
+
+        Paths stored and returned in this class are based on the 'Path()'
+        object from the pathlib standard library, see also:
 
             * https://docs.python.org/3/library/pathlib.html
 
         Args:
-            :root_dir: Project root directory
+            :root_dir: Project root directory (as abs. or rel. path)
 
-        'root_dir' is the project root directory. All other other added to this
-        class are assumed to reside inside the 'root_dir'. In other words,
-        absolute file paths are assembled based on the 'root_dir'.
+        The 'root_dir' is the project root directory. All other other added
+        to this class are assumed to reside inside the 'root_dir'. In other
+        words, absolute file paths are assembled based on the 'root_dir'.
 
         Attributes:
-            :counter: Index to create numbered paths
+            :_counter: Index to create numbered paths
             :_abs_paths: Dictionary with absolute paths
             :groups: Dictionary with grouped file UIDs
         """
 
         self._counter = 0
         self._abs_paths = {}
-        self.groups = defaultdict(list)
-        self._set_project_root_dir(root_dir)
+        self._groups = defaultdict(list)
+
+        self._set_root_dir(root_dir)
 
     def __call__(self, uid, make_dirs=False, is_dir=False):
         """
         Return a path for given UID
 
         Args:
-            :uid: Path UID
+            :uid: Unique identifier for the path
         """
 
         path = self._format_path(uid)
@@ -98,20 +104,19 @@ class ProjectPaths:
 
         return path
 
-    def _set_project_root_dir(self, root_dir):
+    def _set_root_dir(self, root_dir):
         """
-        Set the project root directory
+        Set the project root directory (rel. path will be converted to abs.)
 
         Args:
             :root_dir: Project root directory
         """
 
-        # Save the absolute path
         self._abs_paths[self.UID_ROOT] = Path(root_dir).resolve()
 
     @property
     def root(self):
-        """Return the Path object for the project root directory"""
+        """Return the Path() object for the project root directory"""
 
         return self.__call__(self.UID_ROOT)
 
@@ -131,8 +136,8 @@ class ProjectPaths:
         Add a path
 
         Args:
-            :uid: Unique identifier
-            :path: Path string
+            :uid: Unique identifier for the path
+            :path: Path string or Path() object
             :uid_groups: Optional UID(s) to identify files by groups
             :is_absolute: Flag indicating if given 'path' is absolute
         """
@@ -147,20 +152,20 @@ class ProjectPaths:
 
         self._abs_paths[uid] = path
 
-        # ----- Add to groups -----
+        # ----- Group bookkeeping -----
         if uid_groups is not None:
-            if isinstance(uid_groups, str):
-                uid_groups = (uid_groups,)
-
             if not isinstance(uid_groups, (str, list, tuple)):
                 raise TypeError(f"'uid_groups' must be of type (str, list, tuple)")
 
+            if isinstance(uid_groups, str):
+                uid_groups = (uid_groups,)
+
             for uid_group in uid_groups:
-                self.groups[uid_group].append(uid)
+                self._groups[uid_group].append(uid)
 
     def add_subpath(self, uid_parent, uid, path, uid_groups=None):
         """
-        Add a child folder or child path to an existing parent path
+        Add a child path to an existing parent path
 
         Args:
             :uid_parent: UID of the parent directory
@@ -178,12 +183,14 @@ class ProjectPaths:
 
     def _format_path(self, uid):
         """
+        TODO: UPDATE docstring
+
         Run a string format() method on a path and return new path
 
         Args:
             :uid: Unique identifier
 
-        All other standard arguments and keyword arguments are forwared to the
+        All other standard arguments and keyword arguments are forwarded to the
         format() method of 'str'
         """
 
@@ -223,7 +230,7 @@ class ProjectPaths:
             :uid_group: Group UID
         """
 
-        for uid in self.groups[uid_group]:
+        for uid in self._groups[uid_group]:
             yield self.__call__(uid, make_dirs=False)
 
 #############################################################################
@@ -231,27 +238,25 @@ class ProjectPaths:
 
 class Settings:
 
-    def __init__(self, settings_filename, wkdir, *, settings_dict=None, make_dirs=True, check_ac_file_type=True):
+    def __init__(self, settings_filename, project_dir, *,
+                 settings_dict=None, make_dirs=True, check_ac_file_type=True):
         """
-        Data structure with execution settings
+        Data structure with PyTornado execution settings
 
         Attributes:
-            :settings: (dict) provided input data
-            :plot: (dict) figures to be generated
-            :wkdir: (string) location of project files
+            :settings_filename: Name of the settings file
+            :project_dir: PyTornado project directory (where all data is expected)
+            :settings_dict: Basic settings data as a dictionary
+            :make_dirs: (bool) Flag for creation of project directories
         """
 
-        self.wkdir = wkdir
+        self.project_dir = project_dir
         self.project_basename = os.path.splitext(settings_filename)[0]
 
         self.settings = {}
         self.settings['aircraft'] = None
         self.settings['state'] = None
         self.settings['deformation'] = None
-        self.settings['horseshoe_type'] = 2
-        self.settings['epsilon'] = 1e-6
-        self.settings['_do_normal_rotations'] = True
-        self.settings['_deformation_check'] = True
         self.settings['vlm_autopanels_c'] = None
         self.settings['vlm_autopanels_s'] = None
         self.settings['save_results'] = [
@@ -260,6 +265,11 @@ class Settings:
             "NO_loads_with_undeformed_mesh",
             "NO_loads_with_deformed_mesh"
         ]
+        # Underscore settings are "hidden" settings that generally shouldn't be changed
+        self.settings['_do_normal_rotations'] = True
+        self.settings['_deformation_check'] = True
+        self.settings['_horseshoe_type'] = 2
+        self.settings['_epsilon'] = 1e-6
 
         self.plot = {}
         self.plot['geometry_aircraft'] = False
@@ -296,7 +306,7 @@ class Settings:
         output_subdir = f"/{self.project_basename}" + "_{counter:03d}"
 
         # ===== Directories =====
-        self.paths = ProjectPaths(self.wkdir)
+        self.paths = ProjectPaths(self.project_dir)
         self.paths.add_path(uid='d_aircraft', path=DIR_AIRCRAFT, uid_groups='dir')
         self.paths.add_path(uid='d_airfoils', path=DIR_AIRFOILS, uid_groups='dir')
         self.paths.add_path(uid='d_deformation', path=DIR_DEFORMATION, uid_groups='dir')
