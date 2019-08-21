@@ -30,8 +30,6 @@ Developed for Airinnova AB, Stockholm, Sweden.
 import os
 import logging
 
-from pytornado.objects.utils import FixedOrderedDict
-
 logger = logging.getLogger(__name__)
 
 DIR_AIRCRAFT = 'aircraft'
@@ -41,6 +39,8 @@ DIR_PLOTS = '_plots'
 DIR_RESULTS = '_results'
 DIR_SETTINGS = 'settings'
 DIR_STATE = 'state'
+
+# Template directory name
 DIR_TEMPLATE_WKDIR = 'pytornado'
 
 #############################################################################
@@ -48,6 +48,7 @@ DIR_TEMPLATE_WKDIR = 'pytornado'
 from pathlib import Path, PurePath
 from collections import defaultdict
 import string
+
 
 class ProjectPaths:
 
@@ -125,14 +126,14 @@ class ProjectPaths:
 
         self._counter = counter
 
-    def add_path(self, uid, path, uid_group=None, is_absolute=False):
+    def add_path(self, uid, path, uid_groups=None, is_absolute=False):
         """
         Add a path
 
         Args:
             :uid: Unique identifier
             :path: Path string
-            :uid_group: Optional UID to identify files by groups
+            :uid_groups: Optional UID(s) to identify files by groups
             :is_absolute: Flag indicating if given 'path' is absolute
         """
 
@@ -146,10 +147,18 @@ class ProjectPaths:
 
         self._abs_paths[uid] = path
 
-        if uid_group is not None:
-            self.groups[uid_group].append(uid)
+        # ----- Add to groups -----
+        if uid_groups is not None:
+            if isinstance(uid_groups, str):
+                uid_groups = (uid_groups,)
 
-    def add_subpath(self, uid_parent, uid, path, uid_group=None):
+            if not isinstance(uid_groups, (str, list, tuple)):
+                raise TypeError(f"'uid_groups' must be of type (str, list, tuple)")
+
+            for uid_group in uid_groups:
+                self.groups[uid_group].append(uid)
+
+    def add_subpath(self, uid_parent, uid, path, uid_groups=None):
         """
         Add a child folder or child path to an existing parent path
 
@@ -157,7 +166,7 @@ class ProjectPaths:
             :uid_parent: UID of the parent directory
             :uid: UID of the new path
             :path: relative path to add
-            :uid_group: Optional UID to identify files by groups
+            :uid_groups: Optional UID(s) to identify files by groups
         """
 
         if uid_parent not in self._abs_paths.keys():
@@ -165,7 +174,7 @@ class ProjectPaths:
 
         parent_path = self._abs_paths[uid_parent]
         assembled_path = self.__class__.join_paths(parent_path, path)
-        self.add_path(uid, assembled_path, uid_group)
+        self.add_path(uid, assembled_path, uid_groups)
 
     def _format_path(self, uid):
         """
@@ -288,14 +297,14 @@ class Settings:
 
         # ===== Directories =====
         self.paths = ProjectPaths(self.wkdir)
-        self.paths.add_path(uid='d_aircraft', path=DIR_AIRCRAFT, uid_group='dir')
-        self.paths.add_path(uid='d_airfoils', path=DIR_AIRFOILS, uid_group='dir')
-        self.paths.add_path(uid='d_deformation', path=DIR_DEFORMATION, uid_group='dir')
-        self.paths.add_path(uid='d_settings', path=DIR_SETTINGS, uid_group='dir')
-        self.paths.add_path(uid='d_state', path=DIR_STATE, uid_group='dir')
+        self.paths.add_path(uid='d_aircraft', path=DIR_AIRCRAFT, uid_groups='dir')
+        self.paths.add_path(uid='d_airfoils', path=DIR_AIRFOILS, uid_groups='dir')
+        self.paths.add_path(uid='d_deformation', path=DIR_DEFORMATION, uid_groups='dir')
+        self.paths.add_path(uid='d_settings', path=DIR_SETTINGS, uid_groups='dir')
+        self.paths.add_path(uid='d_state', path=DIR_STATE, uid_groups='dir')
         # Output directories
-        self.paths.add_path(uid='d_plots', path=DIR_PLOTS+output_subdir, uid_group='dir')
-        self.paths.add_path(uid='d_results', path=DIR_RESULTS+output_subdir, uid_group='dir')
+        self.paths.add_path(uid='d_plots', path=DIR_PLOTS+output_subdir, uid_groups=('dir', 'tmp'))
+        self.paths.add_path(uid='d_results', path=DIR_RESULTS+output_subdir, uid_groups=('dir', 'tmp'))
 
         # ===== Files =====
         self.paths.add_subpath(uid_parent='d_aircraft', uid='f_aircraft', path=f"{self.settings['aircraft']}")
