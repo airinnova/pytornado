@@ -1,8 +1,8 @@
 # TODO
 
-* Deprecate `objects.state.refs` (don't copy refs from aircraft! see `get_refs()`)
-
 * Improve structure of the main settings file
+    * Avoid 'settings' field
+    * Better 'plots' solution!
 
 * Refactor CPACS functions --> make control surfaces work
 

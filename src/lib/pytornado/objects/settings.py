@@ -222,7 +222,7 @@ class ProjectPaths:
         path = PurePath(path1).joinpath(path2)
         return Path(path)
 
-    def iter_group_paths(self, uid_group):
+    def iter_group_paths(self, uid_group, make_dirs=False):
         """
         Return a generator with paths belong to group with given UID
 
@@ -231,7 +231,25 @@ class ProjectPaths:
         """
 
         for uid in self._groups[uid_group]:
-            yield self.__call__(uid, make_dirs=False)
+            yield self.__call__(uid, make_dirs=make_dirs)
+
+    def make_dirs_for_groups(self, uid_groups):
+        """
+        Create directories for all paths belonging to specified group(s)
+
+        Args:
+            :uid_groups: Optional UID(s) to identify files by groups
+        """
+
+        if not isinstance(uid_groups, (str, list, tuple)):
+            raise TypeError(f"'uid_groups' must be of type (str, list, tuple)")
+
+        if isinstance(uid_groups, str):
+            uid_groups = (uid_groups,)
+
+        for uid_group in uid_groups:
+            for _ in self.iter_group_paths(uid_group, make_dirs=True):
+                pass
 
 #############################################################################
 
@@ -296,13 +314,14 @@ class Settings:
             self.check_aircraft_file_type()
 
         if make_dirs:
-            self.make_project_subdirs()
+            self.paths.make_dirs_for_groups('dir')
 
     def generate_paths(self):
         """
         Initialise the file structure
         """
 
+        # Output subdirectory to structure results from APM analyses
         output_subdir = f"/{self.project_basename}" + "_{counter:03d}"
 
         # ===== Directories =====
@@ -327,20 +346,17 @@ class Settings:
         self.paths.add_subpath(uid_parent='d_results', uid='f_results_apm_global', path=f"{self.project_basename}_APM.json")
 
     def check_aircraft_file_type(self):
-        """Check whether aircraft is CPACS or JSON"""
+        """Check whether aircraft is a CPACS or a JSON file"""
 
-        ac_file_extension = self.paths('f_aircraft').suffix
+        ac_file_extension = self.paths('f_aircraft').suffix.lower()
+
         if ac_file_extension not in ['.xml', '.json']:
-            raise ValueError("Aircraft file must have extension '.json' or '.xml'")
+            raise ValueError("Aircraft file must have extension '.json' or '.xml' (CPACS)")
 
-        if ac_file_extension.lower() == '.json':
+        if ac_file_extension == '.json':
             self.aircraft_is_cpacs = False
-
-    def make_project_subdirs(self):
-        """Create project subdirectories"""
-
-        for dirpath in self.paths.iter_group_paths(uid_group='dir'):
-            dirpath.mkdir(parents=True, exist_ok=True)
+        else:
+            self.aircraft_is_cpacs = True
 
     def update_from_dict(self, settings, plot):
         """
