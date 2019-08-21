@@ -224,7 +224,7 @@ class ProjectPaths:
         path = PurePath(path1).joinpath(path2)
         return Path(path)
 
-    def iter_group_paths(self, uid_groups, make_dirs=False):
+    def iter_group_paths(self, uid_groups, make_dirs=False, is_dir=False):
         """
         Return a generator with paths belong to group with given UID
 
@@ -241,9 +241,9 @@ class ProjectPaths:
 
         for uid_group in uid_groups:
             for uid in self._groups[uid_group]:
-                yield self.__call__(uid, make_dirs=make_dirs)
+                yield self.__call__(uid, make_dirs=make_dirs, is_dir=is_dir)
 
-    def make_dirs_for_groups(self, uid_groups):
+    def make_dirs_for_groups(self, uid_groups, is_dir=True):
         """
         Create directories for all paths belonging to specified group(s)
 
@@ -251,7 +251,7 @@ class ProjectPaths:
             :uid_groups: Optional UID(s) to identify files by groups
         """
 
-        for _ in self.iter_group_paths(uid_groups, make_dirs=True):
+        for _ in self.iter_group_paths(uid_groups, make_dirs=True, is_dir=is_dir):
             pass
 
     def rm_dirs_for_groups(self, uid_groups):
@@ -290,7 +290,7 @@ class Settings:
             :make_dirs: (bool) Flag for creation of project directories
         """
 
-        self.project_dir = project_dir
+        self.project_dir = Path(project_dir).resolve()
         self.project_basename = os.path.splitext(settings_filename)[0]
 
         self.settings = {}
@@ -391,9 +391,11 @@ class Settings:
             :plot: Dictionary with plot settings
         """
 
-        for dictionary in [settings, plot]:
-            for key, value in dictionary.items():
-                self.settings[key] = value
+        for key, value in settings.items():
+            self.settings[key] = value
+
+        for key, value in plot.items():
+            self.plot[key] = value
 
     def clean(self):
         """

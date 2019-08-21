@@ -49,29 +49,23 @@ def setup_wkdir():
         * This includes flight state definitions and execution settings
     """
 
-#####################################################
-#####################################################
-    # TODO: UPDATE!!!
-#####################################################
-#####################################################
-
     # We create a separate directory for the template data
     # to avoid potential cluttering the user's directory
-    wkdir = DIR_TEMPLATE_WKDIR
+    project_dir = DIR_TEMPLATE_WKDIR
 
-    if os.path.exists(wkdir):
-        msg = f"""
-        The path '{wkdir}' does already exist. Refusing to proceed.
+    if os.path.exists(project_dir):
+        err_msg = f"""
+        The path '{project_dir}' does already exist. Refusing to proceed.
         Please move or delete the folder, then try again.
         """
-        print(msg, file=sys.stderr)
+        print(err_msg, file=sys.stderr)
         sys.exit(1)
     else:
-        print(f"Creating template in folder '{wkdir}'...")
-        os.makedirs(wkdir)
-        os.chdir(wkdir)
+        print(f"Creating template in folder '{project_dir}'...")
+        os.makedirs(project_dir)
 
     project_basename = "template"
+    settings_filename = project_basename + ".json"
     aircraft = Aircraft()
     state = FlightState()
 
@@ -81,18 +75,18 @@ def setup_wkdir():
     control = wing.add_control('template_control', return_control=True)
 
     # Generate file names and create project directory
-    wkdir = os.path.abspath(os.getcwd())
-    settings = Settings(project_basename, wkdir, check_ac_file_type=False)
+    settings = Settings(settings_filename, project_dir, check_ac_file_type=False)
 
     # ========== Set default values ==========
     # ---------- Settings ----------
     settings.settings['aircraft'] = aircraft.uid + '.json'
-    settings.settings['state'] = project_basename
+    settings.settings['state'] = project_basename + '.json'
     settings.generate_paths()
 
     settings.settings['vlm_autopanels_s'] = 20
     settings.settings['vlm_autopanels_c'] = 5
     settings.plot['results_panelwise'] = ['cp']
+    settings.plot['show'] = True
 
     # ---------- State ----------
     state.aero['airspeed'] = 100
