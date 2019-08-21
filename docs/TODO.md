@@ -11,6 +11,10 @@
 * Fix PyPI (binaries?)
 * Set up Codecov
 
+* Settings()
+    * Fix 'check()' method
+    * Better run check earlier where data is set?
+
 ## Important
 * Better system for airfoil modelling (check that camber line rotation axis correct, or better: compute camber line "roatations" as normals of a curved surface?)
 * Check: `c_results.cpp` --> sign of `results->iw_x[i]` correct?
