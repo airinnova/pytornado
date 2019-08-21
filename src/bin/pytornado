@@ -32,21 +32,19 @@ import pytornado.fileio.setup as io_setup
 
 def main():
     """
-    TODO
+    Command line interface
     """
 
-    HELP_SET = "run from a native settings file 'set.*'"
-    HELP_WKDIR = "generate a template project directory in-place"
-    HELP_CPACS2JSON = "convert a CPACS file to native JSON format"
-    # HELP_SETCPACS = "write state to CPACS file from native state file"
+    HELP_SET = f"Settings file (entry point for {__prog_name__})"
+    HELP_WKDIR = "Generate a minimal working example"
+    HELP_CPACS2JSON = "Convert a CPACS file to native JSON format"
 
     parser = argparse.ArgumentParser(prog=f'{__prog_name__} {__version__}')
 
     group = parser.add_mutually_exclusive_group()
-    group.add_argument('-r', '--run', type=str, help=HELP_SET)
-    group.add_argument('--cpacs2json', type=str, help=HELP_CPACS2JSON)
+    group.add_argument('-r', '--run', metavar='<Settings file>', type=str, help=HELP_SET)
+    group.add_argument('--cpacs2json', metavar='<CPACS file>', type=str, help=HELP_CPACS2JSON)
     group.add_argument('--make-wkdir', action='store_true', help=HELP_WKDIR)
-    # group.add_argument('--set-cpacs', type=str, nargs=2, help=HELP_SETCPACS)
 
     group = parser.add_mutually_exclusive_group()
     group.add_argument('-v', '--verbose', action='store_true')
@@ -72,8 +70,6 @@ def main():
         standard_run(args)
     elif args.cpacs2json:
         io_setup.cpacs2pytornado(args.cpacs2json)
-    # elif args.set_cpacs:
-    #     io_setup.pytornado2cpacs(args.set_cpacs[0], args.set_cpacs[1])
     elif args.make_wkdir:
         io_setup.setup_wkdir()
     else:
