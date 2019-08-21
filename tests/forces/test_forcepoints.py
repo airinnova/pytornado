@@ -27,7 +27,7 @@ def test_panel_forces():
     # Panel forces should act at theses coordinates
     # -------------------------------------------------------------------------
 
-    path = os.path.join(HERE, testdir, "_results/loads_UID_wing1.json")
+    path = os.path.join(HERE, testdir, "_results/test_000/loads_UID_wing1.json")
     with open(path, "r") as fp:
         loads = json.load(fp)
 
@@ -54,7 +54,7 @@ def test_panel_forces():
         Fy += fy
         Fz += fz
 
-    path = os.path.join(HERE, testdir, "_results/test_global.json")
+    path = os.path.join(HERE, testdir, "_results/test_000/test_global.json")
     with open(path, "r") as fp:
         glob_results = json.load(fp)
 
