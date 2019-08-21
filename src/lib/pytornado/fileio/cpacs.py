@@ -211,7 +211,7 @@ def get_aircraft_controls(aircraft, wing_uid, idx_wing, tixi, tigl):
                 # PATCHED # control_uid = tigl.getControlSurfaceUID(name_comp_section, idx_control)
                 control_uid = PATCH_getControlSurfaceUID(tixi, name_comp_section, idx_control)
                 logger.debug(f"Wing {idx_wing:d} has control '{control_uid:s}'")
-                node_control = XPATHS.CONTROL.format(idx_wing, idx_comp_section, idx_control, device_pos)
+                node_control = XPATHS.CONTROL(idx_wing, idx_comp_section, idx_control, device_pos)
 
                 # Try to read the relative coordinates for each control (eta, xsi)
                 # ======================================================

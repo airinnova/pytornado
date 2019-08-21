@@ -55,13 +55,16 @@ class _XPaths:
     AIRFOILS = '/cpacs/vehicles/profiles/wingAirfoils'
     APMAP = '/cpacs/vehicles/aircraft/analyses/aeroPerformanceMap'
 
-    CONTROL = WINGS \
-        + '/wing[{0:d}]/componentSegments/componentSegment[{1:d}]' \
-        + '/controlSurfaces/{3:s}EdgeDevices/{3:s}EdgeDevice[{2:d}]'
-
     # Tool specific
     TOOLSPEC = '/cpacs/toolspecific/CEASIOMpy/PyTornado'
     TOOLSPEC_CONTROL = TOOLSPEC + '/controlDevices'
+
+    @classmethod
+    def CONTROL(cls, idx_wing, idx_comp_section, idx_control, device_pos):
+        _control = cls.WINGS \
+            + '/wing[{0:d}]/componentSegments/componentSegment[{1:d}]' \
+            + '/controlSurfaces/{3:s}EdgeDevices/{3:s}EdgeDevice[{2:d}]'
+        return _control.format(idx_wing, idx_comp_section, idx_control, device_pos)
 
 XPATHS = _XPaths
 
