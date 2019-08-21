@@ -98,8 +98,10 @@ def open_tixi(cpacs_file):
         logger.error(err_msg)
         raise ModuleNotFoundError(err_msg)
 
+    # Note: Casting of filepath to string is necessary, because Tixi only
+    # handles string (not Path() objects)
     tixi = tixiwrapper.Tixi()
-    tixi.open(cpacs_file)
+    tixi.open(str(cpacs_file))
     return tixi
 
 
@@ -448,9 +450,8 @@ def get_aircraft_airfoils(aircraft, settings, tigl, wing_uid, segment_uid, idx_w
             """
             raise ValueError(err_msg)
 
-        file_airfoil = f"blade.{name_airfoil}"
-        file_airfoil = os.path.join(settings.paths('f_airfoils'), file_airfoil)
-        aircraft.wing[wing_uid].segment[segment_uid].airfoils[position] = file_airfoil
+        file_airfoil = settings.paths.join_paths(settings.paths('d_airfoils'), f"blade.{name_airfoil}")
+        aircraft.wing[wing_uid].segment[segment_uid].airfoils[position] = str(file_airfoil)
 
 
 def write_airfoil_files(settings, tixi):
@@ -473,7 +474,7 @@ def write_airfoil_files(settings, tixi):
         except tixiwrapper.TixiException:
             name_airfoil = f'AIRFOIL{i:02d}'
 
-        file_airfoil = os.path.join(settings.paths('f_airfoils'), f"blade.{name_airfoil}")
+        file_airfoil = settings.paths.join_paths(settings.paths('d_airfoils'), f"blade.{name_airfoil}")
 
         # Convert string to numpy array
         coords_x = np.fromstring(tixi.getTextElement(node_data + '/x'), sep=';')

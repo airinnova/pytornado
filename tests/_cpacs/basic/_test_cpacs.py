@@ -10,9 +10,9 @@ from pytornado.stdfun import StdRunArgs, standard_run
 
 
 HERE = os.path.abspath(os.path.dirname(__file__))
-WKDIR = "wkdir"
-SETTINGS_FILE = os.path.join(HERE, WKDIR, 'settings', 'D150_AGILE_Hangar.json')
-STATE_FILE = os.path.join(HERE, WKDIR, 'state', 'example.json')
+PROJECT_DIR = "wkdir"
+SETTINGS_FILE = os.path.join(HERE, PROJECT_DIR, 'settings', 'D150_AGILE_Hangar.json')
+STATE_FILE = os.path.join(HERE, PROJECT_DIR, 'state', 'example.json')
 
 ARGS = StdRunArgs()
 ARGS.run = SETTINGS_FILE
@@ -29,8 +29,6 @@ def test_basic_analysis():
     """
     Check that panel forces are located at the correct positions
     """
-
-    os.chdir(os.path.join(HERE, WKDIR))
 
     state = {
         "aero":
