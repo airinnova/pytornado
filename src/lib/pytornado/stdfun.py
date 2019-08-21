@@ -71,13 +71,13 @@ class StdRunArgs:
     quiet = False
 
 
-def get_settings(project_basename):
+def get_settings(settings_filepath):
     """
     Read settings and return a settings instance
     """
 
     logger.info("Getting configuration file...")
-    settings = io_settings.load(project_basename)
+    settings = io_settings.load(settings_filepath)
     return settings
 
 
@@ -118,7 +118,7 @@ def standard_run(args):
     logger.info(hlogger.decorate(f"{__prog_name__} {__version__}"))
 
     logger.info("Getting configuration file...")
-    settings = io_settings.load(project_basename=args.run)
+    settings = io_settings.load(settings_filepath=args.run)
 
     # ===== Setup aircraft model and flight state =====
     aircraft = Aircraft()
@@ -130,7 +130,7 @@ def standard_run(args):
     state = FlightState()
     io_state.load(state, settings)
 
-    if settings.inputs['deformation']:
+    if settings.settings['deformation']:
         io_deformation.load_deformation(aircraft, settings)
 
     # ===== Generate lattice =====
@@ -140,6 +140,14 @@ def standard_run(args):
 
     # ----- Iterate through the flight states -----
     for i, cur_state in enumerate(state.iter_states()):
+        settings.paths.counter = i
+
+        ##########################################################
+        # TODO: Temporary workaround!
+        settings.paths('d_results', make_dirs=True, is_dir=True)
+        settings.paths('d_plots', make_dirs=True, is_dir=True)
+        ##########################################################
+
         ##########################################################
         # TODO: Don't set refs here. Find better solution!
         cur_state.refs = aircraft.refs
@@ -159,21 +167,21 @@ def standard_run(args):
         vlm.calc_results(lattice, cur_state, vlmdata)
 
         # ===== Save results =====
-        if 'panelwise' in settings.outputs['save_results']:
+        if 'panelwise' in settings.settings['save_results']:
             io_results.save_panelwise(cur_state, vlmdata, settings)
 
-        if 'global' in settings.outputs['save_results']:
+        if 'global' in settings.settings['save_results']:
             io_results.save_glob_results(cur_state, vlmdata, settings)
 
-        if 'loads_with_deformed_mesh' in settings.outputs['save_results']:
+        if 'loads_with_deformed_mesh' in settings.settings['save_results']:
             io_results.save_loads(aircraft, settings, cur_state, vlmdata, lattice)
 
-        if 'loads_with_undeformed_mesh' in settings.outputs['save_results']:
+        if 'loads_with_undeformed_mesh' in settings.settings['save_results']:
             io_results.save_loads(aircraft, settings, cur_state, vlmdata, lattice=None)
 
         # ===== Generate plots =====
         plt_settings = {
-            "plot_dir": settings.dirs['plots'],
+            "plot_dir": settings.paths('d_plots'),
             "save": settings.plot['save'],
             "show": settings.plot['show']
         }

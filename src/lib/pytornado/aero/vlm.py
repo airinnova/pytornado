@@ -55,8 +55,8 @@ def set_autopanels(aircraft, settings):
         :autopanels_s: (int) number of spanwise panels on the main wing
     """
 
-    autopanels_c = settings.outputs.get('vlm_autopanels_c', MIN_AUTOPANELS)
-    autopanels_s = settings.outputs.get('vlm_autopanels_s', MIN_AUTOPANELS)
+    autopanels_c = settings.settings.get('vlm_autopanels_c', MIN_AUTOPANELS)
+    autopanels_s = settings.settings.get('vlm_autopanels_s', MIN_AUTOPANELS)
 
     for this_segment, _ in ot.all_segments(aircraft):
         segment = this_segment[2]
@@ -353,11 +353,11 @@ def gen_lattice(aircraft, lattice, state, settings, make_new_subareas=True):
     lattice.bound_leg_midpoints = np.zeros((num_p, 3), dtype=float, order='C')
     lattice.n = np.zeros((num_p, 3), dtype=float, order='C')
     lattice.a = np.zeros((num_p), dtype=float, order='C')
-    lattice.epsilon = settings.inputs['epsilon']
+    lattice.epsilon = settings.settings['_epsilon']
 
     logger.info("Generating lattice...")
     c_vlm.py2c_lattice(lattice, state, array_subareas, array_symmetry,
-                       array_panels, settings.inputs['horseshoe_type'])
+                       array_panels, settings.settings['_horseshoe_type'])
 
     # ----- Compute the length of the bound leg -----
     # TODO: If length is needed, move computation to C code
@@ -374,7 +374,7 @@ def gen_lattice(aircraft, lattice, state, settings, make_new_subareas=True):
     logger.info(f"--> Avg panel aspect ratio = {lattice.info['aspect_avg']:.3e}")
 
     # ========== ROTATE NORMALS ==========
-    if settings.inputs['_do_normal_rotations']:
+    if settings.settings['_do_normal_rotations']:
         for entry in lattice.panel_bookkeeping:
             subarea = entry.subarea
             pan_idx = entry.pan_idx

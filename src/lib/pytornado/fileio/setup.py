@@ -49,6 +49,12 @@ def setup_wkdir():
         * This includes flight state definitions and execution settings
     """
 
+#####################################################
+#####################################################
+    # TODO: UPDATE!!!
+#####################################################
+#####################################################
+
     # We create a separate directory for the template data
     # to avoid potential cluttering the user's directory
     wkdir = DIR_TEMPLATE_WKDIR
@@ -75,17 +81,18 @@ def setup_wkdir():
     control = wing.add_control('template_control', return_control=True)
 
     # Generate file names and create project directory
-    settings = Settings(project_basename, wkdir=os.path.abspath(os.getcwd()), make_dirs=False)
+    wkdir = os.path.abspath(os.getcwd())
+    settings = Settings(project_basename, wkdir, check_ac_file_type=False)
 
     # ========== Set default values ==========
     # ---------- Settings ----------
-    settings.inputs['aircraft'] = aircraft.uid + '.json'
-    settings.inputs['state'] = project_basename
-    settings.generate_file_names()
-    settings.make_project_subdirs()
+    settings.settings['aircraft'] = aircraft.uid + '.json'
+    settings.settings['state'] = project_basename
+    settings.generate_paths()
+
+    settings.settings['vlm_autopanels_s'] = 20
+    settings.settings['vlm_autopanels_c'] = 5
     settings.plot['results_panelwise'] = ['cp']
-    settings.outputs['vlm_autopanels_s'] = 20
-    settings.outputs['vlm_autopanels_c'] = 5
 
     # ---------- State ----------
     state.aero['airspeed'] = 100
@@ -133,55 +140,30 @@ def setup_wkdir():
     io_model.save(aircraft, settings)
 
 
-def cpacs2pytornado(file_cpacs):
-    """Load CPACS file and export to PyTornado AIRCRAFT and STATE files.
-
-    Args:
-        :file_cpacs: (string) absolute path to project directory
-    """
-
-    project_basename = os.path.splitext(os.path.basename(file_cpacs))[0]
-    file_cpacs = os.path.abspath(file_cpacs)
-
-    settings = Settings(project_basename, wkdir=os.path.abspath(os.getcwd()))
-    settings.files['aircraft'] = file_cpacs
-
-    aircraft = Aircraft()
-    state = FlightState()
-
-    # Read the CPACS file
-    io_cpacs.load(aircraft, state, settings)
-    aircraft.generate(check=False)
-
-    # Modify file extension
-    file_cpacs = file_cpacs.replace('.xml', '.json')
-    file_cpacs = file_cpacs.replace('.XML', '.json')
-    settings.files['aircraft'] = file_cpacs
-
-    # Finally, serialise...
-    io_model.save(aircraft, settings)
-
-
-##################################################################
-##################################################################
-# def pytornado2cpacs(file_cpacs, file_state):
-#     """
-#     Load CPACS file and export to PyTornado AIRCRAFT and STATE files.
+# def cpacs2pytornado(file_cpacs):
+#     """Load CPACS file and export to JSON Aircraft and state files.
 
 #     Args:
 #         :file_cpacs: (string) absolute path to project directory
-#         :file_state:
 #     """
 
-#     settings = Settings()
-#     # aircraft = Aircraft()
+#     project_basename = os.path.splitext(os.path.basename(file_cpacs))[0]
+#     file_cpacs = os.path.abspath(file_cpacs)
+
+#     settings = Settings(project_basename, wkdir=os.path.abspath(os.getcwd()))
+#     settings.paths('f_aircraft') = file_cpacs
+
+#     aircraft = Aircraft()
 #     state = FlightState()
 
-#     settings.wkdir = os.getcwd()
-#     settings.inputs['cpacs'] = file_cpacs
-#     settings.inputs['state'] = file_state
+#     # Read the CPACS file
+#     io_cpacs.load(aircraft, state, settings)
+#     aircraft.generate(check=False)
 
-#     io_state.load(state, settings)
-#     io_cpacs.save_state(state, settings)
-##################################################################
-##################################################################
+#     # Modify file extension
+#     file_cpacs = file_cpacs.replace('.xml', '.json')
+#     file_cpacs = file_cpacs.replace('.XML', '.json')
+#     settings.paths('f_aircraft') = file_cpacs
+
+#     # Finally, serialise...
+#     io_model.save(aircraft, settings)

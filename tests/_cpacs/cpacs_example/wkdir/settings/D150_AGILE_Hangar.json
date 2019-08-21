@@ -1,11 +1,8 @@
 {
-    "inputs": {
-        "aircraft": "D150_AGILE_Hangar.json",
-        "state": "example",
+    "settings": {
+        "aircraft": "D150_AGILE_Hangar.xml",
+        "state": "example.json",
         "deformation": false,
-        "horseshoe_type": 2
-    },
-    "outputs": {
         "vlm_autopanels_c": 5,
         "vlm_autopanels_s": 4,
         "save_results": []
@@ -21,7 +18,7 @@
         "lattice_segment": null,
         "results_downwash": false,
         "results_panelwise": ["cp"],
-        "show": false,
+        "show": true,
         "save": false
     }
 }
