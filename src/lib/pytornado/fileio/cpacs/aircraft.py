@@ -424,7 +424,7 @@ def get_aircraft_refs(aircraft, tixi):
     aircraft.refs['chord'] = tixi.getDoubleElement(XPATHS.REFS + '/length')
 
 
-def load_aircraft(settings):
+def load(settings):
     """
     Get aircraft model from CPACS
 

@@ -34,9 +34,11 @@ import commonlibs.logger as hlogger
 
 from pytornado.__version__ import __version__
 import pytornado.aero.vlm as vlm
-import pytornado.fileio.settings as io_settings
+
+import pytornado.fileio.native as io_native
 import pytornado.fileio.cpacs as io_cpacs
-import pytornado.fileio.model as io_model
+
+import pytornado.fileio.settings as io_settings
 import pytornado.fileio.state as io_state
 import pytornado.fileio.results as io_results
 import pytornado.fileio.deformation as io_deformation
@@ -122,13 +124,13 @@ def standard_run(args):
 
     # ===== Setup aircraft model and flight state =====
     if settings.aircraft_is_cpacs:
-        aircraft = io_cpacs.load_aircraft(settings)
+        aircraft = io_cpacs.aircraft.load(settings)
     else:
-        aircraft = io_model.load_aircraft(settings)
+        aircraft = io_native.aircraft.load(settings)
 
     ######################################################
     if settings.settings['state'].upper() == '__CPACS':
-        state = io_cpacs.load_state(settings)
+        state = io_cpacs.aircraft.load_state(settings)
     else:
         state = io_state.load_state(settings)
     ######################################################

@@ -31,8 +31,9 @@ Developed at Airinnova AB, Stockholm, Sweden.
 import os
 import sys
 
+import pytornado.fileio as io
+
 import pytornado.fileio.settings as io_settings
-import pytornado.fileio.model as io_model
 import pytornado.fileio.state as io_state
 import pytornado.fileio.cpacs as io_cpacs
 from pytornado.objects.settings import Settings, DIR_TEMPLATE_WKDIR
@@ -131,7 +132,7 @@ def setup_wkdir():
     # Save settings, state and model file
     io_settings.save(settings)
     io_state.save(state, settings)
-    io_model.save(aircraft, settings)
+    io.native.aircraft.save(aircraft, settings)
 
 
 # def cpacs2pytornado(file_cpacs):

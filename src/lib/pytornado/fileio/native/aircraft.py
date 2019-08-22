@@ -39,7 +39,7 @@ from pytornado.fileio.utils import dump_pretty_json
 logger = logging.getLogger(__name__)
 
 
-def load_aircraft(settings):
+def load(settings):
     """
     Read aircraft model from PyTornado aircraft definition file.
 
