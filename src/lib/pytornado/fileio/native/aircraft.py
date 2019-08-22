@@ -33,7 +33,7 @@ import json
 
 from commonlibs.logger import truncate_filepath
 
-from pytornado.objects.model import Aircraft
+from pytornado.objects.aircraft import Aircraft
 from pytornado.fileio.utils import dump_pretty_json
 
 logger = logging.getLogger(__name__)

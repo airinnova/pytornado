@@ -33,7 +33,7 @@ import logging
 import commonlibs.logger as hlogger
 
 from pytornado.__version__ import __version__
-from pytornado.objects.model import Aircraft
+from pytornado.objects.aircraft import Aircraft
 from pytornado.objects.state import FlightState
 from pytornado.objects.vlm_struct import VLMData, VLMLattice
 import pytornado.aero.vlm as vlm

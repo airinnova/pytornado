@@ -31,7 +31,7 @@ import logging
 import numpy as np
 
 from pytornado.fileio.utils import parse_str
-from pytornado.objects.model import ComponentDefinitionError, Aircraft
+from pytornado.objects.aircraft import ComponentDefinitionError, Aircraft
 from pytornado.objects.objecttools import all_controls, all_wings
 from pytornado.fileio.cpacs.utils import open_tixi, open_tigl, XPATHS, get_segment_mid_point
 
@@ -152,7 +152,7 @@ def get_aircraft_wing_segments(aircraft, settings, xpath_wing, wing_uid, idx_win
         d = get_segment_mid_point(tigl, idx_wing, idx_segment, eta=0, xsi=1)
 
         #########################################################################
-        ## TODO: Put this in "objects.model!?"
+        ## TODO: Put this in "objects.aircraft!?"
         #########################################################################
         # Re-order vertices
         # * A, D should be at root and B, C at tip

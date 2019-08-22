@@ -32,7 +32,7 @@ import os
 import sys
 
 from pytornado.objects.settings import Settings, DIR_TEMPLATE_WKDIR
-from pytornado.objects.model import Aircraft
+from pytornado.objects.aircraft import Aircraft
 from pytornado.objects.state import FlightState
 import pytornado.fileio.cpacs as io_cpacs
 import pytornado.fileio.native as io_native
