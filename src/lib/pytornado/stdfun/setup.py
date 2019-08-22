@@ -129,7 +129,7 @@ def setup_wkdir():
     # Save settings, state and model file
     io_native.settings.save(settings)
     io_native.state.save(state, settings)
-    io.native.aircraft.save(aircraft, settings)
+    io_native.aircraft.save(aircraft, settings)
 
 
 # def cpacs2pytornado(file_cpacs):

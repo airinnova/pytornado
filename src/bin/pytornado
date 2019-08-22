@@ -25,9 +25,9 @@ Command line interface
 
 import argparse
 
-from pytornado.stdfun import standard_run, get_settings, clean_project_dir, __prog_name__
+from pytornado.stdfun.run import standard_run, get_settings, clean_project_dir, __prog_name__
+import pytornado.stdfun.setup as project_setup
 from pytornado.__version__ import __version__
-import pytornado.fileio.setup as io_setup
 
 
 def main():
@@ -69,9 +69,9 @@ def main():
     if args.run:
         standard_run(args)
     elif args.cpacs2json:
-        io_setup.cpacs2pytornado(args.cpacs2json)
+        project_setup.cpacs2pytornado(args.cpacs2json)
     elif args.make_example:
-        io_setup.setup_wkdir()
+        project_setup.setup_wkdir()
     else:
         parser.print_help()
 

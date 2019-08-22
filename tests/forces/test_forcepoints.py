@@ -7,7 +7,7 @@ import json
 import numpy as np
 import pytest
 
-from pytornado.stdfun import StdRunArgs, standard_run
+from pytornado.stdfun.run import StdRunArgs, standard_run
 
 
 HERE = os.path.abspath(os.path.dirname(__file__))

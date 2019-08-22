@@ -6,7 +6,7 @@ import json
 
 from pytest import approx, raises
 
-from pytornado.stdfun import StdRunArgs, standard_run
+from pytornado.stdfun.run import StdRunArgs, standard_run
 
 
 HERE = os.path.abspath(os.path.dirname(__file__))
