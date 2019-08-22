@@ -127,8 +127,13 @@ def standard_run(args):
     else:
         io_model.load(aircraft, settings)
 
+    ######################################################
     state = FlightState()
-    io_state.load(state, settings)
+    if settings.settings['state'].upper() == '__CPACS':
+        io_cpacs.load_state(state, settings)
+    else:
+        io_state.load(state, settings)
+    ######################################################
 
     if settings.settings['deformation']:
         io_deformation.load_deformation(aircraft, settings)
