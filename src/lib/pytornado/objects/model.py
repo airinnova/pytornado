@@ -40,7 +40,7 @@ from commonlibs.math.vectors import get_plane_line_intersect, rotate_vector_arou
 
 from pytornado.objects.utils import FixedNamespace, FixedOrderedDict
 from pytornado.objects.airfoils import Airfoil, MorphAirfoil
-from pytornado.fileio.airfoil_from_file import import_airfoil_data
+from pytornado.fileio.airfoils import import_airfoil_data
 
 # Global unit vectors
 X_axis = np.array([1, 0, 0])

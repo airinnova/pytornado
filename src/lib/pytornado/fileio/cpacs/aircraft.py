@@ -38,7 +38,7 @@ import numpy as np
 from pytornado.fileio.utils import parse_str
 from pytornado.objects.model import ComponentDefinitionError, Aircraft
 from pytornado.objects.objecttools import all_controls, all_wings
-from pytornado.fileio.cpacs_utils import open_tixi, open_tigl, XPATHS, get_segment_mid_point
+from pytornado.fileio.cpacs.utils import open_tixi, open_tigl, XPATHS, get_segment_mid_point
 from pytornado.objects.state import FlightState
 from pytornado.objects.state import ALTITUDE, ALPHA, BETA, MACH, RATE_P, RATE_Q, RATE_R
 
@@ -48,7 +48,7 @@ except:
     pass
 
 # ----- (START) Temporary fix -----
-from pytornado.fileio.__cpacs_patch import PATCH_getControlSurfaceCount, PATCH_getControlSurfaceUID
+from pytornado.fileio.cpacs.__patch import PATCH_getControlSurfaceCount, PATCH_getControlSurfaceUID
 # ----- (END) Temporary fix -----
 
 logger = logging.getLogger(__name__)
