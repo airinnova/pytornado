@@ -38,7 +38,6 @@ import pytornado.aero.vlm as vlm
 import pytornado.fileio.native as io_native
 import pytornado.fileio.cpacs as io_cpacs
 
-import pytornado.fileio.settings as io_settings
 import pytornado.fileio.state as io_state
 import pytornado.fileio.results as io_results
 import pytornado.fileio.deformation as io_deformation
@@ -79,7 +78,7 @@ def get_settings(settings_filepath):
     """
 
     logger.info("Getting configuration file...")
-    settings = io_settings.load(settings_filepath)
+    settings = io_native.settings.load(settings_filepath)
     return settings
 
 
@@ -118,9 +117,7 @@ def standard_run(args):
 
     # ===== Setup =====
     logger.info(hlogger.decorate(f"{__prog_name__} {__version__}"))
-
-    logger.info("Getting configuration file...")
-    settings = io_settings.load(settings_filepath=args.run)
+    settings = get_settings(settings_filepath=args.run)
 
     # ===== Setup aircraft model and flight state =====
     if settings.aircraft_is_cpacs:
