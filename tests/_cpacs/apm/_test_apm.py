@@ -2,9 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import os
-import json
-
-from pytest import approx, raises
 
 from pytornado.stdfun import StdRunArgs, standard_run
 

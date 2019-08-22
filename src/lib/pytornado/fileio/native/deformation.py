@@ -39,7 +39,7 @@ import pytornado.objects.objecttools as ot
 logger = logging.getLogger(__name__)
 
 
-def load_deformation(aircraft, settings):
+def load(aircraft, settings):
     """
     Loads the aircraft deformation file if it exitsts.
 

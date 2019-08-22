@@ -30,8 +30,6 @@ def test_basic_analysis():
     Check that panel forces are located at the correct positions
     """
 
-    os.chdir(os.path.join(HERE, WKDIR))
-
     # ----- Single value input -----
     state = {
         "aero":

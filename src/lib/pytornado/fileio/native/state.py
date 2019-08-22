@@ -39,7 +39,7 @@ from pytornado.objects.state import FlightState
 logger = logging.getLogger(__name__)
 
 
-def load_state(settings):
+def load(settings):
     """
     Read flight state from PyTornado state file.
 
