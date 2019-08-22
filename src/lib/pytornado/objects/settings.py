@@ -54,7 +54,7 @@ DEFAULT_PLOT_DICT = {
     'geometry_segment': ([], list),
     'geometry_property': ([], list),
     'lattice_aircraft': (False, bool),
-    'lattice_aircraft_optional': ([], bool),
+    'lattice_aircraft_optional': ([], list),
     'lattice_wing': ([], list),
     'lattice_segment': ([], list),
     'results_downwash': (False, bool),
@@ -66,7 +66,7 @@ DEFAULT_PLOT_DICT = {
 DEFAULT_SETTINGS = {
     'aircraft': (None, str),
     'state': (None, str),
-    'deformation': (None, str),
+    'deformation': (None, (None, str)),
     'vlm_autopanels_c': (4, int),
     'vlm_autopanels_s': (4, int),
     'save_results': ([], list),
@@ -182,6 +182,8 @@ class Settings:
         for key, value in settings_dict.items():
             self.settings[key] = value
 
+        self._check_settings_dict()
+
     def clean(self):
         """
         Remove old files in project directory
@@ -189,116 +191,40 @@ class Settings:
 
         self.paths.rm_dirs_for_groups('tmp')
 
-###################################################
+    def _check_settings_dict(self):
+        """
+        Check that settings dictionary contains valid input arguments
+        """
 
-    # def check(self):
-    #     """Check definition of SETTINGS properties and data"""
+        logger.debug("Checking settings...")
 
-    #     logger.debug("Checking settings...")
+        def check_dict(d_template, d_test):
+            """
+            Check dictionary
+            """
 
-    #     # 2. CHECK INPUTS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-    #     if self.settings['aircraft'] is None:
-    #         logger.info("'settings.aircraft' is not defined")
-    #     elif not isinstance(self.settings['aircraft'], str):
-    #         raise TypeError("'settings.aircraft' must be a valid STRING")
+            for key, (value, dtype) in d_template.items():
+                # Make dtype into tuple
+                dtype = (dtype,) if not isinstance(dtype, tuple) else dtype
+                if None not in dtype:
+                    if not isinstance(d_test[key], dtype):
+                        err_msg = f"""
+                        Unexpected data type for key '{key}'.
+                        Expected {dtype}, got {type(d_test[key])}.
+                        """
+                        raise TypeError(err_msg)
+                if dtype[0] is dict:
+                    check_dict(value, d_test[key])
 
-    #     if not self.settings['aircraft']:
-    #         raise ValueError("Must provide AIRCRAFT file!")
+        # Check against template dict
+        check_dict(DEFAULT_SETTINGS, self.settings)
 
-    #     if self.settings['state'] is None:
-    #         raise ValueError("must provide CPACS state uID or PyTornado state file!")
-    #     elif not isinstance(self.settings['state'], str):
-    #         raise TypeError("'settings.state' must be valid STRING")
+        # --------------------------------------------------------------------
+        # if not isinstance(self.settings['horseshoe_type'], int) \
+        #         or self.settings['horseshoe_type'] not in [0, 1, 2]:
+        #     raise ValueError("'horseshoe_type' must be of type int (0, 1, 2)")
 
-    #     if not isinstance(self.settings['horseshoe_type'], int) \
-    #             or self.settings['horseshoe_type'] not in [0, 1, 2]:
-    #         raise ValueError("'horseshoe_type' must be of type int (0, 1, 2)")
-
-    #     if not isinstance(self.settings['epsilon'], float) or \
-    #             not (0 < self.settings['epsilon'] < 1):
-    #         raise ValueError("'epsilon' must be a (small) float in range (0, 1)")
-
-    #     if not isinstance(self.settings['_do_normal_rotations'], bool):
-    #         raise ValueError("'_do_normal_rotations' must be 'True' or 'False'")
-    #     if not self.settings['_do_normal_rotations']:
-    #         logger.warning("Normal rotations are turned off (no controls and airfoils)")
-
-    #     if not isinstance(self.settings['_deformation_check'], bool):
-    #         raise ValueError("'_deformation_check' must be 'True' or 'False'")
-
-    #     # 4. CHECK PLOTS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-    #     if not self.plot['geometry_aircraft']:
-    #         logger.info("'geometry_aircraft' not defined")
-    #     elif not isinstance(self.plot['geometry_aircraft'], bool):
-    #         raise TypeError("'plot.geometry_aircraft' must be True or False")
-
-    #     if isinstance(self.plot['geometry_wing'], str):
-    #         self.plot['geometry_wing'] = [self.plot['geometry_wing']]
-    #     if self.plot['geometry_wing'] is None:
-    #         logger.info("'geometry_wing' not defined")
-    #         self.plot['geometry_wing'] = list()
-    #     elif not isinstance(self.plot['geometry_wing'], list):
-    #         raise TypeError("'plot.geometry_wing' must be LIST")
-    #     elif not all(isinstance(v, str) for v in self.plot['geometry_wing']):
-    #         raise TypeError("'plot.geometry_wing' must be LIST of STRING")
-
-    #     if isinstance(self.plot['geometry_segment'], str):
-    #         self.plot['geometry_segment'] = [self.plot['geometry_segment']]
-    #     if self.plot['geometry_segment'] is None:
-    #         logger.info("'geometry_segment' not defined")
-    #         self.plot['geometry_segment'] = list()
-    #     elif not isinstance(self.plot['geometry_segment'], list):
-    #         raise TypeError("'plot.geometry_segment' must be LIST")
-    #     elif not all(isinstance(v, str) for v in self.plot['geometry_segment']):
-    #         raise TypeError("'plot.geometry_segment' must be LIST of STRING")
-
-    #     if isinstance(self.plot['geometry_property'], str):
-    #         self.plot['geometry_property'] = [self.plot['geometry_property']]
-    #     if self.plot['geometry_property'] is None:
-    #         logger.info("'geometry_property' not defined")
-    #         self.plot['geometry_property'] = list()
-    #     elif not isinstance(self.plot['geometry_property'], list):
-    #         raise TypeError("'plot.geometry_property' must be LIST")
-    #     elif not all(isinstance(v, str) for v in self.plot['geometry_property']):
-    #         raise TypeError("'plot.geometry_property' must be LIST of STRING")
-
-    #     if not isinstance(self.plot['lattice_aircraft'], bool):
-    #         raise TypeError("'plot.lattice_aircraft' must be True or False")
-
-    #     if isinstance(self.plot['lattice_wing'], str):
-    #         self.plot['lattice_wing'] = [self.plot['lattice_wing']]
-    #     if self.plot['lattice_wing'] is None:
-    #         logger.info("'lattice_wing' not defined")
-    #         self.plot['lattice_wing'] = list()
-    #     elif not isinstance(self.plot['lattice_wing'], list):
-    #         raise TypeError("'plot.lattice_wing' must be LIST")
-    #     elif not all(isinstance(v, str) for v in self.plot['lattice_wing']):
-    #         raise TypeError("'plot.lattice_wing' must be LIST of STRING")
-
-    #     if isinstance(self.plot['lattice_segment'], str):
-    #         self.plot['lattice_segment'] = [self.plot['lattice_segment']]
-    #     if self.plot['lattice_segment'] is None:
-    #         logger.info("'lattice_segment' not defined")
-    #         self.plot['lattice_segment'] = list()
-    #     elif not isinstance(self.plot['lattice_segment'], list):
-    #         raise TypeError("'plot.lattice_segment' must be LIST")
-    #     elif not all(isinstance(v, str) for v in self.plot['lattice_segment']):
-    #         raise TypeError("'plot.lattice_segment' must be LIST of STRING")
-
-    #     if not isinstance(self.plot['results_downwash'], bool):
-    #         raise TypeError("'plot.results_downwash' must be True or False")
-
-    #     if isinstance(self.plot['results_panelwise'], str):
-    #         self.plot['results_panelwise'] = [self.plot['results_panelwise']]
-    #     if self.plot['results_panelwise'] is None:
-    #         logger.info("'results_panelwise' not defined")
-    #         self.plot['results_panelwise'] = list()
-    #     elif not isinstance(self.plot['results_panelwise'], list):
-    #         raise TypeError("'plot.results_panelwise' must be LIST")
-    #     elif not all(isinstance(v, str) for v in self.plot['results_panelwise']):
-    #         raise TypeError("'plot.results_panelwise' must be LIST of STRING")
-
-    #     if not isinstance(self.plot['show'], bool):
-    #         raise TypeError("'plot.show' must be True or False")
-    #     if not isinstance(self.plot['save'], bool):
-    #         raise TypeError("'plot.save' must be True or False")
+        # if not isinstance(self.settings['epsilon'], float) or \
+        #         not (0 < self.settings['epsilon'] < 1):
+        #     raise ValueError("'epsilon' must be a (small) float in range (0, 1)")
+        # --------------------------------------------------------------------
