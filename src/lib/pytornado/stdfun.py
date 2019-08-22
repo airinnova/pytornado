@@ -122,7 +122,7 @@ def standard_run(args):
 
     ######################################################
     if settings.settings['state'].upper() == '__CPACS':
-        state = io_cpacs.aircraft.load_state(settings)
+        state = io_cpacs.state.load(settings)
     else:
         state = io_native.state.load(settings)
     ######################################################

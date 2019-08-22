@@ -27,11 +27,6 @@ Functions for conversion of CPACS aircraft definition to native model
 Developed at Airinnova AB, Stockholm, Sweden.
 """
 
-# TODO:
-# *** Extract flight state from CPACS (AEROPERFORMANCE MAPS)
-# *** Write back to CPACS
-
-import os
 import logging
 import numpy as np
 
@@ -39,8 +34,6 @@ from pytornado.fileio.utils import parse_str
 from pytornado.objects.model import ComponentDefinitionError, Aircraft
 from pytornado.objects.objecttools import all_controls, all_wings
 from pytornado.fileio.cpacs.utils import open_tixi, open_tigl, XPATHS, get_segment_mid_point
-from pytornado.objects.state import FlightState
-from pytornado.objects.state import ALTITUDE, ALPHA, BETA, MACH, RATE_P, RATE_Q, RATE_R
 
 try:
     from pytornado.fileio.cpacs_utils import tixiwrapper, tiglwrapper
@@ -455,80 +448,3 @@ def load(settings):
     aircraft.generate()
     tixi.close()
     return aircraft
-
-# ======================================================================
-# AeroPerformanceMap
-# ======================================================================
-
-
-def load_state(settings):
-    """
-    Load the flight state from the CPACS aeroperformance map
-    """
-
-    cpacs_file = settings.paths('f_aircraft')
-    logger.info(f"Loading state from CPACS file: {cpacs_file}...")
-    if not cpacs_file.is_file():
-        err_msg = f"File '{cpacs_file}' not found or not valid file"
-        logger.error(err_msg)
-        raise FileNotFoundError(err_msg)
-
-    tixi = open_tixi(cpacs_file)
-    tigl = open_tigl(tixi)
-
-    state_dict = get_aero_dict_from_APM(tixi, uid_apm='aeroMap_Test')
-    state = FlightState()
-    state.update_from_dict(**state_dict)
-    return state
-
-
-def get_aero_dict_from_APM(tixi, uid_apm):
-    """
-    Extract the aeroperformance map from CPACS and return an aero dictionary
-
-    Args:
-        :tixi: Tixi handle
-        :uid_apm: UID of the aeroperformance map
-    """
-
-    aero_dict = {
-        "aero": {
-            ALTITUDE: None,
-            ALPHA: None,
-            BETA: None,
-            MACH: None,
-            RATE_P: None,
-            RATE_Q: None,
-            RATE_R: None,
-        }
-    }
-
-    # Map the CPACS state names to the PyTornado STATE NAMES
-    state_params = {
-        'altitude': ALTITUDE,
-        'machNumber': MACH,
-        'angleOfAttack': ALPHA,
-        'angleOfSideslip': BETA,
-    }
-
-    vector_lens = set()
-    xpath_apm = XPATHS.APM(tixi, uid_apm)
-    for cpacs_key, state_key in state_params.items():
-        xpath_apm_param = xpath_apm + '/' + cpacs_key
-        vector_len = tixi.getVectorSize(xpath_apm_param)
-        vector_lens.add(vector_len)
-        values = tixi.getFloatVector(xpath_apm_param, vector_len)
-        aero_dict['aero'][state_key] = list(values)
-
-    if len(list(vector_lens)) > 1:
-        err_msg = f"""
-        CPACS AeroPerformanceMap with UID {uid_apm} contains vectors of
-        different length. All vectors must have the same number of elements.
-        """
-        raise ValueError(err_msg)
-
-    # NOTE: Roll rate are not an input parameter in CPACS
-    for rate in [RATE_P, RATE_Q, RATE_R]:
-        aero_dict['aero'][rate] = [0]*vector_len
-
-    return aero_dict
