@@ -121,18 +121,16 @@ def standard_run(args):
     settings = io_settings.load(settings_filepath=args.run)
 
     # ===== Setup aircraft model and flight state =====
-    aircraft = Aircraft()
     if settings.aircraft_is_cpacs:
-        io_cpacs.load(aircraft, settings)
+        aircraft = io_cpacs.load_aircraft(settings)
     else:
-        io_model.load(aircraft, settings)
+        aircraft = io_model.load_aircraft(settings)
 
     ######################################################
-    state = FlightState()
     if settings.settings['state'].upper() == '__CPACS':
-        io_cpacs.load_state(state, settings)
+        state = io_cpacs.load_state(settings)
     else:
-        io_state.load(state, settings)
+        state = io_state.load_state(settings)
     ######################################################
 
     if settings.settings['deformation']:

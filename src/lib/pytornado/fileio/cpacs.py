@@ -36,7 +36,7 @@ import logging
 import numpy as np
 
 from pytornado.fileio.utils import parse_str
-from pytornado.objects.model import ComponentDefinitionError
+from pytornado.objects.model import ComponentDefinitionError, Aircraft
 from pytornado.objects.objecttools import all_controls, all_wings
 from pytornado.fileio.cpacs_utils import open_tixi, open_tigl, XPATHS, get_segment_mid_point
 from pytornado.objects.state import FlightState
@@ -424,7 +424,7 @@ def get_aircraft_refs(aircraft, tixi):
     aircraft.refs['chord'] = tixi.getDoubleElement(XPATHS.REFS + '/length')
 
 
-def load(aircraft, settings):
+def load_aircraft(settings):
     """
     Get aircraft model from CPACS
 
@@ -444,7 +444,7 @@ def load(aircraft, settings):
     tigl = open_tigl(tixi)
 
     # Reset the aircraft model
-    aircraft.reset()
+    aircraft = Aircraft()
 
     # Extract CPACS data and add to aircraft model
     get_aircraft_name(aircraft, tixi)
@@ -454,12 +454,14 @@ def load(aircraft, settings):
 
     aircraft.generate()
     tixi.close()
+    return aircraft
 
 # ======================================================================
 # AeroPerformanceMap
 # ======================================================================
 
-def load_state(state, settings):
+
+def load_state(settings):
     """
     Load the flight state from the CPACS aeroperformance map
     """
@@ -474,8 +476,10 @@ def load_state(state, settings):
     tixi = open_tixi(cpacs_file)
     tigl = open_tigl(tixi)
 
-    aero_dict = get_aero_dict_from_APM(tixi, uid_apm='aeroMap_Test')
-    state.update_from_dict(**aero_dict)
+    state_dict = get_aero_dict_from_APM(tixi, uid_apm='aeroMap_Test')
+    state = FlightState()
+    state.update_from_dict(**state_dict)
+    return state
 
 
 def get_aero_dict_from_APM(tixi, uid_apm):
