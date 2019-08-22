@@ -1,5 +1,5 @@
-import pytornado.fileio.native.aircraft
-import pytornado.fileio.native.deformation
-import pytornado.fileio.native.results
-import pytornado.fileio.native.settings
-import pytornado.fileio.native.state
+from . import aircraft
+from . import deformation
+from . import results
+from . import settings
+from . import state

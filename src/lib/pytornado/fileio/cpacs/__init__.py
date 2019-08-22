@@ -1,2 +1,2 @@
-import pytornado.fileio.cpacs.aircraft
-import pytornado.fileio.cpacs.state
+from . import aircraft
+from . import state
