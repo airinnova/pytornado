@@ -83,8 +83,8 @@ def setup_wkdir():
 
     settings.settings['vlm_autopanels_s'] = 20
     settings.settings['vlm_autopanels_c'] = 5
-    settings.plot['results_panelwise'] = ['cp']
-    settings.plot['show'] = True
+    settings.settings['plot']['results_panelwise'] = ['cp']
+    settings.settings['plot']['plot_show'] = True
 
     # ---------- State ----------
     state.aero['airspeed'] = 100

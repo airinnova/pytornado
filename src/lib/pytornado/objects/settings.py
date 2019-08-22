@@ -48,6 +48,43 @@ DIR_RESULTS = '_results'
 # Template directory name
 DIR_TEMPLATE_WKDIR = 'pytornado'
 
+DEFAULT_PLOT_DICT = {
+    'geometry_aircraft': (False, bool),
+    'geometry_wing': ([], list),
+    'geometry_segment': ([], list),
+    'geometry_property': ([], list),
+    'lattice_aircraft': (False, bool),
+    'lattice_aircraft_optional': ([], bool),
+    'lattice_wing': ([], list),
+    'lattice_segment': ([], list),
+    'results_downwash': (False, bool),
+    'results_panelwise': ([], list),
+    'show': (True, bool),
+    'save': (False, bool),
+}
+
+DEFAULT_SETTINGS = {
+    'aircraft': (None, str),
+    'state': (None, str),
+    'deformation': (None, str),
+    'vlm_autopanels_c': (4, int),
+    'vlm_autopanels_s': (4, int),
+    'save_results': ([], list),
+    'plot': (DEFAULT_PLOT_DICT, dict),
+    # Underscore settings are "hidden" settings that generally shouldn't be changed
+    '_do_normal_rotations': (True, bool),
+    '_deformation_check': (True, bool),
+    '_horseshoe_type': (2, int),
+    '_epsilon': (1e-6, float),
+}
+
+# self.settings['save_results'] = [
+#     "NO_global",
+#     "NO_panelwise",
+#     "NO_loads_with_undeformed_mesh",
+#     "NO_loads_with_deformed_mesh"
+# ]
+
 
 class Settings:
 
@@ -66,40 +103,18 @@ class Settings:
         self.project_dir = Path(project_dir).resolve()
         self.project_basename = os.path.splitext(settings_filename)[0]
 
+        # Initialise settings dict
         self.settings = {}
-        self.settings['aircraft'] = None
-        self.settings['state'] = None
-        self.settings['deformation'] = None
-        self.settings['vlm_autopanels_c'] = None
-        self.settings['vlm_autopanels_s'] = None
-        self.settings['save_results'] = [
-            "NO_global",
-            "NO_panelwise",
-            "NO_loads_with_undeformed_mesh",
-            "NO_loads_with_deformed_mesh"
-        ]
-        # Underscore settings are "hidden" settings that generally shouldn't be changed
-        self.settings['_do_normal_rotations'] = True
-        self.settings['_deformation_check'] = True
-        self.settings['_horseshoe_type'] = 2
-        self.settings['_epsilon'] = 1e-6
-
-        self.plot = {}
-        self.plot['geometry_aircraft'] = False
-        self.plot['geometry_wing'] = []
-        self.plot['geometry_segment'] = []
-        self.plot['geometry_property'] = []
-        self.plot['lattice_aircraft'] = False
-        self.plot['lattice_aircraft_optional'] = []
-        self.plot['lattice_wing'] = []
-        self.plot['lattice_segment'] = []
-        self.plot['results_downwash'] = False
-        self.plot['results_panelwise'] = []
-        self.plot['show'] = True
-        self.plot['save'] = False
+        for key1, (default1, _) in DEFAULT_SETTINGS.items():
+            if isinstance(default1, dict):
+                self.settings[key1] = {}
+                for key2, (default2, _) in default1.items():
+                    self.settings[key1][key2] = default2
+            else:
+                self.settings[key1] = default1
 
         if settings_dict is not None:
-            self.update_from_dict(**settings_dict)
+            self.update_from_dict(settings_dict)
 
         self.paths = None
         self.generate_paths()
@@ -155,7 +170,7 @@ class Settings:
         else:
             self.aircraft_is_cpacs = True
 
-    def update_from_dict(self, settings, plot):
+    def update_from_dict(self, settings_dict):
         """
         Update settings from dictionary structures
 
@@ -164,11 +179,8 @@ class Settings:
             :plot: Dictionary with plot settings
         """
 
-        for key, value in settings.items():
+        for key, value in settings_dict.items():
             self.settings[key] = value
-
-        for key, value in plot.items():
-            self.plot[key] = value
 
     def clean(self):
         """
