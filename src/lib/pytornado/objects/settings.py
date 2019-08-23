@@ -31,6 +31,7 @@ import os
 import logging
 from pathlib import Path
 
+from pytornado.objects.utils import check_dict
 from commonlibs.fileio.paths import ProjectPaths
 
 logger = logging.getLogger(__name__)
@@ -48,7 +49,7 @@ DIR_RESULTS = '_results'
 # Template directory name
 DIR_TEMPLATE_WKDIR = 'pytornado'
 
-DEFAULT_PLOT_DICT = {
+_DEFAULT_PLOT_DICT = {
     'geometry_aircraft': (False, bool),
     'geometry_wing': ([], list),
     'geometry_segment': ([], list),
@@ -63,27 +64,27 @@ DEFAULT_PLOT_DICT = {
     'save': (False, bool),
 }
 
+_SAVE_RESULTS = [
+    "NO_global",
+    "NO_panelwise",
+    "NO_loads_with_undeformed_mesh",
+    "NO_loads_with_deformed_mesh"
+]
+
 DEFAULT_SETTINGS = {
     'aircraft': (None, str),
     'state': (None, str),
     'deformation': (None, (None, str)),
     'vlm_autopanels_c': (4, int),
     'vlm_autopanels_s': (4, int),
-    'save_results': ([], list),
-    'plot': (DEFAULT_PLOT_DICT, dict),
+    'save_results': (_SAVE_RESULTS, list),
+    'plot': (_DEFAULT_PLOT_DICT, dict),
     # Underscore settings are "hidden" settings that generally shouldn't be changed
     '_do_normal_rotations': (True, bool),
     '_deformation_check': (True, bool),
     '_horseshoe_type': (2, int),
     '_epsilon': (1e-6, float),
 }
-
-# self.settings['save_results'] = [
-#     "NO_global",
-#     "NO_panelwise",
-#     "NO_loads_with_undeformed_mesh",
-#     "NO_loads_with_deformed_mesh"
-# ]
 
 
 class Settings:
@@ -121,7 +122,7 @@ class Settings:
 
         self.aircraft_is_cpacs = None
         if check_ac_file_type:
-            self.check_aircraft_file_type()
+            self._check_aircraft_file_type()
 
         if make_dirs:
             self.paths.make_dirs_for_groups('dir')
@@ -157,7 +158,7 @@ class Settings:
         self.paths.add_subpath(uid_parent='d_results', uid='f_results_panelwise', path=f"{self.project_basename}_global.json")
         self.paths.add_subpath(uid_parent='d_results', uid='f_results_apm_global', path=f"{self.project_basename}_APM.json")
 
-    def check_aircraft_file_type(self):
+    def _check_aircraft_file_type(self):
         """Check whether aircraft is a CPACS or a JSON file"""
 
         ac_file_extension = self.paths('f_aircraft').suffix.lower()
@@ -197,34 +198,11 @@ class Settings:
         """
 
         logger.debug("Checking settings...")
+        check_dict(template_dict=DEFAULT_SETTINGS, test_dict=self.settings)
 
-        def check_dict(d_template, d_test):
-            """
-            Check dictionary
-            """
+        # ===== Other checks =====
+        if self.settings['_horseshoe_type'] not in (0, 1, 2):
+            raise ValueError("'_horseshoe_type' must be of type int (0, 1, 2)")
 
-            for key, (value, dtype) in d_template.items():
-                # Make dtype into tuple
-                dtype = (dtype,) if not isinstance(dtype, tuple) else dtype
-                if None not in dtype:
-                    if not isinstance(d_test[key], dtype):
-                        err_msg = f"""
-                        Unexpected data type for key '{key}'.
-                        Expected {dtype}, got {type(d_test[key])}.
-                        """
-                        raise TypeError(err_msg)
-                if dtype[0] is dict:
-                    check_dict(value, d_test[key])
-
-        # Check against template dict
-        check_dict(DEFAULT_SETTINGS, self.settings)
-
-        # --------------------------------------------------------------------
-        # if not isinstance(self.settings['horseshoe_type'], int) \
-        #         or self.settings['horseshoe_type'] not in [0, 1, 2]:
-        #     raise ValueError("'horseshoe_type' must be of type int (0, 1, 2)")
-
-        # if not isinstance(self.settings['epsilon'], float) or \
-        #         not (0 < self.settings['epsilon'] < 1):
-        #     raise ValueError("'epsilon' must be a (small) float in range (0, 1)")
-        # --------------------------------------------------------------------
+        if not (0 < self.settings['_epsilon'] < 1):
+            raise ValueError("'_epsilon' must be a (small) float in range (0, 1)")

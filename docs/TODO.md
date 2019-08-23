@@ -9,11 +9,13 @@
 * Bug with Cm coefficient (may there is some unassigned value in the C++ code, check reference values...)
 
 * Fix PyPI (binaries?)
-* Set up Codecov
 
-* Settings()
-    * Fix 'check()' method
-    * Better run check earlier where data is set?
+## CPACS support
+
+* AeroPerformanceMaps
+    * Save results for remaining parameters in CPACS
+        * See: https://www.cpacs.de/documentation/CPACS_3_1_0_RC_Docs/html/e499b429-4ab0-c4f7-9fb4-8cc43b91e894.htm
+        * Definition of some coefficients in CPACS is still unclear
 
 ## Important
 * Better system for airfoil modelling (check that camber line rotation axis correct, or better: compute camber line "roatations" as normals of a curved surface?)

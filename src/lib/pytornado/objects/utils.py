@@ -128,7 +128,53 @@ class FixedOrderedDict(MutableMapping):
         self.__mutable = False
 
 
-class CaseDefinitionError(Exception):
-    """Raised when insufficient data is provided for selected analysis."""
+def check_dict(template_dict, test_dict):
+    """
+    Check that a test dictionary looks like a test dictionary
 
-    pass
+    Args:
+        :template_dict: Template dictionary
+        :test_dict: Test dictionary
+
+    The template dictionary must have a specific structure as outlined below:
+
+    template_dict = {
+        'test_key1': ('default_value1', str),
+        'test_key2': (1792, (int, float)),
+    }
+
+    The values have to be tuples with some default value and the expected
+    types of the values. The follwing dictionary would pass the test:
+
+    test_dict = {
+        'test_key1': 'some_string',
+        'test_key2': 1111,
+    }
+
+    However, the follwing dictionary does not have the correct form and an
+    error will be raised.
+
+    test_dict = {
+        'test_key1': 'this is okay...',
+        'test_key2': '... but a string is now allowed here',
+    }
+
+    Raises:
+        :TypeError: If types of test and template dictionary don't match
+    """
+
+    # TODO: handle None better!!!
+
+    for key, (value, dtype) in template_dict.items():
+        dtype = (dtype,) if not isinstance(dtype, tuple) else dtype
+
+        if None not in dtype:
+            if not isinstance(test_dict[key], dtype):
+                err_msg = f"""
+                Unexpected data type for key '{key}'.
+                Expected {dtype}, got {type(test_dict[key])}.
+                """
+                raise TypeError(err_msg)
+
+        if dtype[0] is dict:
+            check_dict(value, test_dict[key])
