@@ -59,7 +59,10 @@ def load(settings):
     tixi = open_tixi(cpacs_file)
     tigl = open_tigl(tixi)
 
-    state_dict = get_aero_dict_from_APM(tixi, uid_apm='aeroMap_Test')
+    uid_apm = XPATHS.get_uid_apm(tixi)
+    logger.info(f"Using aeroperformance map with UID '{uid_apm}'")
+
+    state_dict = get_aero_dict_from_APM(tixi, uid_apm=uid_apm)
     state = FlightState()
     state.update_from_dict(**state_dict)
     return state

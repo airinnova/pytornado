@@ -4233,5 +4233,14 @@
         </su2>
       </aerodynamics>
     </CEASIOMpy>
+
+
+    <pytornado>
+      <aeroMapUID>aeroMap_Test</aeroMapUID>
+      <settings uID="pytornado_settings">
+      </settings>
+    </pytornado>
+
+
   </toolspecific>
 </cpacs>

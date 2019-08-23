@@ -59,7 +59,7 @@ class _XPaths:
     APMAP = '/cpacs/vehicles/aircraft/analyses/aeroPerformanceMap'
 
     # Tool specific
-    TOOLSPEC = '/cpacs/toolspecific/CEASIOMpy/PyTornado'
+    TOOLSPEC = '/cpacs/toolspecific/pytornado'
     TOOLSPEC_CONTROL = TOOLSPEC + '/controlDevices'
 
     @classmethod
@@ -82,6 +82,19 @@ class _XPaths:
         xpath_apm = tixi.uIDGetXPath(uid_apm)
         xpath_apm += '/aeroPerformanceMap'
         return xpath_apm
+
+    @classmethod
+    def get_uid_apm(cls, tixi):
+        """
+        Return the UID of the AeroPerformanceMap to import
+
+        Args:
+            :tixi: Tixi handle
+        """
+
+        xpath_apm_uid = cls.TOOLSPEC + '/aeroMapUID'
+        uid_apm = tixi.getTextElement(xpath_apm_uid)
+        return uid_apm
 
 XPATHS = _XPaths
 
