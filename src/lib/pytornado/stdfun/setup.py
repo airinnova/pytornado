@@ -31,7 +31,7 @@ Developed at Airinnova AB, Stockholm, Sweden.
 import os
 import sys
 
-from pytornado.objects.settings import Settings, DIR_TEMPLATE_WKDIR
+from pytornado.objects.settings import Settings, PATHS
 from pytornado.objects.aircraft import Aircraft
 from pytornado.objects.state import FlightState
 import pytornado.fileio.cpacs as io_cpacs
@@ -49,7 +49,7 @@ def setup_wkdir():
 
     # We create a separate directory for the template data
     # to avoid potential cluttering the user's directory
-    project_dir = DIR_TEMPLATE_WKDIR
+    project_dir = PATHS.DIR.TEMPLATE_ROOT
 
     if os.path.exists(project_dir):
         err_msg = f"""

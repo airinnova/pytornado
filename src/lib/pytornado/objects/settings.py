@@ -36,19 +36,6 @@ from commonlibs.fileio.paths import ProjectPaths
 
 logger = logging.getLogger(__name__)
 
-# ===== Directories =====
-# Input directories
-DIR_AIRCRAFT = 'aircraft'
-DIR_AIRFOILS = 'airfoils'
-DIR_DEFORMATION = 'deformation'
-DIR_SETTINGS = 'settings'
-DIR_STATE = 'state'
-# Output directories
-DIR_PLOTS = '_plots'
-DIR_RESULTS = '_results'
-# Template directory name
-DIR_TEMPLATE_WKDIR = 'pytornado'
-
 _DEFAULT_PLOT_DICT = {
     'geometry_aircraft': (False, bool),
     'geometry_wing': ([], list),
@@ -85,6 +72,25 @@ DEFAULT_SETTINGS = {
     '_horseshoe_type': (2, int),
     '_epsilon': (1e-6, float),
 }
+
+
+class PATHS:
+    """
+    Namespace for project paths
+    """
+
+    class DIR:
+        # ----- Input directories -----
+        AIRCRAFT = 'aircraft'
+        AIRFOILS = 'airfoils'
+        DEFORMATION = 'deformation'
+        SETTINGS = 'settings'
+        STATE = 'state'
+        # ----- Output directories -----
+        PLOTS = '_plots'
+        RESULTS = '_results'
+        # ----- Template directory name -----
+        TEMPLATE_ROOT = 'pytornado'
 
 
 class Settings:
@@ -137,16 +143,16 @@ class Settings:
 
         # ===== Directories =====
         self.paths = ProjectPaths(self.project_dir)
-        self.paths.add_path(uid='d_aircraft', path=DIR_AIRCRAFT, uid_groups='dir')
-        self.paths.add_path(uid='d_airfoils', path=DIR_AIRFOILS, uid_groups='dir')
-        self.paths.add_path(uid='d_deformation', path=DIR_DEFORMATION, uid_groups='dir')
-        self.paths.add_path(uid='d_settings', path=DIR_SETTINGS, uid_groups='dir')
-        self.paths.add_path(uid='d_state', path=DIR_STATE, uid_groups='dir')
+        self.paths.add_path(uid='d_aircraft', path=PATHS.DIR.AIRCRAFT, uid_groups='dir')
+        self.paths.add_path(uid='d_airfoils', path=PATHS.DIR.AIRFOILS, uid_groups='dir')
+        self.paths.add_path(uid='d_deformation', path=PATHS.DIR.DEFORMATION, uid_groups='dir')
+        self.paths.add_path(uid='d_settings', path=PATHS.DIR.SETTINGS, uid_groups='dir')
+        self.paths.add_path(uid='d_state', path=PATHS.DIR.STATE, uid_groups='dir')
         # Output directories
-        self.paths.add_path(uid='d_plots_TOP', path=DIR_PLOTS, uid_groups=('dir', 'tmp'))
-        self.paths.add_path(uid='d_results_TOP', path=DIR_RESULTS, uid_groups=('dir', 'tmp'))
-        self.paths.add_path(uid='d_plots', path=DIR_PLOTS+output_subdir, uid_groups=('dir', 'tmp'))
-        self.paths.add_path(uid='d_results', path=DIR_RESULTS+output_subdir, uid_groups=('dir', 'tmp'))
+        self.paths.add_path(uid='d_plots_TOP', path=PATHS.DIR.PLOTS, uid_groups=('dir', 'tmp'))
+        self.paths.add_path(uid='d_results_TOP', path=PATHS.DIR.RESULTS, uid_groups=('dir', 'tmp'))
+        self.paths.add_path(uid='d_plots', path=PATHS.DIR.PLOTS+output_subdir, uid_groups=('dir', 'tmp'))
+        self.paths.add_path(uid='d_results', path=PATHS.DIR.RESULTS+output_subdir, uid_groups=('dir', 'tmp'))
 
         # ===== Files =====
         self.paths.add_subpath(uid_parent='d_aircraft', uid='f_aircraft', path=f"{self.settings['aircraft']}")
