@@ -55,9 +55,9 @@ def save_aeroperformance_map(state, settings):
     logger.info(f"Writing aeroperformance map results to '{truncate_filepath(cpacs_file)}'")
 
     cpacs_mappings = {
-        ('cl', 'CL'),
-        ('cd', 'CD'),
-        ('cs', 'CC'),
+        ('cl', 'CL'),  # Lift coefficient in aerodynamic coordinates
+        ('cd', 'CD'),  # Drag coefficient in aerodynamic coordinates
+        ('cs', 'CC'),  # Coefficient of the side force vector in aerodynamic coordinates
     }
 
     with modify_cpacs(cpacs_file) as tixi:
