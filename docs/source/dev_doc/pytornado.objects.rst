@@ -4,18 +4,18 @@ pytornado.objects package
 Submodules
 ----------
 
-pytornado.objects.airfoils module
+pytornado.objects.aircraft module
 ---------------------------------
 
-.. automodule:: pytornado.objects.airfoils
+.. automodule:: pytornado.objects.aircraft
     :members:
     :undoc-members:
     :show-inheritance:
 
-pytornado.objects.model module
-------------------------------
+pytornado.objects.airfoils module
+---------------------------------
 
-.. automodule:: pytornado.objects.model
+.. automodule:: pytornado.objects.airfoils
     :members:
     :undoc-members:
     :show-inheritance:

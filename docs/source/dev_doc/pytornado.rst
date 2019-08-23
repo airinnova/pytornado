@@ -10,18 +10,7 @@ Subpackages
     pytornado.fileio
     pytornado.objects
     pytornado.plot
-
-Submodules
-----------
-
-pytornado.stdfun module
------------------------
-
-.. automodule:: pytornado.stdfun
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+    pytornado.stdfun
 
 Module contents
 ---------------

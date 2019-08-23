@@ -138,26 +138,32 @@ def check_dict(template_dict, test_dict):
 
     The template dictionary must have a specific structure as outlined below:
 
-    template_dict = {
-        'test_key1': ('default_value1', str),
-        'test_key2': (1792, (int, float)),
-    }
+    .. code:: python
+
+        template_dict = {
+            'test_key1': ('default_value1', str),
+            'test_key2': (1792, (int, float)),
+        }
 
     The values have to be tuples with some default value and the expected
     types of the values. The follwing dictionary would pass the test:
 
-    test_dict = {
-        'test_key1': 'some_string',
-        'test_key2': 1111,
-    }
+    .. code:: python
+
+        test_dict = {
+            'test_key1': 'some_string',
+            'test_key2': 1111,
+        }
 
     However, the follwing dictionary does not have the correct form and an
     error will be raised.
 
-    test_dict = {
-        'test_key1': 'this is okay...',
-        'test_key2': '... but a string is now allowed here',
-    }
+    .. code:: python
+
+        test_dict = {
+            'test_key1': 'this is okay...',
+            'test_key2': '... but a string is now allowed here',
+        }
 
     Raises:
         :TypeError: If types of test and template dictionary don't match

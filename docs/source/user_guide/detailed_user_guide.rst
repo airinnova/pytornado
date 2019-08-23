@@ -3,63 +3,43 @@
 Detailed User Guide
 ===================
 
-**TO BE UPDATED...**
-
-Working directory
+Project directory
 -----------------
 
-|name| expects the user's current working directory -- from which the program is executed -- to follow a certain structure, detailed in this section (see also figure). If missing, the folder structure is automatically generated.
+As seen in the first tutorial (:ref:`getting_started`), |name| has its own *project directory* with several subfolders. |name| can automatically generated the folder structure if necessary. This is what the folder structure typically looks like:
 
-.. figure:: ../_static/images/working_dir_file_structure.png
-   :scale: 60
+.. figure:: _static/images/project_dirs.svg
+   :width: 450
    :alt: Project directory
    :align: center
 
-   Expected structure of the user's *working* or *project* directory
+   Structure of the |name| *project directory*
 
-The working directory, or project directory, is the path to the files related to the user's working project. The project directory is assumed to correspond to the location from which the program is executed.
+* ``settings`` The settings folder must contain a *JSON settings file*. This file is the entry point for any VLM analysis. Notice that you referenced this settings file in the first tutorial with the ``--run`` argument (:ref:`getting_started`). The settings file can be named arbitrarily.
 
-At the root of the directory, the program keeps a log of runtime messages in a ``log.txt`` file.
+* ``aircraft`` This folder contains a file with the aircraft model. |name| reads models stored as JSON or CPACS_ files.
 
-aircraft/
-~~~~~~~~~
+* ``airfoils`` This folder can contain files with airfoil descriptions. Airfoil files can be referenced from the aircraft model (JSON or CPACS_). Airfoil files may be automatically generated if you use CPACS_. Also, if you use |name|'s JSON format, you can define NACA airfoils without adding any files yourself. More information on airfoils can be found here: **TODO**.
 
-The program searches for the aircraft definition files in a sub-folder named aircraft, expecting the following naming convention:
+* ``state`` TODO
 
-    * ``aircraft.name``
-        * |name|'s native aircraft definition for aircraft with name ``name``
-    * ``name.xml``
-        * CPACS_ aircraft definition for aircraft with name ``name``
+* ``_results`` TODO
 
-airfoil/
-~~~~~~~~
+* ``_plots`` TODO
 
-The program requires the coordinates of the wing profiles at the inner and outer edges of each segment, to modify the panel normal vectors based on camber. This data is must lie in the airfoil directory, in files named as follows:
+* ``log.txt`` This is an automatically generated log file. It contains information about the program execution. Normally, it it only of interest if something went wrong. Then, this log file may contain helpful information.
 
-* ``blade.name``
-    * coordinate file of airfoil name
+.. note::
 
-state/
-~~~~~~
+    If you plan to perform analyses for multiple aircraft models, you can separate your analyses by using separate project directories (the top level folder). But it is also possible to keep all analyses in one project folder. Then, you will have multiple settings files in the *settings* folder, multiple aircraft files in your *aircraft* folder etc.
 
-The program searches for the definition of the flight state in a sub-folder named state, expecting the following naming convention:
+..
+    =============================================================================================
+    =============================================================================================
+    =============================================================================================
 
-* ``state.name``
-    * flight state definition for state ``name``
+**TO BE UPDATED...**
 
-settings/
-~~~~~~~~~
-
-The program searches for the settings file, or configuration file, in the settings sub-folder, expecting the following naming convention:
-
-* ``set.name``
-    * settings for case ``name``
-
-results/
-~~~~~~~~
-
-.. warning::
-    TODO: Structure to be defined.
 
 Program execution
 -----------------

@@ -1,5 +1,5 @@
-Caveats
-=======
+Limitations
+===========
 
 **TO BE UPDATED...**
 

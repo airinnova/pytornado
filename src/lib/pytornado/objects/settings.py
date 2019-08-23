@@ -111,6 +111,7 @@ class Settings:
         self.project_basename = os.path.splitext(settings_filename)[0]
 
         # Initialise settings dict
+        # TODO: generelise
         self.settings = {}
         for key1, (default1, _) in DEFAULT_SETTINGS.items():
             if isinstance(default1, dict):

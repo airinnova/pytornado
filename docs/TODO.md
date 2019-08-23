@@ -1,7 +1,6 @@
 # TODO
 
 * Improve structure of the main settings file
-    * Avoid 'settings' field
     * Better 'plots' solution!
 
 * Refactor CPACS functions --> make control surfaces work
