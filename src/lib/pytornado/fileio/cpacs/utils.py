@@ -24,6 +24,8 @@
 General CPACS functions
 """
 
+from contextlib import contextmanager
+
 import logging
 
 logger = logging.getLogger(__name__)
@@ -130,6 +132,19 @@ def open_tixi(cpacs_file):
     return tixi
 
 
+def close_tixi(tixi, cpacs_file):
+    """
+    Close Tixi and save to file
+
+    Args:
+        :tixi: Tixi handle
+        :cpacs_file: CPACS file path
+    """
+
+    tixi.saveDocument(str(cpacs_file))
+    tixi.close()
+
+
 def open_tigl(tixi):
     """
     Return a Tigl handle
@@ -204,3 +219,19 @@ def add_vector(tixi, xpath, vector):
         tixi.updateFloatVector(xpath, vector, len(vector), format='%g')
     else:
         tixi.addFloatVector(xpath_parent, xpath_child_name, vector, len(vector), format='%g')
+
+
+@contextmanager
+def modify_cpacs(cpacs_file):
+    """
+    Context manganger for handling CPACS files
+
+    Args:
+        :cpacs_file: CPACS file path
+    """
+
+    tixi = open_tixi(cpacs_file)
+    try:
+        yield tixi
+    finally:
+        close_tixi(tixi, cpacs_file)

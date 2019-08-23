@@ -30,7 +30,7 @@ import logging
 
 from commonlibs.logger import truncate_filepath
 
-from pytornado.fileio.cpacs.utils import open_tixi, open_tigl, XPATHS, add_vector
+from pytornado.fileio.cpacs.utils import open_tixi, open_tigl, XPATHS, add_vector, close_tixi, modify_cpacs
 
 try:
     from pytornado.fileio.cpacs.utils import tixiwrapper, tiglwrapper
@@ -54,18 +54,13 @@ def save_aeroperformance_map(state, settings):
     cpacs_file = settings.paths('f_aircraft')
     logger.info(f"Writing aeroperformance map results to '{truncate_filepath(cpacs_file)}'")
 
-    # open CPACS file, write back to CPACS...
-    tixi = open_tixi(cpacs_file)
-
     cpacs_mappings = {
         ('cl', 'CL'),
         ('cd', 'CD'),
         ('cs', 'CC'),
     }
 
-    for cpacs_key, native_key in cpacs_mappings:
-        vector = state.results[native_key]
-        xpath = XPATHS.APM(tixi) + "/" + cpacs_key
-        add_vector(tixi, xpath, vector)
-
-    tixi.saveDocument(str(cpacs_file))
+    with modify_cpacs(cpacs_file) as tixi:
+        for key_cpacs, key_native in cpacs_mappings:
+            xpath = XPATHS.APM(tixi) + "/" + key_cpacs
+            add_vector(tixi, xpath, vector=state.results[key_native])
