@@ -7,7 +7,16 @@ Versioning <https://semver.org/spec/v2.0.0.html>`__.
 [0.3.0] -- 2019-08-21
 ---------------------
 
-* Renamed '--make-wkdir' to '--make-example'
+Added
+~~~~~
+
+* Added support to read AeroPerformanceMaps from CPACS. Results will be written back to the same CPACS file.
+
+Changed
+~~~~~~~
+
+* Renamed CLI argument from '--make-wkdir' to '--make-example'
+* Simplified structure of the main settings file
 
 Removed
 ~~~~~~~
