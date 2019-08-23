@@ -34,11 +34,12 @@ import json
 from commonlibs.logger import truncate_filepath
 
 from pytornado.fileio.utils import dump_pretty_json
+from pytornado.objects.state import FlightState
 
 logger = logging.getLogger(__name__)
 
 
-def load(state, settings):
+def load(settings):
     """
     Read flight state from PyTornado state file.
 
@@ -58,7 +59,9 @@ def load(state, settings):
     with open(state_file, 'r') as fp:
         state_dict = json.load(fp)
 
+    state = FlightState()
     state.update_from_dict(**state_dict)
+    return state
 
 
 def save(state, settings):

@@ -31,13 +31,11 @@ Developed at Airinnova AB, Stockholm, Sweden.
 import os
 import sys
 
-import pytornado.fileio.settings as io_settings
-import pytornado.fileio.model as io_model
-import pytornado.fileio.state as io_state
-import pytornado.fileio.cpacs as io_cpacs
 from pytornado.objects.settings import Settings, DIR_TEMPLATE_WKDIR
-from pytornado.objects.model import Aircraft
+from pytornado.objects.aircraft import Aircraft
 from pytornado.objects.state import FlightState
+import pytornado.fileio.cpacs as io_cpacs
+import pytornado.fileio.native as io_native
 
 
 def setup_wkdir():
@@ -85,8 +83,8 @@ def setup_wkdir():
 
     settings.settings['vlm_autopanels_s'] = 20
     settings.settings['vlm_autopanels_c'] = 5
-    settings.plot['results_panelwise'] = ['cp']
-    settings.plot['show'] = True
+    settings.settings['plot']['results_panelwise'] = ['cp']
+    settings.settings['plot']['plot_show'] = True
 
     # ---------- State ----------
     state.aero['airspeed'] = 100
@@ -129,9 +127,9 @@ def setup_wkdir():
     control.rel_hinge_vertices['xsi_outer'] = 0.7
 
     # Save settings, state and model file
-    io_settings.save(settings)
-    io_state.save(state, settings)
-    io_model.save(aircraft, settings)
+    io_native.settings.save(settings)
+    io_native.state.save(state, settings)
+    io_native.aircraft.save(aircraft, settings)
 
 
 # def cpacs2pytornado(file_cpacs):

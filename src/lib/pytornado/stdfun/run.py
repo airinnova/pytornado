@@ -33,20 +33,14 @@ import logging
 import commonlibs.logger as hlogger
 
 from pytornado.__version__ import __version__
+from pytornado.objects.vlm_struct import VLMData, VLMLattice
 import pytornado.aero.vlm as vlm
-import pytornado.fileio.settings as io_settings
 import pytornado.fileio.cpacs as io_cpacs
-import pytornado.fileio.model as io_model
-import pytornado.fileio.state as io_state
-import pytornado.fileio.results as io_results
-import pytornado.fileio.deformation as io_deformation
+import pytornado.fileio.native as io_native
 import pytornado.plot.downwash as pl_downwash
 import pytornado.plot.geometry as pl_geometry
 import pytornado.plot.lattice as pl_lattice
 import pytornado.plot.results as pl_results
-from pytornado.objects.model import Aircraft
-from pytornado.objects.state import FlightState
-from pytornado.objects.vlm_struct import VLMData, VLMLattice
 
 logger = logging.getLogger(__name__)
 
@@ -77,7 +71,7 @@ def get_settings(settings_filepath):
     """
 
     logger.info("Getting configuration file...")
-    settings = io_settings.load(settings_filepath)
+    settings = io_native.settings.load(settings_filepath)
     return settings
 
 
@@ -116,22 +110,23 @@ def standard_run(args):
 
     # ===== Setup =====
     logger.info(hlogger.decorate(f"{__prog_name__} {__version__}"))
-
-    logger.info("Getting configuration file...")
-    settings = io_settings.load(settings_filepath=args.run)
+    settings = get_settings(settings_filepath=args.run)
 
     # ===== Setup aircraft model and flight state =====
-    aircraft = Aircraft()
     if settings.aircraft_is_cpacs:
-        io_cpacs.load(aircraft, settings)
+        aircraft = io_cpacs.aircraft.load(settings)
     else:
-        io_model.load(aircraft, settings)
+        aircraft = io_native.aircraft.load(settings)
 
-    state = FlightState()
-    io_state.load(state, settings)
+    ######################################################
+    if settings.settings['state'].upper() == '__CPACS':
+        state = io_cpacs.state.load(settings)
+    else:
+        state = io_native.state.load(settings)
+    ######################################################
 
     if settings.settings['deformation']:
-        io_deformation.load_deformation(aircraft, settings)
+        io_native.deformation.load(aircraft, settings)
 
     # ===== Generate lattice =====
     lattice = VLMLattice()
@@ -150,6 +145,12 @@ def standard_run(args):
 
         ##########################################################
         # TODO: Don't set refs here. Find better solution!
+        # import numpy as np
+        # aircraft.refs['area'] = float(aircraft.refs['area'])
+        # aircraft.refs['chord'] = float(aircraft.refs['chord'])
+        # aircraft.refs['span'] = float(aircraft.refs['span'])
+        # aircraft.refs['rcenter'] = np.array(aircraft.refs['rcenter'], order='C')
+        # aircraft.refs['gcenter'] = np.array(aircraft.refs['gcenter'], order='C')
         cur_state.refs = aircraft.refs
         ##########################################################
 
@@ -168,49 +169,49 @@ def standard_run(args):
 
         # ===== Save results =====
         if 'panelwise' in settings.settings['save_results']:
-            io_results.save_panelwise(cur_state, vlmdata, settings)
+            io_native.results.save_panelwise(cur_state, vlmdata, settings)
 
         if 'global' in settings.settings['save_results']:
-            io_results.save_glob_results(cur_state, vlmdata, settings)
+            io_native.results.save_glob_results(cur_state, vlmdata, settings)
 
         if 'loads_with_deformed_mesh' in settings.settings['save_results']:
-            io_results.save_loads(aircraft, settings, cur_state, vlmdata, lattice)
+            io_native.results.save_loads(aircraft, settings, cur_state, vlmdata, lattice)
 
         if 'loads_with_undeformed_mesh' in settings.settings['save_results']:
-            io_results.save_loads(aircraft, settings, cur_state, vlmdata, lattice=None)
+            io_native.results.save_loads(aircraft, settings, cur_state, vlmdata, lattice=None)
 
         # ===== Generate plots =====
         plt_settings = {
             "plot_dir": settings.paths('d_plots'),
-            "save": settings.plot['save'],
-            "show": settings.plot['show']
+            "save": settings.settings['plot']['save'],
+            "show": settings.settings['plot']['show']
         }
 
         if plt_settings['save'] or plt_settings['show']:
-            if settings.plot['results_downwash']:
+            if settings.settings['plot']['results_downwash']:
                 pl_downwash.view_downwash(vlmdata, plt_settings)
 
-            if settings.plot['geometry_aircraft']:
+            if settings.settings['plot']['geometry_aircraft']:
                 pl_geometry.view_aircraft(aircraft, plt_settings, plot='norm')
 
             for wing_uid, wing in aircraft.wing.items():
-                if wing_uid in settings.plot['geometry_wing']:
+                if wing_uid in settings.settings['plot']['geometry_wing']:
                     pl_geometry.view_wing(wing, wing_uid, plt_settings, plot='surf')
 
-                    if settings.plot['geometry_property']:
+                    if settings.settings['plot']['geometry_property']:
                         pl_geometry.view_spanwise(wing, wing_uid, plt_settings,
-                                                  properties=settings.plot['geometry_property'])
+                                                  properties=settings.settings['plot']['geometry_property'])
 
                     for segment_uid, segment in wing.segment.items():
-                        if segment_uid in settings.plot['geometry_segment']:
+                        if segment_uid in settings.settings['plot']['geometry_segment']:
                             pl_geometry.view_segment(segment, segment_uid, plt_settings, plot='wire')
 
-            if settings.plot['lattice_aircraft']:
+            if settings.settings['plot']['lattice_aircraft']:
                 pl_lattice.view_aircraft(aircraft, lattice, plt_settings,
-                                         opt_settings=settings.plot['lattice_aircraft_optional'])
+                                         opt_settings=settings.settings['plot']['lattice_aircraft_optional'])
 
-            if settings.plot['results_panelwise']:
-                for result in settings.plot['results_panelwise']:
+            if settings.settings['plot']['results_panelwise']:
+                for result in settings.settings['plot']['results_panelwise']:
                     pl_results.view_panelwise(aircraft, cur_state, lattice, vlmdata, result, plt_settings)
 
         ###############################################
@@ -241,7 +242,10 @@ def standard_run(args):
 
     ###############################################
     # Save aeroperformance map
-    io_results.save_aeroperformance_map(state, settings)
+    io_native.results.save_aeroperformance_map(state, settings)
+
+    if settings.aircraft_is_cpacs:
+        io_cpacs.results.save_aeroperformance_map(state, settings)
     ###############################################
 
     logger.info(f"{__prog_name__} {__version__} terminated")

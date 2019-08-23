@@ -6,7 +6,7 @@ import json
 
 from pytest import approx, raises
 
-from pytornado.stdfun import StdRunArgs, standard_run
+from pytornado.stdfun.run import StdRunArgs, standard_run
 
 
 HERE = os.path.abspath(os.path.dirname(__file__))
@@ -29,8 +29,6 @@ def test_basic_analysis():
     """
     Check that panel forces are located at the correct positions
     """
-
-    os.chdir(os.path.join(HERE, WKDIR))
 
     # ----- Single value input -----
     state = {

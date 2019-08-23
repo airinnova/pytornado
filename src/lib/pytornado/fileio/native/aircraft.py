@@ -33,12 +33,13 @@ import json
 
 from commonlibs.logger import truncate_filepath
 
+from pytornado.objects.aircraft import Aircraft
 from pytornado.fileio.utils import dump_pretty_json
 
 logger = logging.getLogger(__name__)
 
 
-def load(aircraft, settings):
+def load(settings):
     """
     Read aircraft model from PyTornado aircraft definition file.
 
@@ -59,6 +60,7 @@ def load(aircraft, settings):
         aircraft_dict = json.load(fp)
 
     # ====== Aircraft top level =====
+    aircraft = Aircraft()
     aircraft.uid = aircraft_dict['uid']
 
     for key, value in aircraft_dict['refs'].items():
@@ -107,6 +109,7 @@ def load(aircraft, settings):
             control.check()
 
     aircraft.generate()
+    return aircraft
 
 
 def save(aircraft, settings):

@@ -170,7 +170,7 @@ def save_aeroperformance_map(state, settings):
     """
 
     filepath = settings.paths('f_results_apm_global')
-    logger.info(f"Writing panelwise results to file '{truncate_filepath(filepath)}'")
+    logger.info(f"Writing aeroperformance map results to '{truncate_filepath(filepath)}'")
 
     output = {}
     for dictionary in [state.aero, state.results]:

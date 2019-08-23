@@ -38,7 +38,7 @@ from commonlibs.math.interpolation import lin_interpol
 import pytornado.aero.c_vlm as c_vlm
 import pytornado.objects.objecttools as ot
 from pytornado.objects.vlm_struct import BookKeepingEntry
-from pytornado.objects.model import get_abs_segment_point_coords
+from pytornado.objects.aircraft import get_abs_segment_point_coords
 
 logger = logging.getLogger(__name__)
 

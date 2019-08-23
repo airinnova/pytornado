@@ -79,19 +79,30 @@ def save(settings):
     set_file = settings.paths('f_settings')
     logger.info(f"Saving settings to file '{truncate_filepath(set_file)}'...")
 
-    output = {}
-
-    for key in ['settings', 'plot']:
-        output[key] = dict(getattr(settings, key))
-
-        # Do not save special underscore settings by default
-        delete_keys = []
-        for sub_key in output[key].keys():
-            if sub_key.startswith("_"):
-                delete_keys.append(sub_key)
-
-        for sub_key in delete_keys:
-            del output[key][sub_key]
+    clean_dict(settings.settings)
 
     with open(set_file, 'w') as fp:
-        dump_pretty_json(output, fp)
+        dump_pretty_json(settings.settings, fp)
+
+
+def clean_dict(dictionary, to_del='_'):
+    """
+    Delete dictionary items with keys starting with specified string
+
+    Works recursively
+
+    Args:
+        :dictionary: Dictionary object
+        :to_del: Starts-with identifier
+    """
+
+    to_delete = []
+    for k, v in dictionary.items():
+        if isinstance(v, dict):
+            v = clean_dict(v)
+        if k.startswith('_'):
+            to_delete.append(k)
+
+    for k in to_delete:
+        del dictionary[k]
+    return dictionary
