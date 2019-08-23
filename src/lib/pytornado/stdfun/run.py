@@ -145,6 +145,12 @@ def standard_run(args):
 
         ##########################################################
         # TODO: Don't set refs here. Find better solution!
+        # import numpy as np
+        # aircraft.refs['area'] = float(aircraft.refs['area'])
+        # aircraft.refs['chord'] = float(aircraft.refs['chord'])
+        # aircraft.refs['span'] = float(aircraft.refs['span'])
+        # aircraft.refs['rcenter'] = np.array(aircraft.refs['rcenter'], order='C')
+        # aircraft.refs['gcenter'] = np.array(aircraft.refs['gcenter'], order='C')
         cur_state.refs = aircraft.refs
         ##########################################################
 
@@ -237,6 +243,9 @@ def standard_run(args):
     ###############################################
     # Save aeroperformance map
     io_native.results.save_aeroperformance_map(state, settings)
+
+    if settings.aircraft_is_cpacs:
+        io_cpacs.results.save_aeroperformance_map(state, settings)
     ###############################################
 
     logger.info(f"{__prog_name__} {__version__} terminated")

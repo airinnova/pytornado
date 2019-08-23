@@ -36,7 +36,7 @@ from pytornado.objects.objecttools import all_controls, all_wings
 from pytornado.fileio.cpacs.utils import open_tixi, open_tigl, XPATHS, get_segment_mid_point
 
 try:
-    from pytornado.fileio.cpacs_utils import tixiwrapper, tiglwrapper
+    from pytornado.fileio.cpacs.utils import tixiwrapper, tiglwrapper
 except:
     pass
 

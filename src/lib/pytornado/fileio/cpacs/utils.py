@@ -64,13 +64,13 @@ class _XPaths:
 
     @classmethod
     def CONTROL(cls, idx_wing, idx_comp_section, idx_control, device_pos):
-        _control = cls.WINGS \
+        control = cls.WINGS \
             + '/wing[{0:d}]/componentSegments/componentSegment[{1:d}]' \
             + '/controlSurfaces/{3:s}EdgeDevices/{3:s}EdgeDevice[{2:d}]'
-        return _control.format(idx_wing, idx_comp_section, idx_control, device_pos)
+        return control.format(idx_wing, idx_comp_section, idx_control, device_pos)
 
     @classmethod
-    def APM(cls, tixi, uid_apm):
+    def APM(cls, tixi):
         """
         Return the AeroPerformanceMap for a given UID
 
@@ -79,17 +79,21 @@ class _XPaths:
             :uid_apm: AeroPerformanceMap UID
         """
 
+        uid_apm = cls._get_uid_apm(tixi)
         xpath_apm = tixi.uIDGetXPath(uid_apm)
         xpath_apm += '/aeroPerformanceMap'
         return xpath_apm
 
     @classmethod
-    def get_uid_apm(cls, tixi):
+    def _get_uid_apm(cls, tixi):
         """
-        Return the UID of the AeroPerformanceMap to import
+        Return the UID of the aeroperformance map to import
 
         Args:
             :tixi: Tixi handle
+
+        Returns:
+            :uid_apm: UID of the aeroperformance map
         """
 
         xpath_apm_uid = cls.TOOLSPEC + '/aeroMapUID'
@@ -164,9 +168,39 @@ def get_segment_mid_point(tigl, idx_wing, idx_segment, eta, xsi):
         :idx_segment: Segment index
         :eta: Relative segment coordinate
         :xsi: Relative segment coordinate
+
+    Returns:
+        :mid_point: List with mid coordinate
     """
 
     lower = tigl.wingGetLowerPoint(idx_wing, idx_segment, eta, xsi)
     upper = tigl.wingGetUpperPoint(idx_wing, idx_segment, eta, xsi)
     mid_point = [(l + u)/2.0 for l, u in zip(lower, upper)]
     return mid_point
+
+
+def add_vector(tixi, xpath, vector):
+    """
+    Add a vector at given CPACS path
+
+    Note:
+        * Values will be overwritten if paths exists
+
+    Args:
+        :tixi: Tixi handle
+        :xpath: CPACS path
+        :vector: List or tuple (vector) to add
+    """
+
+    # Strip trailing '/' (has no meaning here)
+    if xpath.endswith("/"):
+        xpath = xpath[:-1]
+
+    # Get the field name and the parent CPACS path
+    xpath_child_name = xpath.split("/")[-1]
+    xpath_parent = xpath[:-(len(xpath_child_name)+1)]
+
+    if tixi.checkElement(xpath):
+        tixi.updateFloatVector(xpath, vector, len(vector), format='%g')
+    else:
+        tixi.addFloatVector(xpath_parent, xpath_child_name, vector, len(vector), format='%g')

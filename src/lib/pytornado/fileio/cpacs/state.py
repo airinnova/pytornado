@@ -22,7 +22,7 @@
 # * Aaron Dettmann
 
 """
-Functions for conversion of CPACS aircraft definition to native model
+Import of CPACS aeroperformance maps (flight states) and export of results
 
 Developed at Airinnova AB, Stockholm, Sweden.
 """
@@ -38,10 +38,6 @@ except:
     pass
 
 logger = logging.getLogger(__name__)
-
-# ======================================================================
-# AeroPerformanceMap
-# ======================================================================
 
 
 def load(settings):
@@ -59,25 +55,24 @@ def load(settings):
     tixi = open_tixi(cpacs_file)
     tigl = open_tigl(tixi)
 
-    uid_apm = XPATHS.get_uid_apm(tixi)
-    logger.info(f"Using aeroperformance map with UID '{uid_apm}'")
-
-    state_dict = get_aero_dict_from_APM(tixi, uid_apm=uid_apm)
+    state_dict = _get_aero_dict_from_APM(tixi)
     state = FlightState()
     state.update_from_dict(**state_dict)
     return state
 
 
-def get_aero_dict_from_APM(tixi, uid_apm):
+def _get_aero_dict_from_APM(tixi):
     """
     Extract the aeroperformance map from CPACS and return an aero dictionary
 
     Args:
         :tixi: Tixi handle
-        :uid_apm: UID of the aeroperformance map
+
+    Returns:
+        :state_dict: state dictionary
     """
 
-    aero_dict = {
+    state_dict = {
         "aero": {
             ALTITUDE: None,
             ALPHA: None,
@@ -98,13 +93,13 @@ def get_aero_dict_from_APM(tixi, uid_apm):
     }
 
     vector_lens = set()
-    xpath_apm = XPATHS.APM(tixi, uid_apm)
+    xpath_apm = XPATHS.APM(tixi)
     for cpacs_key, state_key in state_params.items():
         xpath_apm_param = xpath_apm + '/' + cpacs_key
         vector_len = tixi.getVectorSize(xpath_apm_param)
         vector_lens.add(vector_len)
         values = tixi.getFloatVector(xpath_apm_param, vector_len)
-        aero_dict['aero'][state_key] = list(values)
+        state_dict['aero'][state_key] = list(values)
 
     if len(list(vector_lens)) > 1:
         err_msg = f"""
@@ -115,6 +110,6 @@ def get_aero_dict_from_APM(tixi, uid_apm):
 
     # NOTE: Roll rate are not an input parameter in CPACS
     for rate in [RATE_P, RATE_Q, RATE_R]:
-        aero_dict['aero'][rate] = [0]*vector_len
+        state_dict['aero'][rate] = [0]*vector_len
 
-    return aero_dict
+    return state_dict
