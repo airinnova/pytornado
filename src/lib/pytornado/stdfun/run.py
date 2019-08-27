@@ -36,10 +36,7 @@ from pytornado.__version__ import __version__
 from pytornado.objects.vlm_struct import VLMData, VLMLattice
 import pytornado.aero.vlm as vlm
 import pytornado.fileio as io
-import pytornado.plot.downwash as pl_downwash
-import pytornado.plot.geometry as pl_geometry
-import pytornado.plot.lattice as pl_lattice
-import pytornado.plot.results as pl_results
+import pytornado.plot.makeplots as makeplots
 
 logger = logging.getLogger(__name__)
 
@@ -180,38 +177,7 @@ def standard_run(args):
             io.native.results.save_loads(aircraft, settings, cur_state, vlmdata, lattice=None)
 
         # ===== Generate plots =====
-        plt_settings = {
-            "plot_dir": settings.paths('d_plots'),
-            "save": settings.settings['plot']['save'],
-            "show": settings.settings['plot']['show']
-        }
-
-        if plt_settings['save'] or plt_settings['show']:
-            if settings.settings['plot']['results_downwash']:
-                pl_downwash.view_downwash(vlmdata, plt_settings)
-
-            if settings.settings['plot']['geometry_aircraft']:
-                pl_geometry.view_aircraft(aircraft, plt_settings, plot='norm')
-
-            for wing_uid, wing in aircraft.wing.items():
-                if wing_uid in settings.settings['plot']['geometry_wing']:
-                    pl_geometry.view_wing(wing, wing_uid, plt_settings, plot='surf')
-
-                    if settings.settings['plot']['geometry_property']:
-                        pl_geometry.view_spanwise(wing, wing_uid, plt_settings,
-                                                  properties=settings.settings['plot']['geometry_property'])
-
-                    for segment_uid, segment in wing.segment.items():
-                        if segment_uid in settings.settings['plot']['geometry_segment']:
-                            pl_geometry.view_segment(segment, segment_uid, plt_settings, plot='wire')
-
-            if settings.settings['plot']['lattice_aircraft']:
-                pl_lattice.view_aircraft(aircraft, lattice, plt_settings,
-                                         opt_settings=settings.settings['plot']['lattice_aircraft_optional'])
-
-            if settings.settings['plot']['results_panelwise']:
-                for result in settings.settings['plot']['results_panelwise']:
-                    pl_results.view_panelwise(aircraft, cur_state, lattice, vlmdata, result, plt_settings)
+        makeplots.make_all(settings, aircraft, cur_state, vlmdata, lattice)
 
         ###############################################
         # TODO: Find better solution
