@@ -39,6 +39,7 @@ from commonlibs.math.vectors import unit_vector
 
 from pytornado.plot.utils import get_limits, scale_fig, interpolate_quad, get_date_str
 from pytornado.plot.utils import COLOR1, COLOR2, COLOR3, COLOR4, COLOR5, MAX_ITEMS_TEXT
+from pytornado.objects.objecttools import all_controls
 
 logger = logging.getLogger(__name__)
 
@@ -132,6 +133,69 @@ def _add_CG_plot2d(axes, aircraft):
     axes_yz.scatter(Y, Z, color=COLOR1, marker='x', s=40, linewidth=2)
     axes_xz.scatter(X, Z, color=COLOR1, marker='x', s=40, linewidth=2)
     axes_xy.scatter(X, Y, color=COLOR1, marker='x', s=40, linewidth=2)
+
+
+def _add_controls(axes_3d, axes_2d, aircraft):
+    """
+    Add control surfaces to axes objects
+
+    TODO
+    """
+
+    axes_yz, axes_xz, axes_xy = axes_2d
+
+    # ----- Add outer control geometry -----
+    for (_, control_uid, control), (_, wing_uid, wing) in all_controls(aircraft):
+        if control.device_type == 'flap':
+            points = np.array([control.abs_vertices['d'],
+                               control.abs_vertices['a'],
+                               control.abs_vertices['b'],
+                               control.abs_vertices['c']])
+
+        elif control.device_type == 'slat':
+            points = np.array([control.abs_vertices['b'],
+                               control.abs_vertices['c'],
+                               control.abs_vertices['d'],
+                               control.abs_vertices['a']])
+
+        X = points[:, 0]
+        Y = points[:, 1]
+        Z = points[:, 2]
+
+        axes_3d.plot(X, Y, Z, color=COLOR4, marker='.', linewidth=1.0, markersize=4.0)
+        axes_yz.plot(Y, Z, color=COLOR4, linewidth=1.0)
+        axes_xz.plot(X, Z, color=COLOR4, linewidth=1.0)
+        axes_xy.plot(X, Y, color=COLOR4, linewidth=1.0)
+
+        # ----- Add hinges -----
+        hinge_points = np.array([control.abs_hinge_vertices['p_inner'],
+                                 control.abs_hinge_vertices['p_outer']])
+
+        X_hinge = hinge_points[:, 0]
+        Y_hinge = hinge_points[:, 1]
+        Z_hinge = hinge_points[:, 2]
+        axes_3d.plot(X_hinge, Y_hinge, Z_hinge, '--', color=COLOR3, marker='.', linewidth=1.0, markersize=4.0)
+        axes_yz.plot(Y_hinge, Z_hinge, '--', color=COLOR3, linewidth=1.0)
+        axes_xz.plot(X_hinge, Z_hinge, '--', color=COLOR3, linewidth=1.0)
+        axes_xy.plot(X_hinge, Y_hinge, '--', color=COLOR3, linewidth=1.0)
+
+        # x-y symmetry
+        if wing.symmetry == 1:
+            axes_3d.plot(X, Y, -Z, color=COLOR4, linewidth=1.0)
+            axes_yz.plot(Y, -Z, color=COLOR4, linewidth=1.0)
+            axes_xz.plot(X, -Z, color=COLOR4, linewidth=1.0)
+
+        # x-z symmetry
+        elif wing.symmetry == 2:
+            axes_3d.plot(X, -Y, Z, color=COLOR4, linewidth=0.5)
+            axes_yz.plot(-Y, Z, color=COLOR4, linewidth=0.5)
+            axes_xy.plot(X, -Y, color=COLOR4, linewidth=0.5)
+
+        # y-z symmetry
+        elif wing.symmetry == 3:
+            axes_3d.plot(-X, Y, Z, color=COLOR4, linewidth=0.5)
+            axes_xz.plot(-X, Z, color=COLOR4, linewidth=0.5)
+            axes_xy.plot(-X, Y, color=COLOR4, linewidth=0.5)
 
 
 def view_aircraft(aircraft, plt_settings, plot=None, block=True):
@@ -288,59 +352,7 @@ def view_aircraft(aircraft, plt_settings, plot=None, block=True):
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
-        # CONTROL SURFACES
-        for control_uid, control in wing.control.items():
-            if control.device_type == 'flap':
-                points = np.array([control.abs_vertices['d'],
-                                   control.abs_vertices['a'],
-                                   control.abs_vertices['b'],
-                                   control.abs_vertices['c']])
-
-            elif control.device_type == 'slat':
-                points = np.array([control.abs_vertices['b'],
-                                   control.abs_vertices['c'],
-                                   control.abs_vertices['d'],
-                                   control.abs_vertices['a']])
-
-            X = points[:, 0]
-            Y = points[:, 1]
-            Z = points[:, 2]
-
-            axes_3d.plot(X, Y, Z, color=COLOR4, marker='.', linewidth=1.0, markersize=4.0)
-            axes_yz.plot(Y, Z, color=COLOR4, linewidth=1.0)
-            axes_xz.plot(X, Z, color=COLOR4, linewidth=1.0)
-            axes_xy.plot(X, Y, color=COLOR4, linewidth=1.0)
-
-            hinge_points = np.array([control.abs_hinge_vertices['p_inner'],
-                                     control.abs_hinge_vertices['p_outer']])
-
-            X_hinge = hinge_points[:, 0]
-            Y_hinge = hinge_points[:, 1]
-            Z_hinge = hinge_points[:, 2]
-            axes_3d.plot(X_hinge, Y_hinge, Z_hinge, '--', color=COLOR3, marker='.', linewidth=1.0, markersize=4.0)
-            axes_yz.plot(Y_hinge, Z_hinge, '--', color=COLOR3, linewidth=1.0)
-            axes_xz.plot(X_hinge, Z_hinge, '--', color=COLOR3, linewidth=1.0)
-            axes_xy.plot(X_hinge, Y_hinge, '--', color=COLOR3, linewidth=1.0)
-
-            # x, y-symmetry
-            if wing.symmetry == 1:
-                axes_3d.plot(X, Y, -Z, color=COLOR4, linewidth=1.0)
-                axes_yz.plot(Y, -Z, color=COLOR4, linewidth=1.0)
-                axes_xz.plot(X, -Z, color=COLOR4, linewidth=1.0)
-
-            # x, z-symmetry
-            elif wing.symmetry == 2:
-                axes_3d.plot(X, -Y, Z, color=COLOR4, linewidth=0.5)
-                axes_yz.plot(-Y, Z, color=COLOR4, linewidth=0.5)
-                axes_xy.plot(X, -Y, color=COLOR4, linewidth=0.5)
-
-            # y, z-symmetry
-            elif wing.symmetry == 3:
-                axes_3d.plot(-X, Y, Z, color=COLOR4, linewidth=0.5)
-                axes_xz.plot(-X, Z, color=COLOR4, linewidth=0.5)
-                axes_xy.plot(-X, Y, color=COLOR4, linewidth=0.5)
-
-    # 2.2. DISPLAY ANNOTATIONS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+    _add_controls(axes_3d, axes_2d, aircraft)
 
     axes_3d.annotate(f"num_segments = {num_segments:02d}\n"
                       + f"num_wing     = {num_wings:02d}\n"
