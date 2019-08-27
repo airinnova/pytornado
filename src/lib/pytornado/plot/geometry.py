@@ -80,6 +80,36 @@ def _init_plot2d():
     return fig, (axes_yz, axes_xz, axes_xy)
 
 
+def _add_CG_plot3d(axes, aircraft):
+    """
+    Add a marker indicating the centre of gravity
+
+    Args:
+        :axes: Axes object (matplotlib)
+        :aircraft: (object) data structure for aircraft model
+    """
+
+    X, Y, Z = aircraft.refs['gcenter']
+    axes.scatter(X, Y, Z, color=COLOR1, marker='x', s=40, linewidth=2)
+
+
+def _add_CG_plot2d(axes, aircraft):
+    """
+    Add a marker indicating the centre of gravity
+
+    Args:
+        :axes: Axes object (matplotlib)
+        :aircraft: (object) data structure for aircraft model
+    """
+
+    X, Y, Z = aircraft.refs['gcenter']
+    axes_yz, axes_xz, axes_xy = axes
+
+    axes_yz.scatter(Y, Z, color=COLOR1, marker='x', s=40, linewidth=2)
+    axes_xz.scatter(X, Z, color=COLOR1, marker='x', s=40, linewidth=2)
+    axes_xy.scatter(X, Y, color=COLOR1, marker='x', s=40, linewidth=2)
+
+
 def view_aircraft(aircraft, plt_settings, plot=None, block=True):
     """Generate 3D and 2D views of full aircraft geometry.
 
@@ -125,24 +155,21 @@ def view_aircraft(aircraft, plt_settings, plot=None, block=True):
     scale_fig(axes_yz, lims, directions='yz')
     scale_fig(axes_xz, lims, directions='xz')
     scale_fig(axes_xy, lims, directions='xy')
-
-    # 2.1. DISPLAY GEOMETRY ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+    # ------------------------------------------------------------------
+    # ------------------------------------------------------------------
+    # ------------------------------------------------------------------
 
     num_segments = 0
     num_wings = 0
 
     colormap = cm.get_cmap(COLORMAP) if COLORMAP else None
     C = 0.0
+    # ------------------------------------------------------------------
+    # ------------------------------------------------------------------
+    # ------------------------------------------------------------------
 
-    X = [aircraft.refs['gcenter'][0]]
-    Y = [aircraft.refs['gcenter'][1]]
-    Z = [aircraft.refs['gcenter'][2]]
-
-    axes_3d.plot(X, Y, Z, color=COLOR1, marker='x', markersize=8.0)
-
-    axes_yz.plot(Y, Z, color=COLOR1, marker='x', markersize=8.0)
-    axes_xz.plot(X, Z, color=COLOR1, marker='x', markersize=8.0)
-    axes_xy.plot(X, Y, color=COLOR1, marker='x', markersize=8.0)
+    _add_CG_plot3d(axes_3d, aircraft)
+    _add_CG_plot2d(axes_2d, aircraft)
 
     for wing_uid, wing in aircraft.wing.items():
         num_wings += 1
