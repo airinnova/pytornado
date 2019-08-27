@@ -35,6 +35,7 @@ import scipy.linalg.lapack as lapack
 from commonlibs.math.vectors import axis_rot_matrix
 from commonlibs.math.interpolation import lin_interpol
 
+from pytornado.objects.vlm_struct import VLMLattice
 import pytornado.aero.c_vlm as c_vlm
 import pytornado.objects.objecttools as ot
 from pytornado.objects.vlm_struct import BookKeepingEntry
@@ -226,9 +227,9 @@ def pre_panelling(aircraft):
             segment.add_subdivision(eta, eta, ignore_inval_eta=True)
 
 
-def gen_lattice(aircraft, lattice, state, settings, make_new_subareas=True):
+def gen_lattice(aircraft, state, settings, make_new_subareas=True):
     """
-    Generate aircraft lattice.
+    Generate aircraft lattice
 
     Perform count of number of wings, segments, controls, panels and strips.
     Pre-allocate memory for lattice data, which is directly operated on in C.
@@ -254,14 +255,19 @@ def gen_lattice(aircraft, lattice, state, settings, make_new_subareas=True):
 
     Args:
         :aircraft: (object) data structure for aircraft geometry
-        :lattice: (object) data structure for VLM lattice
+        :state: (object) data structure for flight state
         :settings: (object) data structure for execution settings
+        :make_new_subareas: Flag
+
+    Returns:
+        :lattice: (object) data structure for VLM lattice
     """
 
     if make_new_subareas:
         pre_panelling(aircraft)
 
     # Start the panel bookkeping with a clean slate
+    lattice = VLMLattice()
     lattice.clean_bookkeeping()
 
     logger.info("Getting lattice information ... ")
@@ -415,6 +421,7 @@ def gen_lattice(aircraft, lattice, state, settings, make_new_subareas=True):
                 if angle:
                     R = axis_rot_matrix(rot_axis, angle)
                     lattice.n[i, :] = R @ lattice.n[i, :]
+    return lattice
 
 
 def calc_downwash(lattice, vlmdata):

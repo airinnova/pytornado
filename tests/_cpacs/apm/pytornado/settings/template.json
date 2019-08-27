@@ -19,7 +19,6 @@
             "cp"
         ],
         "show": false,
-        "save": false,
-        "plot_show": true
+        "save": false
     }
 }

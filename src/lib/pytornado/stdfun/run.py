@@ -33,7 +33,7 @@ import logging
 import commonlibs.logger as hlogger
 
 from pytornado.__version__ import __version__
-from pytornado.objects.vlm_struct import VLMData, VLMLattice
+from pytornado.objects.vlm_struct import VLMData
 import pytornado.aero.vlm as vlm
 import pytornado.fileio as io
 import pytornado.plot.makeplots as makeplots
@@ -125,7 +125,6 @@ def standard_run(args):
         io.native.deformation.load(aircraft, settings)
 
     # ===== Generate lattice =====
-    lattice = VLMLattice()
     vlmdata = VLMData()
     vlm.set_autopanels(aircraft, settings)
 
@@ -141,12 +140,6 @@ def standard_run(args):
 
         ##########################################################
         # TODO: Don't set refs here. Find better solution!
-        # import numpy as np
-        # aircraft.refs['area'] = float(aircraft.refs['area'])
-        # aircraft.refs['chord'] = float(aircraft.refs['chord'])
-        # aircraft.refs['span'] = float(aircraft.refs['span'])
-        # aircraft.refs['rcenter'] = np.array(aircraft.refs['rcenter'], order='C')
-        # aircraft.refs['gcenter'] = np.array(aircraft.refs['gcenter'], order='C')
         cur_state.refs = aircraft.refs
         ##########################################################
 
@@ -155,7 +148,7 @@ def standard_run(args):
         make_new_subareas = True if i == 0 else False
         ##########################################################
 
-        vlm.gen_lattice(aircraft, lattice, cur_state, settings, make_new_subareas)
+        lattice = vlm.gen_lattice(aircraft, cur_state, settings, make_new_subareas)
 
         # ===== VLM =====
         vlm.calc_downwash(lattice, vlmdata)
@@ -204,7 +197,6 @@ def standard_run(args):
         state.results['Cn'].append(vlmdata.coeffs['n'])
         ###############################################
 
-
     ###############################################
     # Save aeroperformance map
     io.native.results.save_aeroperformance_map(state, settings)
@@ -215,7 +207,7 @@ def standard_run(args):
 
     logger.info(f"{__prog_name__} {__version__} terminated")
 
-    # Return results to caller
+    # Return data to caller
     results = {
         "lattice": lattice,
         "vlmdata": vlmdata,

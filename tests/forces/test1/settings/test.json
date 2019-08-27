@@ -21,9 +21,8 @@
         "results_panelwise": [
             "cp"
         ],
-        "show": true,
-        "save": false,
-        "plot_show": true
+        "show": false,
+        "save": false
     }
 }
 
