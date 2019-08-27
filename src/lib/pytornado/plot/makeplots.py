@@ -55,7 +55,7 @@ def make_all(settings, aircraft, cur_state, vlmdata, lattice):
             pl_downwash.view_downwash(vlmdata, plt_settings)
 
         if settings.settings['plot']['geometry_aircraft']:
-            pl_geometry.view_aircraft(aircraft, plt_settings, plot='norm')
+            pl_geometry.view_aircraft(aircraft, plt_settings)
 
         for wing_uid, wing in aircraft.wing.items():
             if wing_uid in settings.settings['plot']['geometry_wing']:

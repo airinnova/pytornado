@@ -151,8 +151,8 @@ def interpolate_quad(a, b, c, d, size):
     fr = 0.5*np.sqrt(np.sum((b - a)**2.0)) + 0.5*np.sqrt(np.sum((c - d)**2.0))
     fs = 0.5*np.sqrt(np.sum((d - a)**2.0)) + 0.5*np.sqrt(np.sum((c - b)**2.0))
 
-    nr = 2.0 + np.ceil(NUM_POINTS*fr/size)
-    ns = 2.0 + np.ceil(NUM_POINTS*fs/size)
+    nr = int(2.0 + np.ceil(NUM_POINTS*fr/size))
+    ns = int(2.0 + np.ceil(NUM_POINTS*fs/size))
 
     r, s = np.meshgrid(np.linspace(0.0, 1.0, num=nr), np.linspace(0.0, 1.0, num=ns))
 

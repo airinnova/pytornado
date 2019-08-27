@@ -45,12 +45,16 @@ logger = logging.getLogger(__name__)
 
 COLORMAP = 'Pastel1'
 NUM_COLORS = 9.0
+
 colormap = cm.get_cmap(COLORMAP)
 
 
 def _init_plot3d(title=''):
     """
-    Initialise axes object for 3D plots
+    Initialise an axes object for 3D plots
+
+    Args:
+        :title: (str) Plot title
 
     Returns:
         :fig: Figure object (matplotlib)
@@ -72,7 +76,10 @@ def _init_plot3d(title=''):
 
 def _init_plot2d(title=''):
     """
-    Initialise axes object for 2D plots
+    Initialise an axes object for 2D plots
+
+    Args:
+        :title: (str) Plot title
 
     Returns:
         :fig: Figure object (matplotlib)
@@ -108,10 +115,14 @@ def _init_plot2d(title=''):
 
 def _scale_plots(axes_3d, axes_2d, aircraft):
     """
+    Correct the axes scaling
+
     TODO
     """
 
     axes_yz, axes_xz, axes_xy = axes_2d
+
+    # Iterate through segment vertices to determine required plot dimension
     lims = np.zeros((2, 3))
     for (_, _, segment), (_, _, wing) in ot.all_segments(aircraft):
         points = np.array([segment.vertices['a'],
@@ -122,8 +133,10 @@ def _scale_plots(axes_3d, axes_2d, aircraft):
 
         get_limits(points, lims, symm=wing.symmetry)
 
-    size = np.sqrt(np.sum((lims[1] - lims[0])**2.0))
+    # size = np.sqrt(np.sum((lims[1] - lims[0])**2.0))
+
     scale_fig(axes_3d, lims)
+
     scale_fig(axes_yz, lims, directions='yz')
     scale_fig(axes_xz, lims, directions='xz')
     scale_fig(axes_xy, lims, directions='xy')
@@ -158,7 +171,8 @@ def _add_CG_plot2d(axes, aircraft):
     axes_xz.scatter(X, Z, color=COLOR1, marker='x', s=40, linewidth=2)
     axes_xy.scatter(X, Y, color=COLOR1, marker='x', s=40, linewidth=2)
 
-def _add_wings(axes_3d, axes_2d, aircraft, plot):
+
+def _add_wings(axes_3d, axes_2d, aircraft):
     """
     Add wings to axes objects
 
@@ -166,91 +180,99 @@ def _add_wings(axes_3d, axes_2d, aircraft, plot):
     """
 
     axes_yz, axes_xz, axes_xy = axes_2d
-
-    for (_, wing_uid, wing) in ot.all_wings(aircraft):
+    for (_, segment_uid, segment), (_, wing_uid, wing) in ot.all_segments(aircraft):
         M = list()
-        for segment_uid, segment in wing.segment.items():
-            points = np.array([segment.vertices['a'],
-                               segment.vertices['b'],
-                               segment.vertices['c'],
-                               segment.vertices['d'],
-                               segment.vertices['a']])
+        points = np.array([segment.vertices['a'],
+                           segment.vertices['b'],
+                           segment.vertices['c'],
+                           segment.vertices['d'],
+                           segment.vertices['a']])
 
-            X = points[:, 0]
-            Y = points[:, 1]
-            Z = points[:, 2]
+        X = points[:, 0]
+        Y = points[:, 1]
+        Z = points[:, 2]
 
-            M.append(np.mean(points, axis=0))
+        M.append(np.mean(points, axis=0))
 
-            if plot == 'norm':
-                X1, Y1, Z1 = 0.25*points[3, :] + 0.75*points[0, :]
-                X2, Y2, Z2 = 0.25*points[2, :] + 0.75*points[1, :]
+        # ----------------------------------------
+        # ----------------------------------------
+        # ----------------------------------------
+        # ----------------------------------------
+        # ----------------------------------------
+        # if plot == 'norm':
+        #     X1, Y1, Z1 = 0.25*points[3, :] + 0.75*points[0, :]
+        #     X2, Y2, Z2 = 0.25*points[2, :] + 0.75*points[1, :]
 
-                X3, Y3, Z3 = 0.50*points[1, :] + 0.50*points[0, :]
-                X4, Y4, Z4 = 0.50*points[2, :] + 0.50*points[3, :]
+        #     X3, Y3, Z3 = 0.50*points[1, :] + 0.50*points[0, :]
+        #     X4, Y4, Z4 = 0.50*points[2, :] + 0.50*points[3, :]
 
-                XM, YM, ZM = (0.5*X2 + 0.5*X1, 0.5*Y2 + 0.5*Y1, 0.5*Z2 + 0.5*Z1)
+        #     XM, YM, ZM = (0.5*X2 + 0.5*X1, 0.5*Y2 + 0.5*Y1, 0.5*Z2 + 0.5*Z1)
 
-                XA, YA, ZA = (X2 - X1, Y2 - Y1, Z2 - Z1)
-                XB, YB, ZB = (X4 - X3, Y4 - Y3, Z4 - Z3)
+        #     XA, YA, ZA = (X2 - X1, Y2 - Y1, Z2 - Z1)
+        #     XB, YB, ZB = (X4 - X3, Y4 - Y3, Z4 - Z3)
 
-                XN, YN, ZN = np.cross([XA, YA, ZA], [XB, YB, ZB])
+        #     XN, YN, ZN = np.cross([XA, YA, ZA], [XB, YB, ZB])
 
-                axes_3d.quiver(XM, YM, ZM, XN, YN, ZN, color=COLOR4)
+        #     axes_3d.quiver(XM, YM, ZM, XN, YN, ZN, color=COLOR4)
 
-        ######################
-        ######################
-        ######################
-                # Normal, more concise
-                # axes_xyz.quiver(XM, YM, ZM, *segment.normal_vector, color="green")
-        ######################
-        ######################
-        ######################
+    ######################
+    ######################
+    ######################
+            # Normal, more concise
+            # axes_xyz.quiver(XM, YM, ZM, *segment.normal_vector, color="green")
+    ######################
+    ######################
+    ######################
 
-            elif plot == 'wire':
-                XW, YW, ZW = interpolate_quad(points[0], points[1], points[2], points[3], size)
-                axes_3d.plot_wireframe(XW, YW, ZW, color=COLOR1, linewidth=0.2)
+        # elif plot == 'wire':
+        #     XW, YW, ZW = interpolate_quad(points[0], points[1], points[2], points[3], size)
+        #     axes_3d.plot_wireframe(XW, YW, ZW, color=COLOR1, linewidth=0.2)
 
-            elif plot == 'surf':
-                C = 0.0
-                color = colormap(C) if colormap else COLOR5
-                XS, YS, ZS = interpolate_quad(points[0], points[1], points[2], points[3], size)
-                axes_3d.plot_surface(XS, YS, ZS, color=color, linewidth=0.0, shade=False, cstride=1, rstride=1)
-                C = (C + 1.0/NUM_COLORS) % 1.0
+        # elif plot == 'surf':
+        #     C = 0.0
+        #     color = colormap(C) if colormap else COLOR5
+        #     XS, YS, ZS = interpolate_quad(points[0], points[1], points[2], points[3], size)
+        #     axes_3d.plot_surface(XS, YS, ZS, color=color, linewidth=0.0, shade=False, cstride=1, rstride=1)
+        #     C = (C + 1.0/NUM_COLORS) % 1.0
+        # ----------------------------------------
+        # ----------------------------------------
+        # ----------------------------------------
+        # ----------------------------------------
+        # ----------------------------------------
 
-            axes_3d.plot(X, Y, Z, color=COLOR1, marker='.', linewidth=0.50, markersize=4.0)
+        axes_3d.plot(X, Y, Z, color=COLOR1, marker='.', linewidth=0.50, markersize=4.0)
 
-            axes_yz.plot(Y, Z, color=COLOR1, linewidth=0.50)
-            axes_xz.plot(X, Z, color=COLOR1, linewidth=0.50)
-            axes_xy.plot(X, Y, color=COLOR1, linewidth=0.50)
+        axes_yz.plot(Y, Z, color=COLOR1, linewidth=0.50)
+        axes_xz.plot(X, Z, color=COLOR1, linewidth=0.50)
+        axes_xy.plot(X, Y, color=COLOR1, linewidth=0.50)
 
-            # x, y-symmetry
-            if wing.symmetry == 1:
-                axes_3d.plot(X, Y, -Z, color=COLOR5, linewidth=0.5)
-                axes_yz.plot(Y, -Z, color=COLOR5, linewidth=0.5)
-                axes_xz.plot(X, -Z, color=COLOR5, linewidth=0.5)
+        # x, y-symmetry
+        if wing.symmetry == 1:
+            axes_3d.plot(X, Y, -Z, color=COLOR5, linewidth=0.5)
+            axes_yz.plot(Y, -Z, color=COLOR5, linewidth=0.5)
+            axes_xz.plot(X, -Z, color=COLOR5, linewidth=0.5)
 
-            # x, z-symmetry
-            elif wing.symmetry == 2:
-                axes_3d.plot(X, -Y, Z, color=COLOR5, linewidth=0.5)
-                axes_yz.plot(-Y, Z, color=COLOR5, linewidth=0.5)
-                axes_xy.plot(X, -Y, color=COLOR5, linewidth=0.5)
+        # x, z-symmetry
+        elif wing.symmetry == 2:
+            axes_3d.plot(X, -Y, Z, color=COLOR5, linewidth=0.5)
+            axes_yz.plot(-Y, Z, color=COLOR5, linewidth=0.5)
+            axes_xy.plot(X, -Y, color=COLOR5, linewidth=0.5)
 
-            # y, z-symmetry
-            elif wing.symmetry == 3:
-                axes_3d.plot(-X, Y, Z, color=COLOR5, linewidth=0.5)
-                axes_xz.plot(-X, Z, color=COLOR5, linewidth=0.5)
-                axes_xy.plot(-X, Y, color=COLOR5, linewidth=0.5)
+        # y, z-symmetry
+        elif wing.symmetry == 3:
+            axes_3d.plot(-X, Y, Z, color=COLOR5, linewidth=0.5)
+            axes_xz.plot(-X, Z, color=COLOR5, linewidth=0.5)
+            axes_xy.plot(-X, Y, color=COLOR5, linewidth=0.5)
 
-            # ----- Segment "main direction" -----
-            P = 0.5*(segment.vertices['a'] + segment.vertices['d'])
-            N = 3
-            axes_3d.quiver(*P, *(N*unit_vector(segment.main_direction)), color="red", linewidth=2.0)
+        # # ----- Segment "main direction" -----
+        # P = 0.5*(segment.vertices['a'] + segment.vertices['d'])
+        # N = 3
+        # axes_3d.quiver(*P, *(N*unit_vector(segment.main_direction)), color="red", linewidth=2.0)
 
-        if len(aircraft.wing) < MAX_ITEMS_TEXT:
-            M = np.mean(M, axis=0)
-            text = axes_3d.text(M[0], M[1], M[2], wing_uid, backgroundcolor='w', size='medium')
-            text.set_bbox(dict(color='w', alpha=0.4))
+    if len(aircraft.wing) < MAX_ITEMS_TEXT:
+        M = np.mean(M, axis=0)
+        text = axes_3d.text(M[0], M[1], M[2], wing_uid, backgroundcolor='w', size='medium')
+        text.set_bbox(dict(color='w', alpha=0.4))
 
 
 def _add_controls(axes_3d, axes_2d, aircraft):
@@ -318,7 +340,11 @@ def _add_controls(axes_3d, axes_2d, aircraft):
 
 def _add_info_plot3d(axes, aircraft):
     """
-    TODO
+    Add info box to 3D plot
+
+    Args:
+        :axes: Axes object (matplotlib)
+        :aircraft: Aircraft model
     """
 
     axes.annotate(
@@ -355,40 +381,30 @@ def _save_and_show(plt_settings, *figures):
     plt.close('all')
 
 
-def view_aircraft(aircraft, plt_settings, plot=None):
-    """Generate 3D and 2D views of full aircraft geometry.
-
-    By default, shows segment vertices and edges.
-    Display options (specified in the PLOT kwarg):
-
-        * NONE -- default, segment edges
-        * GRID -- wireframe representation of segment surface
-        * SURF -- wireframe representation of segment surface, color fill
-        * NORM -- segment edges and normal vectors
+def view_aircraft(aircraft, plt_settings):
+    """
+    Generate 3D and 2D views of full aircraft geometry
 
     Args:
         :aircraft: (object) data structure for aircraft model
-        :plot: (string) additional visualisation features ('wire', 'surf', 'norm')
+        :plt_settings: Plot settings
     """
 
     logger.info("Generating geometry plot...")
 
+    # 3D plot
     figure_1, axes_3d = _init_plot3d(title=aircraft.uid)
-    figure_2, axes_2d = _init_plot2d(title=aircraft.uid)
-    axes_yz, axes_xz, axes_xy = axes_2d
-
-    # ------------------------------------------------------------------
-    _scale_plots(axes_3d, axes_2d, aircraft)
-    # ------------------------------------------------------------------
-
     _add_CG_plot3d(axes_3d, aircraft)
-    _add_CG_plot2d(axes_2d, aircraft)
-
-    _add_wings(axes_3d, axes_2d, aircraft, plot)
-    _add_controls(axes_3d, axes_2d, aircraft)
-
     _add_info_plot3d(axes_3d, aircraft)
 
+    # 2D plot
+    figure_2, axes_2d = _init_plot2d(title=aircraft.uid)
+    _add_CG_plot2d(axes_2d, aircraft)
+
+    # 2D/3D plots
+    _add_wings(axes_3d, axes_2d, aircraft)
+    _add_controls(axes_3d, axes_2d, aircraft)
+    _scale_plots(axes_3d, axes_2d, aircraft)
     _save_and_show(plt_settings, (figure_1, 'geometry3D'), (figure_2, 'geometry2D'))
 
 
