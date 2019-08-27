@@ -1,5 +1,7 @@
 # TODO
 
+* Update 'os.path.join()' calls
+
 * Improve structure of the main settings file
     * Better 'plots' solution!
 

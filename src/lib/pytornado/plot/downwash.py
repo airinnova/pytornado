@@ -22,7 +22,7 @@
 # * Aaron Dettmann
 
 """
-Functions for visualisation of PyTornado aircraft geometry.
+Visualisation of the VLM downwash matrix
 
 Developed at Airinnova AB, Stockholm, Sweden.
 """
@@ -41,32 +41,29 @@ from pytornado.plot.utils import get_date_str, COLOR1, COLORMAP
 logger = logging.getLogger(__name__)
 
 
-def view_downwash(vlmdata, plt_settings, block=True):
-    """Visualise matrix of downwash factors.
+def view_downwash(vlmdata, plt_settings):
+    """
+    Visualise matrix of downwash factors
 
     Args:
         :vlmdata: (object) data structure for VLM analysis data
-        :block: (bool) halt execution while figure is open
+        :plt_settings: general plot settings
     """
 
     logger.info("Generating downwash plot...")
 
     if not isinstance(vlmdata.matrix_downwash, np.ndarray):
-        return logger.error("downwash factor matrix is empty!")
-
-    # 2.1. DISPLAY MATRIX ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-    colormap = cm.get_cmap(COLORMAP) if COLORMAP else None
+        err_msg = "Downwash factor matrix is not a numpy array"
+        logger.error(err_msg)
+        raise TypeError(err_msg)
 
     figure = plt.figure(figsize=(9, 9), edgecolor=COLOR1)
     axes = figure.add_subplot(111)
     axes.set_aspect('equal')
-    axes.matshow(vlmdata.matrix_downwash, cmap=colormap)
-
-    # 2.2. DISPLAY LABELS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+    axes.matshow(vlmdata.matrix_downwash, cmap=cm.get_cmap(COLORMAP))
     axes.set_xlabel('i')
     axes.set_ylabel('j')
     axes.set_title("Downwash factor matrix")
-
     plt.tight_layout()
 
     if plt_settings['save']:
@@ -75,6 +72,6 @@ def view_downwash(vlmdata, plt_settings, block=True):
         plt.savefig(fname, dpi=300)
 
     if plt_settings['show']:
-        plt.show(block=block)
+        plt.show()
 
     plt.close('all')
