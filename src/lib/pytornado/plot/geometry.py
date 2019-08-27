@@ -46,9 +46,9 @@ COLORMAP = 'Pastel1'
 NUM_COLORS = 9.0
 
 
-def _init_plot3d():
+def _init_plot3d(title=''):
     """
-    Initiales axes object for 3D plots
+    Initialise axes object for 3D plots
 
     Returns:
         :fig: Figure object (matplotlib)
@@ -64,19 +64,20 @@ def _init_plot3d():
     axes.set_ylabel('Y [m]')
     axes.set_zlabel('Z [m]')
 
+    axes.set_title(title)
     return fig, axes
 
 
-def _init_plot2d():
+def _init_plot2d(title=''):
     """
-    Initiales axes object for 2D plots
+    Initialise axes object for 2D plots
 
     Returns:
         :fig: Figure object (matplotlib)
         :axes: Tuple with axes objects (matplotlib)
     """
 
-    fig = plt.figure(figsize=(20, 6), edgecolor=COLOR1)
+    fig = plt.figure(figsize=(20, 7), edgecolor=COLOR1)
     axes_yz = fig.add_subplot(131)
     axes_xz = fig.add_subplot(132)
     axes_xy = fig.add_subplot(133)
@@ -94,6 +95,12 @@ def _init_plot2d():
     axes_xy.set_xlabel('X [m]')
     axes_xy.set_ylabel('Y [m]')
 
+    # Add titles
+    axes_yz.set_title("Y-Z plane")
+    axes_xz.set_title("X-Z plane")
+    axes_xy.set_title("X-Y plane")
+
+    fig.suptitle(title)
     return fig, (axes_yz, axes_xz, axes_xy)
 
 
@@ -149,8 +156,8 @@ def view_aircraft(aircraft, plt_settings, plot=None, block=True):
     if not aircraft.state:
         raise RuntimeError(f"Aircraft '{aircraft.uid}' is ill-defined")
 
-    figure_1, axes_3d = _init_plot3d()
-    figure_2, axes_2d = _init_plot2d()
+    figure_1, axes_3d = _init_plot3d(title=aircraft.uid)
+    figure_2, axes_2d = _init_plot2d(title=aircraft.uid)
     axes_yz, axes_xz, axes_xy = axes_2d
 
     # ------------------------------------------------------------------
@@ -339,14 +346,6 @@ def view_aircraft(aircraft, plt_settings, plot=None, block=True):
                       + f"num_wing     = {num_wings:02d}\n"
                       + f"size         = {aircraft.size}",
                       xy=(0, 0), xytext=(1, 0), textcoords='axes fraction', va='bottom', ha='right')
-
-    axes_3d.set_title(aircraft.uid)
-
-    axes_yz.set_title(aircraft.uid)
-    axes_xz.set_title(aircraft.uid)
-    axes_xy.set_title(aircraft.uid)
-
-    figure_2.suptitle(aircraft.uid)
 
     plt.tight_layout()
 
