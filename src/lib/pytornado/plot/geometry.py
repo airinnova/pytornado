@@ -106,6 +106,29 @@ def _init_plot2d(title=''):
     return fig, (axes_yz, axes_xz, axes_xy)
 
 
+def _scale_plots(axes_3d, axes_2d, aircraft):
+    """
+    TODO
+    """
+
+    axes_yz, axes_xz, axes_xy = axes_2d
+    lims = np.zeros((2, 3))
+    for (_, _, segment), (_, _, wing) in ot.all_segments(aircraft):
+        points = np.array([segment.vertices['a'],
+                           segment.vertices['b'],
+                           segment.vertices['c'],
+                           segment.vertices['d'],
+                           segment.vertices['a']])
+
+        get_limits(points, lims, symm=wing.symmetry)
+
+    size = np.sqrt(np.sum((lims[1] - lims[0])**2.0))
+    scale_fig(axes_3d, lims)
+    scale_fig(axes_yz, lims, directions='yz')
+    scale_fig(axes_xz, lims, directions='xz')
+    scale_fig(axes_xy, lims, directions='xy')
+
+
 def _add_CG_plot3d(axes, aircraft):
     """
     Add a marker indicating the centre of gravity
@@ -311,8 +334,28 @@ def _add_info_plot3d(axes, aircraft):
     )
 
 
+def _save_and_show(plt_settings, *figures):
+    """
+    Save and/or show plots, then call plt.close('all')
 
-def view_aircraft(aircraft, plt_settings, plot=None, block=True):
+    Args:
+        :plt_settings: Plot settings
+        :*figures: Tuples with (figure_object, 'name_of_plot')
+    """
+
+    if plt_settings['save']:
+        for figure, fig_name in figures:
+            fname = os.path.join(plt_settings['plot_dir'], f"{fig_name}_{get_date_str()}.png")
+            logger.info(f"Saving plot as file: '{truncate_filepath(fname)}'")
+            figure.savefig(fname, dpi=300)
+
+    if plt_settings['show']:
+        plt.show()
+
+    plt.close('all')
+
+
+def view_aircraft(aircraft, plt_settings, plot=None):
     """Generate 3D and 2D views of full aircraft geometry.
 
     By default, shows segment vertices and edges.
@@ -325,7 +368,6 @@ def view_aircraft(aircraft, plt_settings, plot=None, block=True):
 
     Args:
         :aircraft: (object) data structure for aircraft model
-        :block: (bool) halt execution while figure is open
         :plot: (string) additional visualisation features ('wire', 'surf', 'norm')
     """
 
@@ -336,26 +378,7 @@ def view_aircraft(aircraft, plt_settings, plot=None, block=True):
     axes_yz, axes_xz, axes_xy = axes_2d
 
     # ------------------------------------------------------------------
-    # ------------------------------------------------------------------
-    # ------------------------------------------------------------------
-    lims = np.zeros((2, 3))
-    for wing in aircraft.wing.values():
-        for segment in wing.segment.values():
-            points = np.array([segment.vertices['a'],
-                               segment.vertices['b'],
-                               segment.vertices['c'],
-                               segment.vertices['d'],
-                               segment.vertices['a']])
-
-            get_limits(points, lims, symm=wing.symmetry)
-
-    size = np.sqrt(np.sum((lims[1] - lims[0])**2.0))
-    scale_fig(axes_3d, lims)
-    scale_fig(axes_yz, lims, directions='yz')
-    scale_fig(axes_xz, lims, directions='xz')
-    scale_fig(axes_xy, lims, directions='xy')
-    # ------------------------------------------------------------------
-    # ------------------------------------------------------------------
+    _scale_plots(axes_3d, axes_2d, aircraft)
     # ------------------------------------------------------------------
 
     _add_CG_plot3d(axes_3d, aircraft)
@@ -366,21 +389,7 @@ def view_aircraft(aircraft, plt_settings, plot=None, block=True):
 
     _add_info_plot3d(axes_3d, aircraft)
 
-    plt.tight_layout()
-
-    if plt_settings['save']:
-        fname1 = os.path.join(plt_settings['plot_dir'], f"geo_aircraft3D_{get_date_str()}.png")
-        logger.info(f"Saving plot as file: '{truncate_filepath(fname1)}'")
-        figure_1.savefig(fname1, dpi=300)
-
-        fname2 = os.path.join(plt_settings['plot_dir'], f"geo_aircraft_{get_date_str()}.png")
-        logger.info(f"Saving plot as file: '{truncate_filepath(fname2)}'")
-        figure_2.savefig(fname2, dpi=300)
-
-    if plt_settings['show']:
-        plt.show(block=block)
-
-    plt.close('all')
+    _save_and_show(plt_settings, (figure_1, 'geometry3D'), (figure_2, 'geometry2D'))
 
 
 def view_wing(wing, wing_uid, plt_settings, plot='surf', block=True):
