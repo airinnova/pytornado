@@ -51,7 +51,7 @@ STANDARD_FORMAT = 'png'
 
 def get_limits(points, lims, symm=0):
     """
-    Determine external limits of domain occupied by set of points.
+    Determine external limits of domain occupied by set of points
 
     Args:
         :points: (numpy) points of current plot object
@@ -59,15 +59,14 @@ def get_limits(points, lims, symm=0):
         :symm: (int) symmetry setting
     """
 
-    # flatten multi-dimensional array of coordinates to (m x n x ...) x 3
+    # Flatten multi-dimensional array of coordinates to (m x n x ...) x 3
     if points.ndim > 2 and points.shape[-1]:
         points = points.reshape(-1, 3)
 
     lims_min = lims[0]
     lims_max = lims[1]
 
-    # 1. FIND LIMITS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-
+    # Find limits
     points_min = points.min(axis=0)
     points_max = points.max(axis=0)
 
@@ -77,8 +76,7 @@ def get_limits(points, lims, symm=0):
     lims_min[indices_min] = points_min[indices_min]
     lims_max[indices_max] = points_max[indices_max]
 
-    # 2. ACCOUNT FOR SYMMETRIES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-
+    # Account for symmetry
     if symm == 1:
         if -points_max[2] < lims_min[2]:
             lims_min[2] = -points_max[2]
@@ -103,7 +101,7 @@ def get_limits(points, lims, symm=0):
 
 def scale_fig(axes, lims, directions='xyz'):
     """
-    Scale axes to ensure unit aspect ratio between plot axes.
+    Scale axes to ensure unit aspect ratio between plot axes
 
     Args:
         :axes: (object) matplotlib.axis.Axis object
