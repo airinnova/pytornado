@@ -37,10 +37,10 @@ import os
 import numpy as np
 from scipy.interpolate import CubicSpline
 from commonlibs.math.vectors import get_plane_line_intersect, rotate_vector_around_axis
+from airfoils import Airfoil, MorphAirfoil
+from airfoils.fileio import import_airfoil_data
 
 from pytornado.objects.utils import FixedNamespace, FixedOrderedDict
-from pytornado.objects.airfoils import Airfoil, MorphAirfoil
-from pytornado.fileio.airfoils import import_airfoil_data
 
 # Global unit vectors
 X_axis = np.array([1, 0, 0])
