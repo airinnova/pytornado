@@ -58,6 +58,12 @@ def _init_plot3d():
     fig = plt.figure(figsize=(12, 12), edgecolor=COLOR1)
     axes = fig.gca(projection='3d')
     axes.set_aspect('equal')
+
+    # Add labels
+    axes.set_xlabel('X [m]')
+    axes.set_ylabel('Y [m]')
+    axes.set_zlabel('Z [m]')
+
     return fig, axes
 
 
@@ -77,6 +83,17 @@ def _init_plot2d():
     axes_yz.set_aspect('equal')
     axes_xz.set_aspect('equal')
     axes_xy.set_aspect('equal')
+
+    # Add labels
+    axes_yz.set_xlabel('Y [m]')
+    axes_yz.set_ylabel('Z [m]')
+
+    axes_xz.set_xlabel('X [m]')
+    axes_xz.set_ylabel('Z [m]')
+
+    axes_xy.set_xlabel('X [m]')
+    axes_xy.set_ylabel('Y [m]')
+
     return fig, (axes_yz, axes_xz, axes_xy)
 
 
@@ -322,21 +339,6 @@ def view_aircraft(aircraft, plt_settings, plot=None, block=True):
                       + f"num_wing     = {num_wings:02d}\n"
                       + f"size         = {aircraft.size}",
                       xy=(0, 0), xytext=(1, 0), textcoords='axes fraction', va='bottom', ha='right')
-
-    # 2.3. DISPLAY LABELS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-
-    axes_3d.set_xlabel('x [m]')
-    axes_3d.set_ylabel('y [m]')
-    axes_3d.set_zlabel('z [m]')
-
-    axes_yz.set_xlabel('y [m]')
-    axes_yz.set_ylabel('z [m]')
-
-    axes_xz.set_xlabel('x [m]')
-    axes_xz.set_ylabel('z [m]')
-
-    axes_xy.set_xlabel('x [m]')
-    axes_xy.set_ylabel('y [m]')
 
     axes_3d.set_title(aircraft.uid)
 
