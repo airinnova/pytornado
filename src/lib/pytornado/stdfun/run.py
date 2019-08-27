@@ -35,8 +35,7 @@ import commonlibs.logger as hlogger
 from pytornado.__version__ import __version__
 from pytornado.objects.vlm_struct import VLMData, VLMLattice
 import pytornado.aero.vlm as vlm
-import pytornado.fileio.cpacs as io_cpacs
-import pytornado.fileio.native as io_native
+import pytornado.fileio as io
 import pytornado.plot.downwash as pl_downwash
 import pytornado.plot.geometry as pl_geometry
 import pytornado.plot.lattice as pl_lattice
@@ -71,7 +70,7 @@ def get_settings(settings_filepath):
     """
 
     logger.info("Getting configuration file...")
-    settings = io_native.settings.load(settings_filepath)
+    settings = io.native.settings.load(settings_filepath)
     return settings
 
 
@@ -114,19 +113,19 @@ def standard_run(args):
 
     # ===== Setup aircraft model and flight state =====
     if settings.aircraft_is_cpacs:
-        aircraft = io_cpacs.aircraft.load(settings)
+        aircraft = io.cpacs.aircraft.load(settings)
     else:
-        aircraft = io_native.aircraft.load(settings)
+        aircraft = io.native.aircraft.load(settings)
 
     ######################################################
     if settings.settings['state'].upper() == '__CPACS':
-        state = io_cpacs.state.load(settings)
+        state = io.cpacs.state.load(settings)
     else:
-        state = io_native.state.load(settings)
+        state = io.native.state.load(settings)
     ######################################################
 
     if settings.settings['deformation']:
-        io_native.deformation.load(aircraft, settings)
+        io.native.deformation.load(aircraft, settings)
 
     # ===== Generate lattice =====
     lattice = VLMLattice()
@@ -169,16 +168,16 @@ def standard_run(args):
 
         # ===== Save results =====
         if 'panelwise' in settings.settings['save_results']:
-            io_native.results.save_panelwise(cur_state, vlmdata, settings)
+            io.native.results.save_panelwise(cur_state, vlmdata, settings)
 
         if 'global' in settings.settings['save_results']:
-            io_native.results.save_glob_results(cur_state, vlmdata, settings)
+            io.native.results.save_glob_results(cur_state, vlmdata, settings)
 
         if 'loads_with_deformed_mesh' in settings.settings['save_results']:
-            io_native.results.save_loads(aircraft, settings, cur_state, vlmdata, lattice)
+            io.native.results.save_loads(aircraft, settings, cur_state, vlmdata, lattice)
 
         if 'loads_with_undeformed_mesh' in settings.settings['save_results']:
-            io_native.results.save_loads(aircraft, settings, cur_state, vlmdata, lattice=None)
+            io.native.results.save_loads(aircraft, settings, cur_state, vlmdata, lattice=None)
 
         # ===== Generate plots =====
         plt_settings = {
@@ -242,10 +241,10 @@ def standard_run(args):
 
     ###############################################
     # Save aeroperformance map
-    io_native.results.save_aeroperformance_map(state, settings)
+    io.native.results.save_aeroperformance_map(state, settings)
 
     if settings.aircraft_is_cpacs:
-        io_cpacs.results.save_aeroperformance_map(state, settings)
+        io.cpacs.results.save_aeroperformance_map(state, settings)
     ###############################################
 
     logger.info(f"{__prog_name__} {__version__} terminated")

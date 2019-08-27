@@ -34,8 +34,7 @@ import sys
 from pytornado.objects.settings import Settings, PATHS
 from pytornado.objects.aircraft import Aircraft
 from pytornado.objects.state import FlightState
-import pytornado.fileio.cpacs as io_cpacs
-import pytornado.fileio.native as io_native
+import pytornado.fileio as io
 
 
 def setup_wkdir():
@@ -127,9 +126,9 @@ def setup_wkdir():
     control.rel_hinge_vertices['xsi_outer'] = 0.7
 
     # Save settings, state and model file
-    io_native.settings.save(settings)
-    io_native.state.save(state, settings)
-    io_native.aircraft.save(aircraft, settings)
+    io.native.settings.save(settings)
+    io.native.state.save(state, settings)
+    io.native.aircraft.save(aircraft, settings)
 
 
 # def cpacs2pytornado(file_cpacs):
@@ -149,7 +148,7 @@ def setup_wkdir():
 #     state = FlightState()
 
 #     # Read the CPACS file
-#     io_cpacs.load(aircraft, state, settings)
+#     io.cpacs.load(aircraft, state, settings)
 #     aircraft.generate(check=False)
 
 #     # Modify file extension
