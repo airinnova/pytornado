@@ -22,7 +22,7 @@
 # * Aaron Dettmann
 
 """
-Visualisation of the aircraft geometry
+Plot tools and commmon plot operations
 
 Developed at Airinnova AB, Stockholm, Sweden.
 """
@@ -38,15 +38,29 @@ from mpl_toolkits.mplot3d import Axes3D
 from commonlibs.logger import truncate_filepath
 from commonlibs.math.vectors import unit_vector
 
-from pytornado.plot.utils import get_limits, scale_fig, interpolate_quad, get_date_str
-from pytornado.plot.utils import COLOR1, COLOR2, COLOR3, COLOR4, COLOR5, MAX_ITEMS_TEXT, STANDARD_DPI, STANDARD_FORMAT, COLORMAP
+import pytornado.plot.utils as pu
 import pytornado.objects.objecttools as ot
 
 logger = logging.getLogger(__name__)
 
-NUM_COLORS = 9.0
+COLORMAP = cm.get_cmap('Spectral')
 
-colormap = cm.get_cmap(COLORMAP)
+
+class _Colors:
+    BLACK = 'black'
+    GREY = 'grey'
+    GREEN = 'green'
+    RED = 'red'
+    BLUE = 'blue'
+
+    # ----- Objects -----
+    MESH = BLACK
+    MESH_MIRROR = GREY
+    CONTROL_SLAT = GREEN
+    CONTROL_FLAP = RED
+    CONTROL_HINGE = RED
+
+C = _Colors
 
 
 @contextmanager
@@ -63,7 +77,8 @@ def plot2d3d(aircraft, plot_name, plot_settings):
         * A tuple with (figure_2d, axes_2d, figure_3d, axes_3d)
 
     Note:
-        * A suffix '2D' or '3D' is added to 'plot_name'
+        * 'plot_name' is used to generate a file name if plot are to be saved.
+          A suffix '2D' or '3D' is added to 'plot_name'
     """
 
     # ----- 3D plot -----
@@ -77,6 +92,8 @@ def plot2d3d(aircraft, plot_name, plot_settings):
 
     try:
         yield (figure_2d, axes_2d, figure_3d, axes_3d)
+    # except:
+    #     plt.close('all')
     finally:
         show_and_save(plot_settings, (figure_3d, plot_name + '3D'), (figure_2d, plot_name + '2D'))
         plt.close('all')
@@ -90,21 +107,21 @@ def _init_plot3d(title=''):
         :title: (str) Plot title
 
     Returns:
-        :fig: Figure object (matplotlib)
-        :axes: Axes object (matplotlib)
+        :figure_3d: Figure object (matplotlib)
+        :axes_3d: 3D axes object (matplotlib)
     """
 
-    fig = plt.figure(figsize=(12, 12), edgecolor=COLOR1)
-    axes = fig.gca(projection='3d')
-    axes.set_aspect('equal')
+    figure_3d = plt.figure(figsize=(12, 12), edgecolor=C.BLACK)
+    axes_3d = figure_3d.gca(projection='3d')
+    axes_3d.set_aspect('equal')
 
     # Add labels
-    axes.set_xlabel('X [m]')
-    axes.set_ylabel('Y [m]')
-    axes.set_zlabel('Z [m]')
+    axes_3d.set_xlabel('X [m]')
+    axes_3d.set_ylabel('Y [m]')
+    axes_3d.set_zlabel('Z [m]')
 
-    axes.set_title(title)
-    return fig, axes
+    axes_3d.set_title(title)
+    return figure_3d, axes_3d
 
 
 def _init_plot2d(title=''):
@@ -115,14 +132,14 @@ def _init_plot2d(title=''):
         :title: (str) Plot title
 
     Returns:
-        :fig: Figure object (matplotlib)
-        :axes: Tuple with axes objects (matplotlib)
+        :figure_2d: Figure object (matplotlib)
+        :axes_2d: 2D axes object (matplotlib)
     """
 
-    fig = plt.figure(figsize=(20, 7), edgecolor=COLOR1)
-    axes_yz = fig.add_subplot(131)
-    axes_xz = fig.add_subplot(132)
-    axes_xy = fig.add_subplot(133)
+    figure_2d = plt.figure(figsize=(20, 7), edgecolor=C.BLACK)
+    axes_yz = figure_2d.add_subplot(131)
+    axes_xz = figure_2d.add_subplot(132)
+    axes_xy = figure_2d.add_subplot(133)
     axes_yz.set_aspect('equal')
     axes_xz.set_aspect('equal')
     axes_xy.set_aspect('equal')
@@ -142,15 +159,18 @@ def _init_plot2d(title=''):
     axes_xz.set_title("X-Z plane")
     axes_xy.set_title("X-Y plane")
 
-    fig.suptitle(title)
-    return fig, (axes_yz, axes_xz, axes_xy)
+    figure_2d.suptitle(title)
+    return figure_2d, (axes_yz, axes_xz, axes_xy)
 
 
 def scale_plots(axes_2d, axes_3d, aircraft):
     """
     Correct the axes scaling
 
-    TODO
+    Args:
+        :axes_2d: 2D axes object (matplotlib)
+        :axes_3d: 3D axes object (matplotlib)
+        :aircraft: Aircraft model
     """
 
     axes_yz, axes_xz, axes_xy = axes_2d
@@ -163,23 +183,13 @@ def scale_plots(axes_2d, axes_3d, aircraft):
                            segment.vertices['c'],
                            segment.vertices['d'],
                            segment.vertices['a']])
+        pu.get_limits(points, lims, symm=wing.symmetry)
 
-        get_limits(points, lims, symm=wing.symmetry)
-
-    # ===============================
-    # ===============================
-    # ===============================
-    size = np.sqrt(np.sum((lims[1] - lims[0])**2.0))
-    print(size)
-    # ===============================
-    # ===============================
-    # ===============================
-
-    scale_fig(axes_3d, lims)
-
-    scale_fig(axes_yz, lims, directions='yz')
-    scale_fig(axes_xz, lims, directions='xz')
-    scale_fig(axes_xy, lims, directions='xy')
+    # Adjust scaling for all axes objects
+    pu.scale_fig(axes_3d, lims)
+    pu.scale_fig(axes_yz, lims, directions='yz')
+    pu.scale_fig(axes_xz, lims, directions='xz')
+    pu.scale_fig(axes_xy, lims, directions='xy')
 
 
 def _add_CG_plot3d(axes_3d, aircraft):
@@ -187,12 +197,12 @@ def _add_CG_plot3d(axes_3d, aircraft):
     Add a marker indicating the centre of gravity
 
     Args:
-        :axes_3d: Axes object (matplotlib)
+        :axes_3d: 3D axes object (matplotlib)
         :aircraft: (object) data structure for aircraft model
     """
 
     X, Y, Z = aircraft.refs['gcenter']
-    axes_3d.scatter(X, Y, Z, color=COLOR1, marker='x', s=40, linewidth=2)
+    axes_3d.scatter(X, Y, Z, color=C.BLACK, marker='x', s=40, linewidth=2)
 
 
 def _add_CG_plot2d(axes_2d, aircraft):
@@ -200,21 +210,26 @@ def _add_CG_plot2d(axes_2d, aircraft):
     Add a marker indicating the centre of gravity
 
     Args:
-        :axes: Axes object (matplotlib)
+        :axes_2d: 2D axes object (matplotlib)
         :aircraft: (object) data structure for aircraft model
     """
 
     X, Y, Z = aircraft.refs['gcenter']
     axes_yz, axes_xz, axes_xy = axes_2d
 
-    axes_yz.scatter(Y, Z, color=COLOR1, marker='x', s=40, linewidth=2)
-    axes_xz.scatter(X, Z, color=COLOR1, marker='x', s=40, linewidth=2)
-    axes_xy.scatter(X, Y, color=COLOR1, marker='x', s=40, linewidth=2)
+    axes_yz.scatter(Y, Z, color=C.BLACK, marker='x', s=40, linewidth=2)
+    axes_xz.scatter(X, Z, color=C.BLACK, marker='x', s=40, linewidth=2)
+    axes_xy.scatter(X, Y, color=C.BLACK, marker='x', s=40, linewidth=2)
 
 
 def add_CG(axes_2d, axes_3d, aircraft):
     """
-    TODO
+    Add a marker indicating the centre of gravity
+
+    Args:
+        :axes_2d: 2D axes object (matplotlib)
+        :axes_3d: 3D axes object (matplotlib)
+        :aircraft: (object) data structure for aircraft model
     """
 
     _add_CG_plot3d(axes_3d, aircraft)
@@ -223,180 +238,68 @@ def add_CG(axes_2d, axes_3d, aircraft):
 
 def add_wings(axes_2d, axes_3d, aircraft):
     """
-    Add wings to axes objects
+    Add wings (segment vertices) to axes objects
 
-    TODO
+    Args:
+        :axes_2d: 2D axes object (matplotlib)
+        :axes_3d: 3D axes object (matplotlib)
+        :aircraft: (object) data structure for aircraft model
     """
 
     axes_yz, axes_xz, axes_xy = axes_2d
     for (_, segment_uid, segment), (_, wing_uid, wing) in ot.all_segments(aircraft):
-        M = list()
         points = np.array([segment.vertices['a'],
                            segment.vertices['b'],
                            segment.vertices['c'],
                            segment.vertices['d'],
                            segment.vertices['a']])
+        _plot_XYZ_points(axes_2d, axes_3d, points, wing.symmetry, linewidth=1, color=C.MESH_MIRROR)
 
-        X = points[:, 0]
-        Y = points[:, 1]
-        Z = points[:, 2]
-
-        M.append(np.mean(points, axis=0))
-
-        # ----------------------------------------
-        # ----------------------------------------
-        # ----------------------------------------
-        # ----------------------------------------
-        # ----------------------------------------
-        # if plot == 'norm':
-        #     X1, Y1, Z1 = 0.25*points[3, :] + 0.75*points[0, :]
-        #     X2, Y2, Z2 = 0.25*points[2, :] + 0.75*points[1, :]
-
-        #     X3, Y3, Z3 = 0.50*points[1, :] + 0.50*points[0, :]
-        #     X4, Y4, Z4 = 0.50*points[2, :] + 0.50*points[3, :]
-
-        #     XM, YM, ZM = (0.5*X2 + 0.5*X1, 0.5*Y2 + 0.5*Y1, 0.5*Z2 + 0.5*Z1)
-
-        #     XA, YA, ZA = (X2 - X1, Y2 - Y1, Z2 - Z1)
-        #     XB, YB, ZB = (X4 - X3, Y4 - Y3, Z4 - Z3)
-
-        #     XN, YN, ZN = np.cross([XA, YA, ZA], [XB, YB, ZB])
-
-        #     axes_3d.quiver(XM, YM, ZM, XN, YN, ZN, color=COLOR4)
-
-    ######################
-    ######################
-    ######################
-            # Normal, more concise
-            # axes_xyz.quiver(XM, YM, ZM, *segment.normal_vector, color="green")
-    ######################
-    ######################
-    ######################
-
-        # elif plot == 'wire':
-        #     XW, YW, ZW = interpolate_quad(points[0], points[1], points[2], points[3], size)
-        #     axes_3d.plot_wireframe(XW, YW, ZW, color=COLOR1, linewidth=0.2)
-
-        # elif plot == 'surf':
-        #     C = 0.0
-        #     color = colormap(C) if colormap else COLOR5
-        #     XS, YS, ZS = interpolate_quad(points[0], points[1], points[2], points[3], size)
-        #     axes_3d.plot_surface(XS, YS, ZS, color=color, linewidth=0.0, shade=False, cstride=1, rstride=1)
-        #     C = (C + 1.0/NUM_COLORS) % 1.0
-        # ----------------------------------------
-        # ----------------------------------------
-        # ----------------------------------------
-        # ----------------------------------------
-        # ----------------------------------------
-
-        axes_3d.plot(X, Y, Z, color=COLOR1, marker='.', linewidth=0.50, markersize=4.0)
-
-        axes_yz.plot(Y, Z, color=COLOR1, linewidth=0.50)
-        axes_xz.plot(X, Z, color=COLOR1, linewidth=0.50)
-        axes_xy.plot(X, Y, color=COLOR1, linewidth=0.50)
-
-        # x, y-symmetry
-        if wing.symmetry == 1:
-            axes_3d.plot(X, Y, -Z, color=COLOR5, linewidth=0.5)
-            axes_yz.plot(Y, -Z, color=COLOR5, linewidth=0.5)
-            axes_xz.plot(X, -Z, color=COLOR5, linewidth=0.5)
-
-        # x, z-symmetry
-        elif wing.symmetry == 2:
-            axes_3d.plot(X, -Y, Z, color=COLOR5, linewidth=0.5)
-            axes_yz.plot(-Y, Z, color=COLOR5, linewidth=0.5)
-            axes_xy.plot(X, -Y, color=COLOR5, linewidth=0.5)
-
-        # y, z-symmetry
-        elif wing.symmetry == 3:
-            axes_3d.plot(-X, Y, Z, color=COLOR5, linewidth=0.5)
-            axes_xz.plot(-X, Z, color=COLOR5, linewidth=0.5)
-            axes_xy.plot(-X, Y, color=COLOR5, linewidth=0.5)
-
-        # # ----- Segment "main direction" -----
-        # P = 0.5*(segment.vertices['a'] + segment.vertices['d'])
-        # N = 3
-        # axes_3d.quiver(*P, *(N*unit_vector(segment.main_direction)), color="red", linewidth=2.0)
-
-    if len(aircraft.wing) < MAX_ITEMS_TEXT:
-        M = np.mean(M, axis=0)
-        text = axes_3d.text(M[0], M[1], M[2], wing_uid, backgroundcolor='w', size='medium')
-        text.set_bbox(dict(color='w', alpha=0.4))
+        # TODO
+        # segment.center --> wing.center
+        # center = np.mean(M, axis=0)
+        # text = axes_3d.text(center[0], centre[1], centre[2], wing_uid, backgroundcolor='w', size='medium')
+        # text.set_bbox(dict(color='w', alpha=0.4))
+        # ============
 
 
 def add_controls(axes_2d, axes_3d, aircraft):
     """
     Add control surfaces to axes objects
 
-    TODO
+    Args:
+        :axes_2d: 2D axes object (matplotlib)
+        :axes_3d: 3D axes object (matplotlib)
+        :aircraft: (object) data structure for aircraft model
     """
 
     axes_yz, axes_xz, axes_xy = axes_2d
 
     # ----- Add outer control geometry -----
     for (_, control_uid, control), (_, wing_uid, wing) in ot.all_controls(aircraft):
-        if control.device_type == 'flap':
-            points = np.array([control.abs_vertices['d'],
-                               control.abs_vertices['a'],
-                               control.abs_vertices['b'],
-                               control.abs_vertices['c']])
-
-        elif control.device_type == 'slat':
-            points = np.array([control.abs_vertices['b'],
-                               control.abs_vertices['c'],
-                               control.abs_vertices['d'],
-                               control.abs_vertices['a']])
-
-        X = points[:, 0]
-        Y = points[:, 1]
-        Z = points[:, 2]
-
-        axes_3d.plot(X, Y, Z, color=COLOR4, marker='.', linewidth=1.0, markersize=4.0)
-        axes_yz.plot(Y, Z, color=COLOR4, linewidth=1.0)
-        axes_xz.plot(X, Z, color=COLOR4, linewidth=1.0)
-        axes_xy.plot(X, Y, color=COLOR4, linewidth=1.0)
+        color = C.CONTROL_FLAP if control.device_type == 'flap' else C.CONTROL_SLAT
+        points = np.array([control.abs_vertices['d'],
+                           control.abs_vertices['a'],
+                           control.abs_vertices['b'],
+                           control.abs_vertices['c']])
+        _plot_XYZ_points(axes_2d, axes_3d, points, wing.symmetry, linewidth=2, color=color)
 
         # ----- Add hinges -----
         hinge_points = np.array([control.abs_hinge_vertices['p_inner'],
                                  control.abs_hinge_vertices['p_outer']])
-
-        X_hinge = hinge_points[:, 0]
-        Y_hinge = hinge_points[:, 1]
-        Z_hinge = hinge_points[:, 2]
-        axes_3d.plot(X_hinge, Y_hinge, Z_hinge, '--', color=COLOR3, marker='.', linewidth=1.0, markersize=4.0)
-        axes_yz.plot(Y_hinge, Z_hinge, '--', color=COLOR3, linewidth=1.0)
-        axes_xz.plot(X_hinge, Z_hinge, '--', color=COLOR3, linewidth=1.0)
-        axes_xy.plot(X_hinge, Y_hinge, '--', color=COLOR3, linewidth=1.0)
-
-        # x-y symmetry
-        if wing.symmetry == 1:
-            axes_3d.plot(X, Y, -Z, color=COLOR4, linewidth=1.0)
-            axes_yz.plot(Y, -Z, color=COLOR4, linewidth=1.0)
-            axes_xz.plot(X, -Z, color=COLOR4, linewidth=1.0)
-
-        # x-z symmetry
-        elif wing.symmetry == 2:
-            axes_3d.plot(X, -Y, Z, color=COLOR4, linewidth=0.5)
-            axes_yz.plot(-Y, Z, color=COLOR4, linewidth=0.5)
-            axes_xy.plot(X, -Y, color=COLOR4, linewidth=0.5)
-
-        # y-z symmetry
-        elif wing.symmetry == 3:
-            axes_3d.plot(-X, Y, Z, color=COLOR4, linewidth=0.5)
-            axes_xz.plot(-X, Z, color=COLOR4, linewidth=0.5)
-            axes_xy.plot(-X, Y, color=COLOR4, linewidth=0.5)
+        _plot_XYZ_points(axes_2d, axes_3d, points, wing.symmetry, linewidth=2, color=C.CONTROL_HINGE)
 
 
-def _add_info_plot3d(axes, aircraft):
+def _add_info_plot3d(axes_3d, aircraft):
     """
     Add info box to 3D plot
 
     Args:
-        :axes: Axes object (matplotlib)
+        :axes_3d: Axes object (matplotlib)
         :aircraft: Aircraft model
     """
 
-    axes.annotate(
+    axes_3d.annotate(
         f"Wings = {ot.count_all_wings(aircraft):2d}\n"
         + f"Segments = {ot.count_all_segments(aircraft):2d}\n"
         + f"Controls = {ot.count_all_controls(aircraft):2d}\n\n"
@@ -420,9 +323,12 @@ def show_and_save(plot_settings, *figures):
 
     if plot_settings['save']:
         for figure, fig_name in figures:
-            fname = os.path.join(plot_settings['plot_dir'], f"{fig_name}_{get_date_str()}.{STANDARD_FORMAT}")
+            fname = os.path.join(
+                plot_settings['plot_dir'],
+                f"{fig_name}_{pu.get_date_str()}.{pu.STANDARD_FORMAT}"
+            )
             logger.info(f"Saving plot as file: '{truncate_filepath(fname)}'")
-            figure.savefig(fname, dpi=STANDARD_DPI, format=STANDARD_FORMAT)
+            figure.savefig(fname, dpi=pu.STANDARD_DPI, format=pu.STANDARD_FORMAT)
 
     if plot_settings['show']:
         plt.show()
@@ -430,22 +336,19 @@ def show_and_save(plot_settings, *figures):
 
 def add_lattice(axes_2d, axes_3d, lattice):
     """
-    TODO
+    Add the VLM mesh
+
+    Args:
+        :axes_2d: 2D axes object (matplotlib)
+        :axes_3d: 3D axes object (matplotlib)
+        :lattice: Lattice object
     """
 
     axes_yz, axes_xz, axes_xy = axes_2d
     for pp, pc, pv, pn in zip(lattice.p, lattice.c, lattice.v, lattice.n):
-        points_p = np.array([pp[0], pp[1], pp[2], pp[3], pp[0]])
-
         # PANELS
-        X = points_p[:, 0]
-        Y = points_p[:, 1]
-        Z = points_p[:, 2]
-
-        axes_3d.plot(X, Y, Z, color=COLOR1, linewidth=0.25)
-        axes_yz.plot(Y, Z, color=COLOR1, linewidth=0.25)
-        axes_xz.plot(X, Z, color=COLOR1, linewidth=0.25)
-        axes_xy.plot(X, Y, color=COLOR1, linewidth=0.25)
+        points_p = np.array([pp[0], pp[1], pp[2], pp[3], pp[0]])
+        _plot_XYZ_points(axes_2d, axes_3d, points_p, symmetry=None, linewidth=0.5, color=C.MESH)
 
         # # ==========
         # opt_settings = ['normals', 'horseshoes', 'horseshoe_midpoints']
@@ -484,11 +387,6 @@ def add_lattice(axes_2d, axes_3d, lattice):
     # if 'horseshoe_midpoints' in opt_settings:
         # for bound_leg_midpoint in lattice.bound_leg_midpoints:
         #     axes_3d.scatter(*bound_leg_midpoint, marker='.', s=10, color='red')
-
-
-
-
-
 
 
 # ===========================================================================
@@ -561,25 +459,41 @@ def add_lattice(axes_2d, axes_3d, lattice):
 
 def add_freestream_vector(axes_2d, axes_3d, state):
     """
-    TODO
+    Add a free stream vector
+
+    Args:
+        :axes_2d: 2D axes object (matplotlib)
+        :axes_3d: 3D axes object (matplotlib)
+        :state: State model
     """
 
     # Plot free stream vector
     free_stream_vel = 3*unit_vector(state.free_stream_velocity_vector)
+    # TODO: improve location!!!
     # orig = np.array([lims[0, 0], 0, 0]) - free_stream_vel
     orig = np.array([0, 0, 0]) - free_stream_vel
-    axes_3d.quiver(*orig, *free_stream_vel, color=COLOR1, linewidth=1)
+    axes_3d.quiver(*orig, *free_stream_vel, color=C.BLACK, linewidth=1)
     axes_3d.text(*orig, f"{state.aero['airspeed']:.1f} m/s")
 
 
 def add_results(axes_2d, axes_3d, figure_3d, vlmdata, lattice):
     """
-    TODO
+    Add results
+
+    Args:
+        :axes_2d: 2D axes object (matplotlib)
+        :axes_3d: 3D axes object (matplotlib)
+        :figure_3d: Figure object (matplotlib)
+        :vlmdata: (object) data structure for VLM analysis data
+        :lattice: Lattice object
     """
 
     # =================================================
+    # TODO
+    # TODO
+    # TODO
     key = 'cp'
-    size = 10.19
+    size = 100
     # =================================================
 
     axes_yz, axes_xz, axes_xy = axes_2d
@@ -593,7 +507,7 @@ def add_results(axes_2d, axes_3d, figure_3d, vlmdata, lattice):
         values = np.zeros(data.shape)
 
     for pp, val in zip(lattice.p, values):
-        color = colormap(val) if colormap else COLOR5
+        color = COLORMAP(val)
 
         points_p = np.array([pp[0],
                              pp[1],
@@ -605,24 +519,62 @@ def add_results(axes_2d, axes_3d, figure_3d, vlmdata, lattice):
         Y = points_p[:, 1]
         Z = points_p[:, 2]
 
-        axes_3d.plot(X, Y, Z, color=COLOR5, linewidth=0.25)
-        axes_yz.plot(Y, Z, color=COLOR5, linewidth=0.25)
-        axes_xz.plot(X, Z, color=COLOR5, linewidth=0.25)
-        axes_xy.plot(X, Y, color=COLOR5, linewidth=0.25)
-
-        XS, YS, ZS = interpolate_quad(points_p[0], points_p[1], points_p[2], points_p[3], size)
+        XS, YS, ZS = pu.interpolate_quad(points_p[0], points_p[1], points_p[2], points_p[3], size)
         axes_3d.plot_surface(XS, YS, ZS, color=color, linewidth=0.0, shade=False, cstride=1, rstride=1)
-        # axes_yz.fill(YS, ZS, color=color, facecolor=color, fill=True)
-        # axes_xz.fill(XS, ZS, color=color, facecolor=color, fill=True)
-        # axes_xy.fill(XS, YS, color=color, facecolor=color, fill=True)
+        axes_yz.fill(YS, ZS, color=color, facecolor=color, fill=True)
+        axes_xz.fill(XS, ZS, color=color, facecolor=color, fill=True)
+        axes_xy.fill(XS, YS, color=color, facecolor=color, fill=True)
 
-    cbar = cm.ScalarMappable(cmap=colormap)
+    cbar = cm.ScalarMappable(cmap=COLORMAP)
     cbar.set_array(vlmdata.panelwise[key])
 
     cbar = figure_3d.colorbar(cbar)
     cbar.set_label(key)
 
     # figure_2.suptitle(f"{aircraft.uid} | {key}")
-
     # plt.tight_layout()
     # figure_1.subplots_adjust(left=0.15, bottom=0.01, right=0.90, top=0.98, wspace=0.39, hspace=0.45)
+
+
+def _plot_XYZ_points(axes_2d, axes_3d, points, symmetry, *, linewidth, color, color_mirror=None):
+    """
+    Plot a group of XYZ coordinates
+
+    Args:
+        :axes_2d: 2D axes object (matplotlib)
+        :axes_3d: 3D axes object (matplotlib)
+        :XYZ: Tuple with coordinates (X, Y, Z)
+        :symmetry: Symmetry flag
+        :linewidth: Linewidth
+        :color: Color of the primary side
+        :color_mirror: Color of the mirrored side (None if same as 'color')
+    """
+
+    X = points[:, 0]
+    Y = points[:, 1]
+    Z = points[:, 2]
+    axes_yz, axes_xz, axes_xy = axes_2d
+    color_mirror = color if color_mirror is None else color_mirror
+
+    axes_3d.plot(X, Y, Z, color=color, linewidth=linewidth)
+    axes_yz.plot(Y, Z, color=color, linewidth=linewidth)
+    axes_xz.plot(X, Z, color=color, linewidth=linewidth)
+    axes_xy.plot(X, Y, color=color, linewidth=linewidth)
+
+    # X-Y symmetry
+    if symmetry == 1:
+        axes_3d.plot(X, Y, -Z, color=color, linewidth=linewidth)
+        axes_yz.plot(Y, -Z, color=color, linewidth=linewidth)
+        axes_xz.plot(X, -Z, color=color, linewidth=linewidth)
+
+    # X-Z symmetry
+    elif symmetry == 2:
+        axes_3d.plot(X, -Y, Z, color=color, linewidth=linewidth)
+        axes_yz.plot(-Y, Z, color=color, linewidth=linewidth)
+        axes_xy.plot(X, -Y, color=color, linewidth=linewidth)
+
+    # Y-Z symmetry
+    elif symmetry == 3:
+        axes_3d.plot(-X, Y, Z, color=color, linewidth=linewidth)
+        axes_xz.plot(-X, Z, color=color, linewidth=linewidth)
+        axes_xy.plot(-X, Y, color=color, linewidth=linewidth)

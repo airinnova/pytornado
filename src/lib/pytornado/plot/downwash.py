@@ -36,7 +36,8 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from commonlibs.logger import truncate_filepath
 
-from pytornado.plot.utils import get_date_str, COLOR1, COLORMAP
+from pytornado.plot.utils import get_date_str
+import pytornado.plot.plottools as pt
 
 logger = logging.getLogger(__name__)
 
@@ -57,10 +58,10 @@ def view_downwash(vlmdata, plt_settings):
         logger.error(err_msg)
         raise TypeError(err_msg)
 
-    figure = plt.figure(figsize=(9, 9), edgecolor=COLOR1)
+    figure = plt.figure(figsize=(9, 9), edgecolor=pt.C.BLACK)
     axes = figure.add_subplot(111)
     axes.set_aspect('equal')
-    axes.matshow(vlmdata.matrix_downwash, cmap=cm.get_cmap(COLORMAP))
+    axes.matshow(vlmdata.matrix_downwash, cmap=pt.COLORMAP)
     axes.set_xlabel('i')
     axes.set_ylabel('j')
     axes.set_title("Downwash factor matrix")

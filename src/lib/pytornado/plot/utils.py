@@ -33,16 +33,8 @@ import numpy as np
 
 NUM_POINTS = 64
 
-COLOR1 = 'black'
-COLOR2 = [1.0, 0.4, 0.4]
-COLOR3 = [0.4, 0.4, 1.0]
-COLOR4 = [1.0, 0.4, 1.0]
-COLOR5 = [0.7, 0.7, 0.7]
-
 # Display item names for view containing up to MAX_ITEMS_TEXT items
 MAX_ITEMS_TEXT = 10
-
-COLORMAP = 'Spectral'
 
 # Standard 'savefig' settings
 STANDARD_DPI = 200
