@@ -82,7 +82,7 @@ def setup_wkdir():
 
     settings.settings['vlm_autopanels_s'] = 20
     settings.settings['vlm_autopanels_c'] = 5
-    settings.settings['plot']['results_panelwise'] = ['cp']
+    settings.settings['plot']['results'] = ['cp']
     settings.settings['plot']['show'] = True
 
     # ---------- State ----------

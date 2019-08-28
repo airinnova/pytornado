@@ -51,7 +51,7 @@ def make_all(settings, aircraft, cur_state, vlmdata, lattice):
         "plot_dir": settings.paths('d_plots'),
         "save": settings.settings['plot']['save'],
         "show": settings.settings['plot']['show'],
-        "result_keys": settings.settings['plot']['results_panelwise'],
+        "result_keys": settings.settings['plot']['results'],
     }
 
     # If there is nothing to plot, exit...
@@ -59,16 +59,16 @@ def make_all(settings, aircraft, cur_state, vlmdata, lattice):
         return
 
     # Create plots
-    if settings.settings['plot']['results_downwash']:
+    if settings.settings['plot']['matrix_downwash']:
         pl_downwash.view_downwash(vlmdata, plot_settings)
 
-    if settings.settings['plot']['geometry_aircraft']:
+    if settings.settings['plot']['geometry']:
         plot_geometry_aircraft(aircraft, plot_settings)
 
-    if settings.settings['plot']['lattice_aircraft']:
+    if settings.settings['plot']['lattice']:
         plot_lattice_aircraft(aircraft, lattice, plot_settings)
 
-    if settings.settings['plot']['results_panelwise']:
+    if settings.settings['plot']['results']:
         plot_results_aircraft(aircraft, lattice, cur_state, vlmdata, plot_settings)
 
 

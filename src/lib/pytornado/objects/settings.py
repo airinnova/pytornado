@@ -37,16 +37,10 @@ from commonlibs.fileio.paths import ProjectPaths
 logger = logging.getLogger(__name__)
 
 _DEFAULT_PLOT_DICT = {
-    'geometry_aircraft': (False, bool),
-    'geometry_wing': ([], list),
-    'geometry_segment': ([], list),
-    'geometry_property': ([], list),
-    'lattice_aircraft': (False, bool),
-    'lattice_aircraft_optional': ([], list),
-    'lattice_wing': ([], list),
-    'lattice_segment': ([], list),
-    'results_downwash': (False, bool),
-    'results_panelwise': ([], list),
+    'geometry': (False, bool),
+    'lattice': (False, bool),
+    'matrix_downwash': (False, bool),
+    'results': ([], list),
     'show': (True, bool),
     'save': (False, bool),
 }
