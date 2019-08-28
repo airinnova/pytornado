@@ -40,7 +40,7 @@ _DEFAULT_PLOT_DICT = {
     'geometry': (False, bool),
     'lattice': (False, bool),
     'matrix_downwash': (False, bool),
-    'results': ([], list),
+    'results': ([], (list, bool)),
     'show': (True, bool),
     'save': (False, bool),
 }
@@ -183,6 +183,10 @@ class Settings:
 
         for key, value in settings_dict.items():
             self.settings[key] = value
+
+        # If 'results' are not specified, plot 'cp' values
+        if self.settings['plot']['results'] is True:
+            self.settings['plot']['results'] = ['cp']
 
         self._check_settings_dict()
 
