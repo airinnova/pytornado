@@ -74,7 +74,7 @@ def plot2d3d(aircraft, plot_name, plot_settings):
     # ----- 2D plot -----
     figure_2d, axes_2d = _init_plot2d(title=aircraft.uid)
 
-    scale_plots(axes_3d, axes_2d, aircraft)
+    scale_plots(axes_2d, axes_3d, aircraft)
 
     try:
         yield (figure_2d, axes_2d, figure_3d, axes_3d)
@@ -147,7 +147,7 @@ def _init_plot2d(title=''):
     return fig, (axes_yz, axes_xz, axes_xy)
 
 
-def scale_plots(axes_3d, axes_2d, aircraft):
+def scale_plots(axes_2d, axes_3d, aircraft):
     """
     Correct the axes scaling
 
@@ -206,7 +206,7 @@ def _add_CG_plot2d(axes, aircraft):
     axes_xy.scatter(X, Y, color=COLOR1, marker='x', s=40, linewidth=2)
 
 
-def add_CG(axes_3d, axes_2d, aircraft):
+def add_CG(axes_2d, axes_3d, aircraft):
     """
     TODO
     """
@@ -214,7 +214,8 @@ def add_CG(axes_3d, axes_2d, aircraft):
     _add_CG_plot3d(axes_3d, aircraft)
     _add_CG_plot2d(axes_2d, aircraft)
 
-def add_wings(axes_3d, axes_2d, aircraft):
+
+def add_wings(axes_2d, axes_3d, aircraft):
     """
     Add wings to axes objects
 
@@ -317,7 +318,7 @@ def add_wings(axes_3d, axes_2d, aircraft):
         text.set_bbox(dict(color='w', alpha=0.4))
 
 
-def add_controls(axes_3d, axes_2d, aircraft):
+def add_controls(axes_2d, axes_3d, aircraft):
     """
     Add control surfaces to axes objects
 
@@ -419,19 +420,3 @@ def show_and_save(plot_settings, *figures):
 
     if plot_settings['show']:
         plt.show()
-
-
-def view_aircraft(aircraft, plot_settings):
-    """
-    Generate 3D and 2D views of full aircraft geometry
-
-    Args:
-        :aircraft: (object) data structure for aircraft model
-        :plot_settings: Plot settings
-    """
-
-    logger.info("Generating geometry plot...")
-    with plot2d3d(aircraft, 'geometry', plot_settings) as (figure_2d, axes_2d, figure_3d, axes_3d):
-        add_CG(axes_3d, axes_2d, aircraft)
-        add_wings(axes_3d, axes_2d, aircraft)
-        add_controls(axes_3d, axes_2d, aircraft)

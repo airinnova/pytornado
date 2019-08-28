@@ -26,10 +26,14 @@ Main entry point for plotting
 Developed at Airinnova AB, Stockholm, Sweden.
 """
 
+import logging
+
+from . import plottools as pt
 from . import downwash as pl_downwash
-from . import geometry as pl_geometry
 from . import lattice as pl_lattice
 from . import results as pl_results
+
+logger = logging.getLogger(__name__)
 
 
 def make_all(settings, aircraft, cur_state, vlmdata, lattice):
@@ -44,35 +48,39 @@ def make_all(settings, aircraft, cur_state, vlmdata, lattice):
         :lattice: Lattice
     """
 
-    plt_settings = {
+    plot_settings = {
         "plot_dir": settings.paths('d_plots'),
         "save": settings.settings['plot']['save'],
         "show": settings.settings['plot']['show']
     }
 
-    if plt_settings['save'] or plt_settings['show']:
+    if plot_settings['save'] or plot_settings['show']:
         if settings.settings['plot']['results_downwash']:
-            pl_downwash.view_downwash(vlmdata, plt_settings)
+            pl_downwash.view_downwash(vlmdata, plot_settings)
 
         if settings.settings['plot']['geometry_aircraft']:
-            pl_geometry.view_aircraft(aircraft, plt_settings)
-
-        for wing_uid, wing in aircraft.wing.items():
-            if wing_uid in settings.settings['plot']['geometry_wing']:
-                pl_geometry.view_wing(wing, wing_uid, plt_settings, plot='surf')
-
-                if settings.settings['plot']['geometry_property']:
-                    pl_geometry.view_spanwise(wing, wing_uid, plt_settings,
-                                              properties=settings.settings['plot']['geometry_property'])
-
-                for segment_uid, segment in wing.segment.items():
-                    if segment_uid in settings.settings['plot']['geometry_segment']:
-                        pl_geometry.view_segment(segment, segment_uid, plt_settings, plot='wire')
+            plot_geometry_aircraft(aircraft, plot_settings)
 
         if settings.settings['plot']['lattice_aircraft']:
-            pl_lattice.view_aircraft(aircraft, lattice, plt_settings,
+            pl_lattice.view_aircraft(aircraft, lattice, plot_settings,
                                      opt_settings=settings.settings['plot']['lattice_aircraft_optional'])
 
         if settings.settings['plot']['results_panelwise']:
             for result in settings.settings['plot']['results_panelwise']:
-                pl_results.view_panelwise(aircraft, cur_state, lattice, vlmdata, result, plt_settings)
+                pl_results.view_panelwise(aircraft, cur_state, lattice, vlmdata, result, plot_settings)
+
+
+def plot_geometry_aircraft(aircraft, plot_settings):
+    """
+    Generate 2D and 3D views of full aircraft geometry
+
+    Args:
+        :aircraft: (object) data structure for aircraft model
+        :plot_settings: Plot settings
+    """
+
+    logger.info("Generating geometry plot...")
+    with pt.plot2d3d(aircraft, 'geometry', plot_settings) as (figure_2d, axes_2d, figure_3d, axes_3d):
+        pt.add_CG(axes_2d, axes_3d, aircraft)
+        pt.add_wings(axes_2d, axes_3d, aircraft)
+        pt.add_controls(axes_2d, axes_3d, aircraft)
