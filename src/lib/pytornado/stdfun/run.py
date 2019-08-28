@@ -201,7 +201,7 @@ def standard_run(args):
     # Save aeroperformance map
     io.native.results.save_aeroperformance_map(state, settings)
 
-    if settings.aircraft_is_cpacs:
+    if settings.aircraft_is_cpacs and settings.settings['state'].upper() == '__CPACS':
         io.cpacs.results.save_aeroperformance_map(state, settings)
     ###############################################
 
