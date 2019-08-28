@@ -57,7 +57,7 @@ def view_downwash(vlmdata, plt_settings):
     figure = plt.figure(figsize=(9, 9))
     axes = figure.add_subplot(111)
     axes.set_aspect('equal')
-    axes.matshow(vlmdata.matrix_downwash, cmap=pt.COLORMAP)
+    axes.matshow(vlmdata.matrix_downwash, cmap=pt.C.COLORMAP)
     axes.set_xlabel('i')
     axes.set_ylabel('j')
     axes.set_title("Downwash factor matrix")

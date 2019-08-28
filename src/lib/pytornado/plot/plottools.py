@@ -43,8 +43,7 @@ import pytornado.objects.objecttools as ot
 
 logger = logging.getLogger(__name__)
 
-COLORMAP = cm.get_cmap('Spectral')
-NUM_POINTS = 64
+NUM_POINTS = 100
 
 
 class _PlotSettings:
@@ -56,10 +55,16 @@ class _PlotSettings:
     LINEWIDTH_b = 1
     LINEWIDTH_c = 2
 
+    POINTSIZE_a = 40
+
+    # Scaling
+    SCALE_FACTOR = 1.05
+
 PS = _PlotSettings
 
 
 class _Colors:
+    # ----- Base colors -----
     BLACK = 'black'
     GREY = 'grey'
     GREEN = 'green'
@@ -71,19 +76,22 @@ class _Colors:
     MESH_MIRROR = GREY
     CONTROL_SLAT = GREEN
     CONTROL_FLAP = RED
-    CONTROL_HINGE = RED
+    CONTROL_HINGE = BLUE
+
+    # ----- Colormap -----
+    COLORMAP = cm.get_cmap('Spectral')
 
 C = _Colors
 
 
-def get_limits(points, lims, symm=0):
+def get_limits(points, lims, symmetry=0):
     """
     Determine external limits of domain occupied by set of points
 
     Args:
-        :points: (numpy) points of current plot object
-        :lims: (numpy) current bounding box
-        :symm: (int) symmetry setting
+        :points: (numpy) Points of current plot object
+        :lims: (numpy) Current bounding box
+        :symmetry: (int) Symmetry setting
     """
 
     # Flatten multi-dimensional array of coordinates to (m x n x ...) x 3
@@ -104,21 +112,21 @@ def get_limits(points, lims, symm=0):
     lims_max[indices_max] = points_max[indices_max]
 
     # Account for symmetry
-    if symm == 1:
+    if symmetry == 1:
         if -points_max[2] < lims_min[2]:
             lims_min[2] = -points_max[2]
 
         if -points_min[2] > lims_max[2]:
             lims_max[2] = -points_min[2]
 
-    if symm == 2:
+    if symmetry == 2:
         if -points_max[1] < lims_min[1]:
             lims_min[1] = -points_max[1]
 
         if -points_min[1] > lims_max[1]:
             lims_max[1] = -points_min[1]
 
-    if symm == 3:
+    if symmetry == 3:
         if -points_max[0] < lims_min[0]:
             lims_min[0] = -points_max[0]
 
@@ -132,9 +140,9 @@ def scale_fig(axes, lims, directions='xyz'):
 
     Args:
         :axes: (object) matplotlib.axis.Axis object
-        :lims: (numpy) current bounding box
-        :directions: (string) combination of x, y, z for axis directions.
-            * e.g. 'zx' -> x-axis = aircraft z-coord, y-axis = aircraft x-coord, no z-axis (2D view).
+        :lims: (numpy) Bounding box
+        :directions: (string) Combination of x, y, z for axis directions
+            * Example: 'zx' -> x-axis = aircraft z-coord, y-axis = aircraft x-coord, no z-axis (2D view)
     """
 
     # Find largest (half-)range
@@ -147,19 +155,17 @@ def scale_fig(axes, lims, directions='xyz'):
     y_mid = 0.5*(lims_max[1] + lims_min[1])
     z_mid = 0.5*(lims_max[2] + lims_min[2])
 
-    domain = {'x': (x_mid - 1.1*range_max, x_mid + 1.1*range_max),
-              'y': (y_mid - 1.1*range_max, y_mid + 1.1*range_max),
-              'z': (z_mid - 1.1*range_max, z_mid + 1.1*range_max)}
+    domain = {
+        'x': (x_mid - PS.SCALE_FACTOR*range_max, x_mid + PS.SCALE_FACTOR*range_max),
+        'y': (y_mid - PS.SCALE_FACTOR*range_max, y_mid + PS.SCALE_FACTOR*range_max),
+        'z': (z_mid - PS.SCALE_FACTOR*range_max, z_mid + PS.SCALE_FACTOR*range_max),
+    }
 
-    # 2D plot
-    if len(directions) == 2:
-        axes.set_xlim(domain[directions[0]])
-        axes.set_ylim(domain[directions[1]])
+    axes.set_xlim(domain[directions[0]])
+    axes.set_ylim(domain[directions[1]])
 
     # 3D plot
-    elif len(directions) == 3:
-        axes.set_xlim(domain[directions[0]])
-        axes.set_ylim(domain[directions[1]])
+    if len(directions) == 3:
         axes.set_zlim(domain[directions[2]])
 
 
@@ -168,25 +174,25 @@ def interpolate_quad(a, b, c, d, size):
     Bi-linear parametrisation of arbitrarily twisted quadrilateral
 
     Args:
-        :a, b, c, d: (numpy) coordinates of corner vertices
-        :nr, ns: (int) number of chord- and span-wise points
+        :a, b, c, d: (numpy) Coordinates of corner vertices
+        :nr, ns: (int) Number of chord- and span-wise points
 
     Returns:
-        :x, y, z: (numpy) coordinates of NC x NS interpolated points
+        :x, y, z: (numpy) Coordinates of NC x NS interpolated points
     """
 
     fr = 0.5*np.sqrt(np.sum((b - a)**2.0)) + 0.5*np.sqrt(np.sum((c - d)**2.0))
     fs = 0.5*np.sqrt(np.sum((d - a)**2.0)) + 0.5*np.sqrt(np.sum((c - b)**2.0))
 
-    nr = int(2.0 + np.ceil(NUM_POINTS*fr/size))
-    ns = int(2.0 + np.ceil(NUM_POINTS*fs/size))
+    nr = int(2 + np.ceil(NUM_POINTS*fr/size))
+    ns = int(2 + np.ceil(NUM_POINTS*fs/size))
 
     r, s = np.meshgrid(np.linspace(0.0, 1.0, num=nr), np.linspace(0.0, 1.0, num=ns))
 
-    alfa1 = a[0]
-    alfa2 = b[0] - a[0]
-    alfa3 = d[0] - a[0]
-    alfa4 = a[0] - b[0] + c[0] - d[0]
+    alpha1 = a[0]
+    alpha2 = b[0] - a[0]
+    alpha3 = d[0] - a[0]
+    alpha4 = a[0] - b[0] + c[0] - d[0]
 
     beta1 = a[1]
     beta2 = b[1] - a[1]
@@ -198,19 +204,10 @@ def interpolate_quad(a, b, c, d, size):
     gama3 = d[2] - a[2]
     gama4 = a[2] - b[2] + c[2] - d[2]
 
-    x = alfa1 + alfa2*r + alfa3*s + alfa4*r*s
+    x = alpha1 + alpha2*r + alpha3*s + alpha4*r*s
     y = beta1 + beta2*r + beta3*s + beta4*r*s
     z = gama1 + gama2*r + gama3*s + gama4*r*s
     return x, y, z
-
-
-def get_date_str():
-    """
-    Return a date string
-    """
-
-    now = datetime.now().strftime("%F_%H-%M-%S-%f")
-    return now
 
 
 @contextmanager
@@ -271,6 +268,16 @@ def _init_plot3d(title=''):
     axes_3d.set_zlabel('Z [m]')
 
     axes_3d.set_title(title)
+
+    figure_3d.subplots_adjust(
+        left=0.15,
+        bottom=0.01,
+        right=0.90,
+        top=0.99,
+        wspace=0.39,
+        hspace=0.45
+    )
+
     return figure_3d, axes_3d
 
 
@@ -333,7 +340,7 @@ def scale_plots(axes_2d, axes_3d, aircraft):
                            segment.vertices['c'],
                            segment.vertices['d'],
                            segment.vertices['a']])
-        get_limits(points, lims, symm=wing.symmetry)
+        get_limits(points, lims, symmetry=wing.symmetry)
 
     # Adjust scaling for all axes objects
     scale_fig(axes_3d, lims)
@@ -352,7 +359,7 @@ def _add_CG_plot3d(axes_3d, aircraft):
     """
 
     X, Y, Z = aircraft.refs['gcenter']
-    axes_3d.scatter(X, Y, Z, color=C.BLACK, marker='x', s=40, linewidth=PS.LINEWIDTH_c)
+    axes_3d.scatter(X, Y, Z, color=C.BLACK, marker='x', s=PS.POINTSIZE_a, linewidth=PS.LINEWIDTH_c)
 
 
 def _add_CG_plot2d(axes_2d, aircraft):
@@ -367,9 +374,9 @@ def _add_CG_plot2d(axes_2d, aircraft):
     X, Y, Z = aircraft.refs['gcenter']
     axes_yz, axes_xz, axes_xy = axes_2d
 
-    axes_yz.scatter(Y, Z, color=C.BLACK, marker='x', s=40, linewidth=PS.LINEWIDTH_c)
-    axes_xz.scatter(X, Z, color=C.BLACK, marker='x', s=40, linewidth=PS.LINEWIDTH_c)
-    axes_xy.scatter(X, Y, color=C.BLACK, marker='x', s=40, linewidth=PS.LINEWIDTH_c)
+    axes_yz.scatter(Y, Z, color=C.BLACK, marker='x', s=PS.POINTSIZE_a, linewidth=PS.LINEWIDTH_c)
+    axes_xz.scatter(X, Z, color=C.BLACK, marker='x', s=PS.POINTSIZE_a, linewidth=PS.LINEWIDTH_c)
+    axes_xy.scatter(X, Y, color=C.BLACK, marker='x', s=PS.POINTSIZE_a, linewidth=PS.LINEWIDTH_c)
 
 
 def add_CG(axes_2d, axes_3d, aircraft):
@@ -397,16 +404,18 @@ def add_wings(axes_2d, axes_3d, aircraft):
     """
 
     axes_yz, axes_xz, axes_xy = axes_2d
-    for (_, segment_uid, segment), (_, wing_uid, wing) in ot.all_segments(aircraft):
-        points = np.array([segment.vertices['a'],
-                           segment.vertices['b'],
-                           segment.vertices['c'],
-                           segment.vertices['d'],
-                           segment.vertices['a']])
+    for (_, _, segment), (_, _, wing) in ot.all_segments(aircraft):
+        points = np.array([
+            segment.vertices['a'],
+            segment.vertices['b'],
+            segment.vertices['c'],
+            segment.vertices['d'],
+            segment.vertices['a'],
+        ])
         _plot_XYZ_points(axes_2d, axes_3d, points, wing.symmetry, linewidth=PS.LINEWIDTH_b, color=C.MESH_MIRROR)
 
         # TODO
-        # segment.center --> wing.center
+        # Add 'segment.center' --> 'wing.center'
         # center = np.mean(M, axis=0)
         # text = axes_3d.text(center[0], centre[1], centre[2], wing_uid, backgroundcolor='w', size='medium')
         # text.set_bbox(dict(color='w', alpha=0.4))
@@ -424,19 +433,18 @@ def add_controls(axes_2d, axes_3d, aircraft):
     """
 
     axes_yz, axes_xz, axes_xy = axes_2d
-
-    # ----- Add outer control geometry -----
-    for (_, control_uid, control), (_, wing_uid, wing) in ot.all_controls(aircraft):
+    for (_, _, control), (_, _, wing) in ot.all_controls(aircraft):
+        # ----- Add outer control geometry -----
         color = C.CONTROL_FLAP if control.device_type == 'flap' else C.CONTROL_SLAT
-        points = np.array([control.abs_vertices['d'],
-                           control.abs_vertices['a'],
-                           control.abs_vertices['b'],
-                           control.abs_vertices['c']])
+        vertex_order = 'dabc' if control.device_type == 'flap' else 'bcda'
+        points = np.array([control.abs_vertices[vertex_name] for vertex_name in vertex_order])
         _plot_XYZ_points(axes_2d, axes_3d, points, wing.symmetry, linewidth=PS.LINEWIDTH_c, color=color)
 
         # ----- Add hinges -----
-        hinge_points = np.array([control.abs_hinge_vertices['p_inner'],
-                                 control.abs_hinge_vertices['p_outer']])
+        points = np.array([
+            control.abs_hinge_vertices['p_inner'],
+            control.abs_hinge_vertices['p_outer'],
+        ])
         _plot_XYZ_points(axes_2d, axes_3d, points, wing.symmetry, linewidth=PS.LINEWIDTH_c, color=C.CONTROL_HINGE)
 
 
@@ -475,9 +483,10 @@ def show_and_save(plot_settings, *figures):
 
     if plot_settings['save']:
         for figure, fig_name in figures:
+            now = datetime.now().strftime("%F_%H-%M-%S-%f")
             fname = os.path.join(
                 plot_settings['plot_dir'],
-                f"{fig_name}_{get_date_str()}.{PS.STANDARD_FORMAT}"
+                f"{fig_name}_{now}.{PS.STANDARD_FORMAT}"
             )
             logger.info(f"Saving plot as file: '{truncate_filepath(fname)}'")
             figure.savefig(fname, dpi=PS.STANDARD_DPI, format=PS.STANDARD_FORMAT)
@@ -609,7 +618,7 @@ def add_lattice(axes_2d, axes_3d, lattice):
 # ===========================================================================
 # ===========================================================================
 
-def add_freestream_vector(axes_2d, axes_3d, state):
+def add_freestream_vector(axes_2d, axes_3d, state, tip_pos=np.array([0, 0, 0]), vector_len=3):
     """
     Add a free stream vector
 
@@ -619,16 +628,13 @@ def add_freestream_vector(axes_2d, axes_3d, state):
         :state: State model
     """
 
-    # Plot free stream vector
-    free_stream_vel = 3*unit_vector(state.free_stream_velocity_vector)
-    # TODO: improve location!!!
-    # orig = np.array([lims[0, 0], 0, 0]) - free_stream_vel
-    orig = np.array([0, 0, 0]) - free_stream_vel
+    free_stream_vel = vector_len*unit_vector(state.free_stream_velocity_vector)
+    orig = tip_pos - free_stream_vel
     axes_3d.quiver(*orig, *free_stream_vel, color=C.BLACK, linewidth=PS.LINEWIDTH_c)
     axes_3d.text(*orig, f"{state.aero['airspeed']:.1f} m/s")
 
 
-def add_results(axes_2d, axes_3d, figure_3d, vlmdata, lattice):
+def add_results(axes_2d, axes_3d, figure_3d, vlmdata, lattice, aircraft, key):
     """
     Add results
 
@@ -638,15 +644,9 @@ def add_results(axes_2d, axes_3d, figure_3d, vlmdata, lattice):
         :figure_3d: Figure object (matplotlib)
         :vlmdata: (object) data structure for VLM analysis data
         :lattice: Lattice object
+        :aircraft: Aircraft model
+        :key: Property to plot
     """
-
-    # =================================================
-    # TODO
-    # TODO
-    # TODO
-    key = 'cp'
-    size = 100
-    # =================================================
 
     axes_yz, axes_xz, axes_xy = axes_2d
 
@@ -659,33 +659,24 @@ def add_results(axes_2d, axes_3d, figure_3d, vlmdata, lattice):
         values = np.zeros(data.shape)
 
     for pp, val in zip(lattice.p, values):
-        color = COLORMAP(val)
-
-        points_p = np.array([pp[0],
-                             pp[1],
-                             pp[2],
-                             pp[3],
-                             pp[0]])
+        color = C.COLORMAP(val)
+        points_p = np.array([pp[0], pp[1], pp[2], pp[3], pp[0]])
 
         X = points_p[:, 0]
         Y = points_p[:, 1]
         Z = points_p[:, 2]
 
-        XS, YS, ZS = interpolate_quad(points_p[0], points_p[1], points_p[2], points_p[3], size)
+        XS, YS, ZS = interpolate_quad(points_p[0], points_p[1], points_p[2], points_p[3], size=aircraft.size)
         axes_3d.plot_surface(XS, YS, ZS, color=color, linewidth=PS.LINEWIDTH_a, shade=False, cstride=1, rstride=1)
         axes_yz.fill(YS, ZS, color=color, facecolor=color, fill=True)
         axes_xz.fill(XS, ZS, color=color, facecolor=color, fill=True)
         axes_xy.fill(XS, YS, color=color, facecolor=color, fill=True)
 
-    cbar = cm.ScalarMappable(cmap=COLORMAP)
+    cbar = cm.ScalarMappable(cmap=C.COLORMAP)
     cbar.set_array(vlmdata.panelwise[key])
 
     cbar = figure_3d.colorbar(cbar)
     cbar.set_label(key)
-
-    # figure_2.suptitle(f"{aircraft.uid} | {key}")
-    # plt.tight_layout()
-    # figure_1.subplots_adjust(left=0.15, bottom=0.01, right=0.90, top=0.98, wspace=0.39, hspace=0.45)
 
 
 def _plot_XYZ_points(axes_2d, axes_3d, points, symmetry, *, linewidth, color, color_mirror=None):
