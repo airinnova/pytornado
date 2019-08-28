@@ -29,8 +29,8 @@ Developed at Airinnova AB, Stockholm, Sweden.
 import logging
 
 from . import plottools as pt
+
 from . import downwash as pl_downwash
-from . import lattice as pl_lattice
 from . import results as pl_results
 
 logger = logging.getLogger(__name__)
@@ -62,8 +62,9 @@ def make_all(settings, aircraft, cur_state, vlmdata, lattice):
             plot_geometry_aircraft(aircraft, plot_settings)
 
         if settings.settings['plot']['lattice_aircraft']:
-            pl_lattice.view_aircraft(aircraft, lattice, plot_settings,
-                                     opt_settings=settings.settings['plot']['lattice_aircraft_optional'])
+            plot_lattice_aircraft(aircraft, lattice, plot_settings)
+            # plot_lattice_aircraft(aircraft, lattice, plot_settings,
+            #                          opt_settings=settings.settings['plot']['lattice_aircraft_optional'])
 
         if settings.settings['plot']['results_panelwise']:
             for result in settings.settings['plot']['results_panelwise']:
@@ -84,3 +85,37 @@ def plot_geometry_aircraft(aircraft, plot_settings):
         pt.add_CG(axes_2d, axes_3d, aircraft)
         pt.add_wings(axes_2d, axes_3d, aircraft)
         pt.add_controls(axes_2d, axes_3d, aircraft)
+
+
+def plot_lattice_aircraft(aircraft, lattice, plot_settings):
+    """
+    Generate 2D and 3D views of the lattice
+
+    Args:
+        :aircraft: (object) data structure for aircraft model
+        :plot_settings: Plot settings
+    """
+
+    logger.info("Generating lattice plot...")
+    with pt.plot2d3d(aircraft, 'lattice', plot_settings) as (figure_2d, axes_2d, figure_3d, axes_3d):
+        pt.add_CG(axes_2d, axes_3d, aircraft)
+        pt.add_wings(axes_2d, axes_3d, aircraft)
+        pt.add_controls(axes_2d, axes_3d, aircraft)
+
+        pt.add_lattice(axes_2d, axes_3d, lattice)
+
+
+# def plot_results_aircraft(aircraft, lattice, plot_settings):
+#     """
+#     Generate 2D and 3D views of the lattice
+
+#     Args:
+#         :aircraft: (object) data structure for aircraft model
+#         :plot_settings: Plot settings
+#     """
+
+#     logger.info("Generating lattice plot...")
+#     with pt.plot2d3d(aircraft, 'lattice', plot_settings) as (figure_2d, axes_2d, figure_3d, axes_3d):
+#         pt.add_CG(axes_2d, axes_3d, aircraft)
+#         pt.add_wings(axes_2d, axes_3d, aircraft)
+#         pt.add_controls(axes_2d, axes_3d, aircraft)

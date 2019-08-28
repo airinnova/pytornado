@@ -39,7 +39,7 @@ from commonlibs.logger import truncate_filepath
 from commonlibs.math.vectors import unit_vector
 
 from pytornado.plot.utils import get_limits, scale_fig, interpolate_quad, get_date_str
-from pytornado.plot.utils import COLOR1, COLOR2, COLOR3, COLOR4, COLOR5, MAX_ITEMS_TEXT
+from pytornado.plot.utils import COLOR1, COLOR2, COLOR3, COLOR4, COLOR5, MAX_ITEMS_TEXT, STANDARD_DPI, STANDARD_FORMAT
 import pytornado.objects.objecttools as ot
 
 logger = logging.getLogger(__name__)
@@ -176,7 +176,20 @@ def scale_plots(axes_2d, axes_3d, aircraft):
     scale_fig(axes_xy, lims, directions='xy')
 
 
-def _add_CG_plot3d(axes, aircraft):
+def _add_CG_plot3d(axes_3d, aircraft):
+    """
+    Add a marker indicating the centre of gravity
+
+    Args:
+        :axes_3d: Axes object (matplotlib)
+        :aircraft: (object) data structure for aircraft model
+    """
+
+    X, Y, Z = aircraft.refs['gcenter']
+    axes_3d.scatter(X, Y, Z, color=COLOR1, marker='x', s=40, linewidth=2)
+
+
+def _add_CG_plot2d(axes_2d, aircraft):
     """
     Add a marker indicating the centre of gravity
 
@@ -186,20 +199,7 @@ def _add_CG_plot3d(axes, aircraft):
     """
 
     X, Y, Z = aircraft.refs['gcenter']
-    axes.scatter(X, Y, Z, color=COLOR1, marker='x', s=40, linewidth=2)
-
-
-def _add_CG_plot2d(axes, aircraft):
-    """
-    Add a marker indicating the centre of gravity
-
-    Args:
-        :axes: Axes object (matplotlib)
-        :aircraft: (object) data structure for aircraft model
-    """
-
-    X, Y, Z = aircraft.refs['gcenter']
-    axes_yz, axes_xz, axes_xy = axes
+    axes_yz, axes_xz, axes_xy = axes_2d
 
     axes_yz.scatter(Y, Z, color=COLOR1, marker='x', s=40, linewidth=2)
     axes_xz.scatter(X, Z, color=COLOR1, marker='x', s=40, linewidth=2)
@@ -414,9 +414,141 @@ def show_and_save(plot_settings, *figures):
 
     if plot_settings['save']:
         for figure, fig_name in figures:
-            fname = os.path.join(plot_settings['plot_dir'], f"{fig_name}_{get_date_str()}.png")
+            fname = os.path.join(plot_settings['plot_dir'], f"{fig_name}_{get_date_str()}.{STANDARD_FORMAT}")
             logger.info(f"Saving plot as file: '{truncate_filepath(fname)}'")
-            figure.savefig(fname, dpi=300)
+            figure.savefig(fname, dpi=STANDARD_DPI, format=STANDARD_FORMAT)
 
     if plot_settings['show']:
         plt.show()
+
+
+def add_lattice(axes_2d, axes_3d, lattice):
+    """
+    TODO
+    """
+
+    axes_yz, axes_xz, axes_xy = axes_2d
+    for pp, pc, pv, pn in zip(lattice.p, lattice.c, lattice.v, lattice.n):
+        points_p = np.array([pp[0], pp[1], pp[2], pp[3], pp[0]])
+
+        # PANELS
+        X = points_p[:, 0]
+        Y = points_p[:, 1]
+        Z = points_p[:, 2]
+
+        axes_3d.plot(X, Y, Z, color=COLOR1, linewidth=0.25)
+        axes_yz.plot(Y, Z, color=COLOR1, linewidth=0.25)
+        axes_xz.plot(X, Z, color=COLOR1, linewidth=0.25)
+        axes_xy.plot(X, Y, color=COLOR1, linewidth=0.25)
+
+        # # ==========
+        # opt_settings = ['normals', 'horseshoes', 'horseshoe_midpoints']
+        # # ==========
+
+        # # PLOT THE NORMALS
+        # if 'normals' in opt_settings:
+        #     points_c2n = np.array([pc, pc+pn])
+
+        #     X = points_c2n[:, 0]
+        #     Y = points_c2n[:, 1]
+        #     Z = points_c2n[:, 2]
+
+        #     axes_3d.plot(X, Y, Z, color='blue', linewidth=0.5)
+        #     axes_yz.plot(Y, Z, color='blue', linewidth=0.5)
+        #     axes_xz.plot(X, Z, color='blue', linewidth=0.5)
+        #     axes_xy.plot(X, Y, color='blue', linewidth=0.5)
+
+        # # PLOT VORTEX POINTS
+        # if 'horseshoes' in opt_settings:
+        #     points_v = np.array([pv[0],
+        #                          pv[1],
+        #                          pv[2],
+        #                          pv[3],
+        #                          pv[0]])
+
+        #     X = points_v[:, 0]
+        #     Y = points_v[:, 1]
+        #     Z = points_v[:, 2]
+
+        #     axes_3d.plot(X, Y, Z, color='green', linewidth=0.25)
+        #     axes_yz.plot(Y, Z, color='green', linewidth=0.25)
+        #     axes_xz.plot(X, Z, color='green', linewidth=0.25)
+        #     axes_xy.plot(X, Y, color='green', linewidth=0.25)
+
+    # if 'horseshoe_midpoints' in opt_settings:
+        # for bound_leg_midpoint in lattice.bound_leg_midpoints:
+        #     axes_3d.scatter(*bound_leg_midpoint, marker='.', s=10, color='red')
+
+
+
+
+
+
+
+# ===========================================================================
+# ===========================================================================
+# ===========================================================================
+
+        # # PLOT SUBDIVISIONS
+        # if 'subdivisions' in opt_settings:
+        #     for this_subarea, _, _, _ in all_subareas(aircraft):
+        #         subarea_type = this_subarea[1]
+        #         subarea = this_subarea[2]
+
+        #         if subarea_type == 'segment':
+        #             color = 'blue'
+        #         elif subarea_type == 'slat':
+        #             color = 'green'
+        #         elif subarea_type == 'flap':
+        #             color = 'red'
+
+        #         mirror_list = [False]
+        #         if subarea.symmetry:
+        #             mirror_list.append(True)
+
+        #         for mirror in mirror_list:
+        #             vertices = subarea.abs_vertices(mirror)
+        #             points = np.array([vertices['a'],
+        #                                vertices['b'],
+        #                                vertices['c'],
+        #                                vertices['d'],
+        #                                vertices['a']])
+
+        #             X = points[:, 0]
+        #             Y = points[:, 1]
+        #             Z = points[:, 2]
+
+        #             axes_xyz.plot(X, Y, Z, color=color, marker='.', linewidth=1.0, markersize=4.0)
+        #             axes_yz.plot(Y, Z, color=color, linewidth=1.0)
+        #             axes_xz.plot(X, Z, color=color, linewidth=1.0)
+        #             axes_xy.plot(X, Y, color=color, linewidth=1.0)
+
+        #             # Camber line local axis
+        #             if 'camberline_rot_axis' in opt_settings:
+        #                 camber_axis_vertices = subarea.abs_camber_line_rot_axis_vertices(mirror)
+        #                 inner = camber_axis_vertices['p_inner']
+        #                 outer = camber_axis_vertices['p_outer']
+        #                 subarea_vertices = subarea.abs_vertices(mirror)
+        #                 axes_xyz.quiver(*((subarea_vertices['a'] + subarea_vertices['b'])/2),
+        #                                 *(outer - inner), color='orange', linewidth=1)
+
+        #             if subarea_type in ['flap', 'slat']:
+        #                 hinge_vertices = subarea.abs_hinge_vertices(mirror)
+        #                 hinge_axis = subarea.abs_hinge_axis(mirror)
+
+        #                 x, y, z = hinge_vertices['p_inner']
+        #                 u, v, w = hinge_axis
+        #                 axes_xyz.quiver(x, y, z, u, v, w, color='black', linewidth=1)
+
+        #                 points = np.array([hinge_vertices['p_inner'], hinge_vertices['p_outer']])
+        #                 X = points[:, 0]
+        #                 Y = points[:, 1]
+        #                 Z = points[:, 2]
+
+        #                 axes_yz.plot(Y, Z, '--', color='black', linewidth=1.0)
+        #                 axes_xz.plot(X, Z, '--', color='black', linewidth=1.0)
+        #                 axes_xy.plot(X, Y, '--', color='black', linewidth=1.0)
+
+# ===========================================================================
+# ===========================================================================
+# ===========================================================================
