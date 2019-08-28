@@ -32,10 +32,10 @@ def test_panel_forces():
         loads = json.load(fp)
 
     exp_coords = np.array([
-            [0.25, 0.25, 0],
-            [0.125, 0.75, 0],
-            [0.625, 0.75, 0],
-            ])
+        [0.25, 0.25, 0],
+        [0.125, 0.75, 0],
+        [0.625, 0.75, 0],
+    ])
 
     for entry, exp_coord in zip(loads, exp_coords):
         assert np.testing.assert_array_equal(entry['coord'], exp_coord) is None

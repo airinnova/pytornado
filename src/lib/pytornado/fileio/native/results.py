@@ -124,7 +124,7 @@ def save_loads(aircraft, settings, state, vlmdata, lattice=None):
         logger.info("Regenerating lattice data of the undeformed state...")
         aircraft.turn_off_all_deformation()
         lattice = VLMLattice()
-        vlm.gen_lattice(aircraft, lattice, state, settings, make_new_subareas=False)
+        lattice = vlm.gen_lattice(aircraft, state, settings, make_new_subareas=False)
         aircraft.turn_on_all_deformation()
 
     for wing_uid, panellist in lattice.bookkeeping_by_wing_uid.items():

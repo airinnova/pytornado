@@ -1,7 +1,14 @@
 # TODO
 
-* Improve structure of the main settings file
-    * Better 'plots' solution!
+## Refactor plotting functions
+    * Update 'os.path.join()' calls
+    * Improve structure of the main settings file
+        * Better 'plots' solution!
+    * Separate 2D/3D plot functions?
+    * Reuse plot objects for efficiency?
+    * Generelise downwash matrix plot
+    * Update/improve colorscheme
+
 
 * Refactor CPACS functions --> make control surfaces work
 
