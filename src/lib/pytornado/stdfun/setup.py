@@ -48,17 +48,17 @@ def setup_wkdir():
 
     # We create a separate directory for the template data
     # to avoid potential cluttering the user's directory
-    project_dir = PATHS.DIR.TEMPLATE_ROOT
+    project_dir = os.path.abspath(PATHS.DIR.TEMPLATE_ROOT)
 
     if os.path.exists(project_dir):
         err_msg = f"""
-        The path '{project_dir}' does already exist. Refusing to proceed.
+        The path '{os.path.basename(project_dir)}' does already exist. Refusing to proceed.
         Please move or delete the folder, then try again.
         """
         print(err_msg, file=sys.stderr)
         sys.exit(1)
     else:
-        print(f"Creating template in folder '{project_dir}'...")
+        print(f"Creating template in folder '{os.path.basename(project_dir)}'...")
         os.makedirs(project_dir)
 
     project_basename = "template"
@@ -129,7 +129,7 @@ def setup_wkdir():
     io.native.settings.save(settings)
     io.native.state.save(state, settings)
     io.native.aircraft.save(aircraft, settings)
-
+    return project_dir
 
 # def cpacs2pytornado(file_cpacs):
 #     """Load CPACS file and export to JSON Aircraft and state files.

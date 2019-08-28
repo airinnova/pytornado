@@ -55,10 +55,11 @@ class StdRunArgs:
         :quiet: boolean flag, true for quiet logger setting
     """
 
-    run = None
-    verbose = False
-    debug = False
-    quiet = False
+    def __init__(self, run=None, verbose=False, debug=False, quiet=False):
+        self.run = run
+        self.verbose = verbose
+        self.debug = debug
+        self.quiet = quiet
 
 
 def get_settings(settings_filepath):

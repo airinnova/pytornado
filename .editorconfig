@@ -17,10 +17,12 @@ indent_style = space
 indent_size = 2
 trim_trailing_whitespace = true
 
-# --- C/C++ ---
+# --- Makefiles ---
 [Makefile]
 indent_style = tab
 
+# --- C/C++ ---
 [*.{c,h,cpp,hpp}]
+indent_style = space
 indent_size = 4
 trim_trailing_whitespace = true

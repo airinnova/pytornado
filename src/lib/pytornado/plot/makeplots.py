@@ -115,6 +115,6 @@ def plot_results_aircraft(aircraft, lattice, state, vlmdata, plot_settings):
 
     logger.info("Generating results plot...")
     for key in plot_settings['result_keys']:
-        with pt.plot2d3d(aircraft, 'results_{key}', plot_settings) as (_, axes_2d, figure_3d, axes_3d):
+        with pt.plot2d3d(aircraft, f'results_{key}', plot_settings) as (_, axes_2d, figure_3d, axes_3d):
             pt.add_freestream_vector(axes_2d, axes_3d, state)
             pt.add_results(axes_2d, axes_3d, figure_3d, vlmdata, lattice, aircraft, key)
