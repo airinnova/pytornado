@@ -4,6 +4,17 @@ Changelog
 Changelog for PyTornado. Version numbers try to follow `Semantic
 Versioning <https://semver.org/spec/v2.0.0.html>`__.
 
+[0.4.0] -- 2019-08-28
+---------------------
+
+Changed
+~~~~~~~
+
+* Simplified section for plot settings in JSON settings file
+* Refactored plotting methods
+    * More code reuse
+    * Common plot operations broken down into separate functions
+
 [0.3.0] -- 2019-08-21
 ---------------------
 

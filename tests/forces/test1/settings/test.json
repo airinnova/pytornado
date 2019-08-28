@@ -9,18 +9,10 @@
       "global"
     ],
     "plot": {
-        "geometry_aircraft": false,
-        "geometry_wing": [],
-        "geometry_segment": [],
-        "geometry_property": [],
-        "lattice_aircraft": false,
-        "lattice_aircraft_optional": [],
-        "lattice_wing": [],
-        "lattice_segment": [],
-        "results_downwash": false,
-        "results_panelwise": [
-            "cp"
-        ],
+        "geometry": false,
+        "lattice": false,
+        "matrix_downwash": false,
+        "results": ["cp"],
         "show": false,
         "save": false
     }
