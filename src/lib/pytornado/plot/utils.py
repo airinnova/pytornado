@@ -138,11 +138,11 @@ def scale_fig(axes, lims, directions='xyz'):
 
 def interpolate_quad(a, b, c, d, size):
     """
-    Bi-linear parametrisation of arbitrary twisted quadrilateral.
+    Bi-linear parametrisation of arbitrarily twisted quadrilateral
 
     Args:
         :a, b, c, d: (numpy) coordinates of corner vertices
-        :nr, ns: (intpy) number of chord- and span-wise points
+        :nr, ns: (int) number of chord- and span-wise points
 
     Returns:
         :x, y, z: (numpy) coordinates of NC x NS interpolated points

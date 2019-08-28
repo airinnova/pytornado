@@ -39,12 +39,11 @@ from commonlibs.logger import truncate_filepath
 from commonlibs.math.vectors import unit_vector
 
 from pytornado.plot.utils import get_limits, scale_fig, interpolate_quad, get_date_str
-from pytornado.plot.utils import COLOR1, COLOR2, COLOR3, COLOR4, COLOR5, MAX_ITEMS_TEXT, STANDARD_DPI, STANDARD_FORMAT
+from pytornado.plot.utils import COLOR1, COLOR2, COLOR3, COLOR4, COLOR5, MAX_ITEMS_TEXT, STANDARD_DPI, STANDARD_FORMAT, COLORMAP
 import pytornado.objects.objecttools as ot
 
 logger = logging.getLogger(__name__)
 
-COLORMAP = 'Pastel1'
 NUM_COLORS = 9.0
 
 colormap = cm.get_cmap(COLORMAP)
@@ -167,7 +166,14 @@ def scale_plots(axes_2d, axes_3d, aircraft):
 
         get_limits(points, lims, symm=wing.symmetry)
 
-    # size = np.sqrt(np.sum((lims[1] - lims[0])**2.0))
+    # ===============================
+    # ===============================
+    # ===============================
+    size = np.sqrt(np.sum((lims[1] - lims[0])**2.0))
+    print(size)
+    # ===============================
+    # ===============================
+    # ===============================
 
     scale_fig(axes_3d, lims)
 
@@ -552,3 +558,71 @@ def add_lattice(axes_2d, axes_3d, lattice):
 # ===========================================================================
 # ===========================================================================
 # ===========================================================================
+
+def add_freestream_vector(axes_2d, axes_3d, state):
+    """
+    TODO
+    """
+
+    # Plot free stream vector
+    free_stream_vel = 3*unit_vector(state.free_stream_velocity_vector)
+    # orig = np.array([lims[0, 0], 0, 0]) - free_stream_vel
+    orig = np.array([0, 0, 0]) - free_stream_vel
+    axes_3d.quiver(*orig, *free_stream_vel, color=COLOR1, linewidth=1)
+    axes_3d.text(*orig, f"{state.aero['airspeed']:.1f} m/s")
+
+
+def add_results(axes_2d, axes_3d, figure_3d, vlmdata, lattice):
+    """
+    TODO
+    """
+
+    # =================================================
+    key = 'cp'
+    size = 10.19
+    # =================================================
+
+    axes_yz, axes_xz, axes_xy = axes_2d
+
+    # Normalise to range [0, 1]
+    data = vlmdata.panelwise[key]
+    val_range = max(data) - min(data)
+    if val_range != 0:
+        values = (data - min(data))/val_range
+    else:
+        values = np.zeros(data.shape)
+
+    for pp, val in zip(lattice.p, values):
+        color = colormap(val) if colormap else COLOR5
+
+        points_p = np.array([pp[0],
+                             pp[1],
+                             pp[2],
+                             pp[3],
+                             pp[0]])
+
+        X = points_p[:, 0]
+        Y = points_p[:, 1]
+        Z = points_p[:, 2]
+
+        axes_3d.plot(X, Y, Z, color=COLOR5, linewidth=0.25)
+        axes_yz.plot(Y, Z, color=COLOR5, linewidth=0.25)
+        axes_xz.plot(X, Z, color=COLOR5, linewidth=0.25)
+        axes_xy.plot(X, Y, color=COLOR5, linewidth=0.25)
+
+        XS, YS, ZS = interpolate_quad(points_p[0], points_p[1], points_p[2], points_p[3], size)
+        axes_3d.plot_surface(XS, YS, ZS, color=color, linewidth=0.0, shade=False, cstride=1, rstride=1)
+        # axes_yz.fill(YS, ZS, color=color, facecolor=color, fill=True)
+        # axes_xz.fill(XS, ZS, color=color, facecolor=color, fill=True)
+        # axes_xy.fill(XS, YS, color=color, facecolor=color, fill=True)
+
+    cbar = cm.ScalarMappable(cmap=colormap)
+    cbar.set_array(vlmdata.panelwise[key])
+
+    cbar = figure_3d.colorbar(cbar)
+    cbar.set_label(key)
+
+    # figure_2.suptitle(f"{aircraft.uid} | {key}")
+
+    # plt.tight_layout()
+    # figure_1.subplots_adjust(left=0.15, bottom=0.01, right=0.90, top=0.98, wspace=0.39, hspace=0.45)
