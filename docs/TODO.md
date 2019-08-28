@@ -6,7 +6,7 @@
         * Better 'plots' solution!
     * Separate 2D/3D plot functions?
     * Reuse plot objects for efficiency?
-
+    * Generelise downwash matrix plot
 
 
 * Refactor CPACS functions --> make control surfaces work

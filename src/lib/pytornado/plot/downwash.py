@@ -28,15 +28,11 @@ Developed at Airinnova AB, Stockholm, Sweden.
 """
 
 
-import os
 import logging
 
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.cm as cm
-from commonlibs.logger import truncate_filepath
 
-from pytornado.plot.utils import get_date_str
 import pytornado.plot.plottools as pt
 
 logger = logging.getLogger(__name__)
@@ -58,21 +54,13 @@ def view_downwash(vlmdata, plt_settings):
         logger.error(err_msg)
         raise TypeError(err_msg)
 
-    figure = plt.figure(figsize=(9, 9), edgecolor=pt.C.BLACK)
+    figure = plt.figure(figsize=(9, 9))
     axes = figure.add_subplot(111)
     axes.set_aspect('equal')
     axes.matshow(vlmdata.matrix_downwash, cmap=pt.COLORMAP)
     axes.set_xlabel('i')
     axes.set_ylabel('j')
     axes.set_title("Downwash factor matrix")
-    plt.tight_layout()
 
-    if plt_settings['save']:
-        fname = os.path.join(plt_settings['plot_dir'], f"downwash_{get_date_str()}.png")
-        logger.info(f"Saving plot as file: '{truncate_filepath(fname)}'")
-        plt.savefig(fname, dpi=300)
-
-    if plt_settings['show']:
-        plt.show()
-
+    pt.show_and_save(plt_settings, (figure, 'downwash'))
     plt.close('all')
