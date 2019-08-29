@@ -12,34 +12,18 @@ pytornado.plot.downwash module
     :undoc-members:
     :show-inheritance:
 
-pytornado.plot.geometry module
-------------------------------
+pytornado.plot.makeplots module
+-------------------------------
 
-.. automodule:: pytornado.plot.geometry
+.. automodule:: pytornado.plot.makeplots
     :members:
     :undoc-members:
     :show-inheritance:
 
-pytornado.plot.lattice module
------------------------------
+pytornado.plot.plottools module
+-------------------------------
 
-.. automodule:: pytornado.plot.lattice
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pytornado.plot.results module
------------------------------
-
-.. automodule:: pytornado.plot.results
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-pytornado.plot.utils module
----------------------------
-
-.. automodule:: pytornado.plot.utils
+.. automodule:: pytornado.plot.plottools
     :members:
     :undoc-members:
     :show-inheritance:

@@ -45,6 +45,9 @@
 * Separate 2D/3D plot functions?
 * Reuse plot objects (axes, figures) for efficiency?
 
+## CLI
+* The `--clean` option should only affect the project defined in the given settings file (i.e. dont delete everything in *_results* and *_plots* if there are multiple projects)
+
 ## CPACS support
 * AeroPerformanceMaps
     * Save results for remaining parameters in CPACS
@@ -87,6 +90,8 @@
         * Airfoil (camber line) modelling
 
 ## Proposals for other improvements (sometime, prio 3)
+* Add a aircraft model generator
+    * Simple Python API to generate and serialise aircraft models (--> Maybe later build GUI...?)
 * Vertex names should stay more consistent when mirroring (see symmetry 2)
 * `objects.model`: `get_point()` method in class `Wing` is obsolete (understand \& remove)
 * Is parallelism of segment lines AD and BC enforced?

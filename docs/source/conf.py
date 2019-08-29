@@ -16,6 +16,7 @@ sys.path.insert(0, os.path.abspath('../../src/lib/pytornado'))
 sys.setrecursionlimit(1500)
 
 NAME = 'PyTornado'
+NAME_CLI = 'pytornado'
 NAME_LC = NAME.lower()
 COPYRIGHT = '2019, A. Dettmann'
 AUTHOR = 'Airinnova AB'
@@ -90,6 +91,7 @@ rst_prolog = f"""
 .. _Airinnova AB: http://airinnova.se/
 .. _PyPI: https://pypi.org/
 .. _pip: https://pip.pypa.io/en/stable/
+.. |name_cli| replace:: ``{NAME_CLI}``
 .. |vlm| replace:: Vortex Lattice Method
 .. |author1| replace:: {AUTHOR_LIST[0]}
 .. |author2| replace:: {AUTHOR_LIST[1]}

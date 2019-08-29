@@ -476,7 +476,7 @@ def show_and_save(plot_settings, *figures):
 
     Args:
         :plot_settings: Plot settings
-        :*figures: Tuples with (figure_object, 'name_of_plot')
+        :figures: Tuples with (figure_object, 'name_of_plot')
     """
 
     plt.tight_layout()

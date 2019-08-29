@@ -12,14 +12,6 @@ Subpackages
 Submodules
 ----------
 
-pytornado.fileio.airfoils module
---------------------------------
-
-.. automodule:: pytornado.fileio.airfoils
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 pytornado.fileio.utils module
 -----------------------------
 

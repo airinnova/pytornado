@@ -12,14 +12,6 @@ pytornado.objects.aircraft module
     :undoc-members:
     :show-inheritance:
 
-pytornado.objects.airfoils module
----------------------------------
-
-.. automodule:: pytornado.objects.airfoils
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 pytornado.objects.objecttools module
 ------------------------------------
 
