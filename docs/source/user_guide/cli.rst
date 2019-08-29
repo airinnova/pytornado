@@ -16,13 +16,17 @@ Perhaps the most important argument is ``--run`` (or short ``-r``). This argumen
 
     pytornado --run settings/template.json
 
+.. hint::
+
+    You can provide the settings file path as any relative or absolute file path. |name| will automatically detect the project directory. Of course, the other project subdirectories including the *aircraft* and *state* files must exist in a structure described in :ref:`project_dir`.
+
 **Logging**
 
-Logging information can be printed to the terminal screen and written to a log file. Logging information can be printed with different levels. These arguments are ``-debug`` or ``--d`` (most amount of information), ``-verbose`` or ``--v`` (normal amount) and ``-quiet`` or ``--q`` (only errors). By default, |name| is quiet.
+Logging information can be printed to the terminal screen and written to a log file. Arguments determine the amount of printed information. The argument ``-debug`` or ``--d`` will print the most amount of information, ``-verbose`` or ``--v`` will ignore less relevant information and ``-quiet`` or ``--q`` will only print errors. By default, |name| is quiet.
 
 .. note::
 
-    Error messages will always be printed (even in quiet mode).
+    *Error messages* will always be printed (even in quiet mode).
 
 **Cleaning up previous result files**
 
@@ -32,7 +36,7 @@ If you do not want to start a new analysis you can use ``--clean-only`` which wi
 
 .. hint::
 
-    You can combine several arguments like this:
+    Note that you can combine several arguments like this:
 
     .. code::
 
@@ -42,7 +46,7 @@ If you do not want to start a new analysis you can use ``--clean-only`` which wi
 
 **Creating a template project**
 
-If you start with a new project, |name| allows you to easily generate a clean project directory and a minimalistic example is generated (see also :ref:`getting_started`).
+If you start with a new project, |name| allows you to easily generate a clean project directory including minimalistic working example (see also :ref:`getting_started`).
 
 .. code::
 
@@ -55,3 +59,9 @@ TODO
 .. code::
 
     pytornado --cpacs2json path/to/CPACS_file.xml
+
+.. note::
+
+    Besides the command line interface |name| also provides a Python API through which analyses can be setup.
+
+    * See :ref:`python_api`

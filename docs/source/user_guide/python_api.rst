@@ -1,5 +1,7 @@
-Using |name| Python API
-=======================
+.. _python_api:
+
+Using |name|'s Python API
+=========================
 
 .. hint::
 
