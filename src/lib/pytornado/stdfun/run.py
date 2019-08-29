@@ -102,12 +102,12 @@ def standard_run(args):
     else:
         level = 'default'
 
-    hlogger.init(FILE_LOG, level)
-    logger = logging.getLogger(__name__)
-
     # ===== Setup =====
-    logger.info(hlogger.decorate(f"{__prog_name__} {__version__}"))
     settings = get_settings(settings_filepath=args.run)
+
+    hlogger.init(settings.paths('f_log'), level)
+    logger = logging.getLogger(__name__)
+    logger.info(hlogger.decorate(f"{__prog_name__} {__version__}"))
 
     # ===== Setup aircraft model and flight state =====
     if settings.aircraft_is_cpacs:

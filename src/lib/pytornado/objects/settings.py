@@ -86,6 +86,9 @@ class PATHS:
         # ----- Template directory name -----
         TEMPLATE_ROOT = 'pytornado'
 
+    class FILES:
+        LOG = 'log.txt'
+
 
 class Settings:
 
@@ -150,6 +153,7 @@ class Settings:
         self.paths.add_path(uid='d_results', path=PATHS.DIR.RESULTS+output_subdir, uid_groups=('dir', 'tmp'))
 
         # ===== Files =====
+        self.paths.add_path(uid='f_log', path=PATHS.FILES.LOG)
         self.paths.add_subpath(uid_parent='d_aircraft', uid='f_aircraft', path=f"{self.settings['aircraft']}")
         self.paths.add_subpath(uid_parent='d_deformation', uid='f_deformation', path=f"{self.settings['deformation']}")
         self.paths.add_subpath(uid_parent='d_settings', uid='f_settings', path=f"{self.project_basename}.json")
