@@ -41,6 +41,8 @@ version = __version__
 # ====================================
 os.system('bash ./dev_doc/gen_auto_doc.sh')
 os.system('bash ./_gen_help_page.sh')
+os.system('bash ./user_guide/make_template.sh clean')
+os.system('bash ./user_guide/make_template.sh make')
 
 # -- General configuration ---------------------------------------------------
 extensions = [

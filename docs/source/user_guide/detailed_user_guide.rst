@@ -10,8 +10,8 @@ The user guide
    :caption: Basic usage
 
    project_directory
+   input_files
    cli
-   input_file_formats
 
 .. toctree::
    :maxdepth: 2

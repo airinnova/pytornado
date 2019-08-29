@@ -1,3 +1,5 @@
+.. _project_dir:
+
 Project directory
 =================
 
