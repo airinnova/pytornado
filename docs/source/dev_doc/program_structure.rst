@@ -1,6 +1,35 @@
 Program structure
 =================
 
+.. figure:: _static/images/meshing_with_controls.svg
+   :width: 600 px
+   :alt: Meshing algorithm
+   :align: center
+
+   Meshing algorithm
+
+Aerofoil and control surface modelling by modification of the flow tangency boundary condition using normal rotations
+
+.. image:: _static/images/normal_rotations_controls.svg
+   :width: 600 px
+   :alt: Control surface modelling
+   :align: center
+
+.. image:: _static/images/normal_rotations_airfoils.svg
+   :width: 300 px
+   :alt: Airfoil modelling
+   :align: center
+
+.. image:: _static/images/normal_rotations_airfoils.svg
+   :width: 300 px
+   :alt: Airfoil modelling
+   :align: center
+
+.. image:: _static/images/mesh_deformations.svg
+   :width: 400 px
+   :alt: Mesh deformation
+   :align: center
+
 **TO BE UPDATED...**
 
 Programming language
