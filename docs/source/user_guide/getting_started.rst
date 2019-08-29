@@ -25,3 +25,9 @@ The flag ``-v`` tells |name| to go into *verbose* mode. You should see some text
    :align: center
 
 While creating this minimalistic example, several directories and files were created. Feel free to explore the different files. However, don't be worried if you don't understand everything yet. We will give more detailed instructions on the following pages.
+
+.. seealso::
+
+    Learn more about the |name|'s command line interface:
+
+    * :ref:`command_line_interface`

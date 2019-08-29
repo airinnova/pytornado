@@ -3,16 +3,15 @@
 Installation
 ============
 
-|name| is written in *Python* and *C++*. At the moment we do not distribute any precompiled versions of |name|. So in order to run |name|, you will have to compile the *C++* code yourself. First, you will need to download the source code, either from `Github`_ or from `PyPI`_:
+|name| is written in *Python* and *C++*. At the moment we do not distribute any precompiled versions of |name|. In order to run |name|, you will have to compile the *C++* code yourself. First, you will need to download the source code from `Github`_:
 
     * https://github.com/airinnova/pytornado/archive/master.zip
-    * https://pypi.org/project/pytornado/#files
 
 .. warning::
 
     We do provide a |name| package on `PyPI`_. However, the installation with ``pip install pytornado`` will currently result in an incomplete installation due to the uncompiled *C++* code.
 
-After downloading the |name| code, extract the archive and then open a terminal in the root folder of the archive. There should be a file called ``setup.py`` in this folder (if not, the following command will not work). We will use the Python package installer to compile and install |name| and its dependencies. In a command line run:
+After downloading the |name| code, extract the archive and then open a terminal in the root folder of the archive. There should be a file called ``setup.py`` in this folder (if not, the following command will not work). We will use the Python package installer (pip_) to compile and install |name| and its dependencies. In a command line run:
 
 .. code:: bash
 
@@ -23,7 +22,7 @@ After downloading the |name| code, extract the archive and then open a terminal 
 
 .. seealso::
 
-    How to get started with `pip`_:
+    How to get started with pip_:
 
     * https://pip.pypa.io/en/stable/quickstart/
 

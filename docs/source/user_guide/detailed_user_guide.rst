@@ -3,15 +3,16 @@
 User Guide
 ==========
 
-The user guide
+This user guide summarises more general documentation about the |name| features. If you want to learn from example you can also checkout the tutorials (:ref:`tutorials`).
 
 .. toctree::
    :maxdepth: 2
    :caption: Basic usage
 
    project_directory
-   input_files
    cli
+   input_files
+   output_files
 
 .. toctree::
    :maxdepth: 2

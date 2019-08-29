@@ -1,3 +1,5 @@
+.. _command_line_interface:
+
 The command line interface
 ==========================
 

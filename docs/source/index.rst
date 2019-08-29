@@ -11,7 +11,7 @@ Introduction
 
 |name_bold| is an implementation of the |vlm| (VLM). The VLM, based on potential flow theory, is the simplest general method for 3D aerodynamic analyses of aircraft. The method requires only a coarse definition of the aircraft geometry and the flight state. Due to the few input parameters analyses can be set up with little effort and analyses are computationally inexpensive. |name| is an ideal tool for conceptual aircraft design. Short computation times make it possible to easily obtain estimates of aerodynamic loads and to benchmark different concepts.
 
-For simpler analyses |name| provides a simple command line interface. More complex analyses can be setup using the flexible Python API. The aircraft geometry can be defined in a JSON file format or with the CPACS_ format which has been developed by the |dlr_full| (`DLR`_). |name| also provides an API to model deformed wings. This makes it possible to perform static aeroelastic analyses.
+For simpler analyses |name| provides a simple command line interface. More complex analyses can be setup using the flexible Python API. The aircraft geometry can be defined in a JSON file format or with the CPACS_ format which has been developed by the |dlr_full| (`DLR`_). |name| also provides an API to model *deformed* wings. This makes it possible to perform static *aeroelastic analyses*.
 
 .. figure:: _static/images/main.png
    :scale: 70 %
