@@ -52,13 +52,6 @@ For simpler analyses |name| provides a simple command line interface. More compl
    dev_doc/theory
    dev_doc/modules_main
 
-.. figure:: _static/images/dettmann2019_optimale_aeroelasticity.svg
-   :width: 600 px
-   :alt: Aeroelasticity
-   :align: center
-
-   Aeroelastic analysis with |name|
-
 Licence information
 -------------------
 

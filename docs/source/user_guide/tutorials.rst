@@ -28,3 +28,4 @@ Advanced analyes
    :maxdepth: 2
 
    tutorials/apm
+   tutorials/aeroelasticity
