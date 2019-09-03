@@ -46,8 +46,10 @@ def load(settings):
     Searches for file 'aircraft.*' in the 'aircraft' folder of the WKDIR.
 
     Args:
-        :aircraft: (object) data structure for aircraft model
         :settings: (object) data structure for execution settings
+
+    Returns:
+        :aircraft: (object) data structure for aircraft model
     """
 
     aircraft_file = settings.paths('f_aircraft')

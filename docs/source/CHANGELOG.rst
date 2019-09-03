@@ -4,6 +4,19 @@ Changelog
 Changelog for PyTornado. Version numbers try to follow `Semantic
 Versioning <https://semver.org/spec/v2.0.0.html>`__.
 
+[0.4.1] -- 2019-09-03
+---------------------
+
+Added
+~~~~~
+
+* JSON aircraft files can be serialised from CPACS
+
+Changed
+~~~~~~~
+
+* Commonlibs >=2.0.1 is required (new path handling methods were added)
+
 [0.4.0] -- 2019-08-28
 ---------------------
 
