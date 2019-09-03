@@ -32,6 +32,7 @@ import numpy as np
 
 from pytornado.fileio.utils import parse_str
 from pytornado.objects.aircraft import ComponentDefinitionError, Aircraft
+from pytornado.objects.settings import PATHS
 from pytornado.objects.objecttools import all_controls, all_wings
 from pytornado.fileio.cpacs.utils import open_tixi, open_tigl, XPATHS, get_segment_mid_point
 
@@ -353,7 +354,7 @@ def get_aircraft_airfoils(aircraft, settings, tigl, wing_uid, segment_uid, idx_w
             """
             raise ValueError(err_msg)
 
-        file_airfoil = settings.paths.join_paths(settings.paths('d_airfoils'), f"blade.{name_airfoil}")
+        file_airfoil = settings.paths.join_paths(settings.paths('root'), PATHS.FILES.AIRFOIL(name_airfoil))
         aircraft.wing[wing_uid].segment[segment_uid].airfoils[position] = str(file_airfoil)
 
 
@@ -377,7 +378,7 @@ def write_airfoil_files(settings, tixi):
         except tixiwrapper.TixiException:
             name_airfoil = f'AIRFOIL{i:02d}'
 
-        file_airfoil = settings.paths.join_paths(settings.paths('d_airfoils'), f"blade.{name_airfoil}")
+        file_airfoil = settings.paths.join_paths(settings.paths('root'), PATHS.FILES.AIRFOIL(name_airfoil))
 
         # Convert string to numpy array
         coords_x = np.fromstring(tixi.getTextElement(node_data + '/x'), sep=';')

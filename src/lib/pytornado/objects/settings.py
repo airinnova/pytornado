@@ -89,6 +89,21 @@ class PATHS:
     class FILES:
         LOG = 'log.txt'
 
+        @classmethod
+        def AIRFOIL(cls, name_airfoil):
+            """
+            Return relative path to a 'blade' file
+
+            Notes:
+                * Path is relative to the project root directory
+                * Will return 'airfoils/blade.NACA1234' if 'NACA1234' is given
+
+            Args:
+                :name_airfoil: String with the airfoil name
+            """
+
+            return os.path.join(PATHS.DIR.AIRFOILS, f"blade.{name_airfoil}")
+
 
 class Settings:
 
