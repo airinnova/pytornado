@@ -45,7 +45,11 @@
 * Reuse plot objects (axes, figures) for efficiency?
 
 ## CLI
-* The `--clean` option should only affect the project defined in the given settings file (i.e. dont delete everything in *_results* and *_plots* if there are multiple projects)
+* The `--clean` option should only affect the project defined in the given settings file (i.e. don't delete everything in *_results* and *_plots* if there are multiple projects)
+* Functions `--cpacs2json`
+    * Does not work if run from outside the project directory
+    * A state file should be created as well if there is a CPACS aeroperformance map
+    * Should a new settings file be created as well?
 
 ## CPACS support
 * AeroPerformanceMaps
