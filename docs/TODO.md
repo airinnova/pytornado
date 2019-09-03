@@ -5,7 +5,6 @@
 * Better "normal rotation" scheme: see Drela with small-angle approximations (would only change RHS!)
 * Check: `c_results.cpp` --> sign of `results->iw_x[i]` correct?
 * Standard value for EPSILON?
-* Make CPACS-to-JSON converter work
 * Currently: state file
     - alpha and beta must be given in degrees
     - P, Q, R must be given in radians...!
