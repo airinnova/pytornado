@@ -14,4 +14,44 @@ Programming languages
 
 .. seealso::
 
-    For more details on the C/C++ API see :ref:`c_api`.
+    For more details on the C/C++ API see
+
+    .. toctree::
+       :maxdepth: 1
+
+       c_api
+
+Program file structure
+----------------------
+
+The source code is divided into library code (folder ``lib/``) and executable code (folder ``bin/``). The ``bin/`` folder contains the ``pytornado`` command line tool which makes use of the library code.
+
+Library code
+~~~~~~~~~~~~
+
+The |name| library is partitioned into files (*modules*) and folders (*packages*). Related *functions* exist within the same module, and related *modules* are grouped within the same package. Short package descriptions:
+
+    * **aero** Core VLM functions (lattice generation, setting up system of equations, etc.).
+    * **fileio** All functions related to reading and writing file.
+    * **object** Main |name| objects like the aircraft or state.
+    * **plot** Functions related to visualisations.
+    * **stdfun** Standard top-level procedures, for instance to run a full |name| analysis.
+
+Main |name| objects
+-------------------
+
+|name| is written in an object orientated style. There are several objects which turn up in many places in the |name| code base. A brief overview:
+
+    * **Aircraft**
+    * **Settings**
+    * **State**
+    * **VLMLattice**
+    * **VLMData**
+
+|name| module descriptions
+--------------------------
+
+.. toctree::
+   :maxdepth: 1
+
+   modules_main

@@ -1,18 +1,18 @@
 Conventions
 ===========
 
-**TO BE UPDATED...**
-
 This page summarises conventions used in the program.
 
 Hierarchy
 ---------
 
-All the data and properties related to the aircraft model are contained in the ``Aircraft`` data structure. Much like in the CPACS_ definition, the aircraft is represented as an assembly of components structured hierarchically:
+All data related to the aircraft model is contained in the ``Aircraft`` class. Much like in the CPACS_ definition, the aircraft is represented as an assembly of components structured hierarchically:
 
-    * The ``Aircraft`` has lifting surfaces ``Wing``.
-    * Each ``Wing`` is defined as the assembly of twisted quadrilaterals ``WingSegment``.
-    * Each ``Wing`` can have control surfaces ``WingControl``.
+    * The ``Aircraft`` has lifting surfaces which are instances of class ``Wing``
+    * Each ``Wing`` is defined as the assembly of twisted quadrilaterals ``WingSegment``
+    * Each ``WingSegment`` is further divided into **TODO**
+    * Each **TODO** is further divided into **TODO**
+    * Each ``Wing`` can have control surfaces ``WingControl``
 
 .. figure:: _static/images/basic_hierarchy.png
    :scale: 50
@@ -22,7 +22,34 @@ All the data and properties related to the aircraft model are contained in the `
    Basic hierarchy
 
 .. note::
-    The user of |name| will only ever have to deal with the defintion of the aircraft, wings and control surfaces. However, internally there are two more levels.
+
+    The user of |name| will only ever have to deal with the defintion of the aircraft, wings and control surfaces. **TODO** and **TODO** are internal objects used to facilitate mesh generation for aircraft with control surfaces.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 For the meshing of the wing, it is important to keep track of what parts of the wing is "static" and what parts are "movable" (control surfaces). This book keeping is done using ``Subdivisions`` and ``Subareas``. The smallest unit (subareas) are small quadrilateral segments of the wing. They "know" where they are located, and to what segment and to what control device they belong.
 

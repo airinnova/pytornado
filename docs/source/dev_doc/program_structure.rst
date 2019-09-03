@@ -1,6 +1,8 @@
 Program structure
 =================
 
+**TO BE UPDATED...**
+
 .. figure:: _static/images/meshing_with_controls.svg
    :width: 600 px
    :alt: Meshing algorithm
@@ -29,58 +31,6 @@ Aerofoil and control surface modelling by modification of the flow tangency boun
    :width: 400 px
    :alt: Mesh deformation
    :align: center
-
-**TO BE UPDATED...**
-
-Programming language
---------------------
-
-|name| is written in *Python 3* and *C/C++*.
-
-* Computationally intensive routines such as the generation of the aircraft lattice, and the calculation of aerodynamic forces and coefficients, are implemented in C/C++ to ensure performance of the program for large calculations.
-
-* Python constitutes the bulk of the remaining code, dedicated to pre- and post-processing operations. This includes input and output to file, verification of the user inputs, generation of the geometry and visualisation. The explicit, object-oriented syntax makes the code dedicated to these tasks significantly more readable, simplifying future maintenance and extension of |name|.
-
-* The interaction between Python and C/C++ is coded using the native APIs for Python and NumPy. The relevant data provided to, and produced by, the analysis routines is pre-allocated in Python. C/C++ operates directly on this data.
-
-    * https://docs.python.org/3/c-api/index.html
-    * https://docs.scipy.org/doc/numpy-1.12.0/reference/c-api.html
-
-.. figure:: _static/images/structure_overview.png
-   :scale: 100
-   :alt: Example
-   :align: center
-
-   Outline of the program execution
-
-More notes on the C API:
-
-.. toctree::
-   :maxdepth: 1
-
-   c_api
-
-Program file structure
-----------------------
-
-The program is partitioned into files (*modules*) and folders (*packages*). Intimately related functions exist within the same module, and closely inter-dependent modules are grouped within the same package.
-
-The resulting hierarchy of the program files is shown in the figure below, and commented in further detail below.
-
-.. figure:: _static/images/file_structure.png
-   :scale: 70
-   :alt: Example
-   :align: center
-
-   Outline of the |name| source file structure
-
-.. warning::
-    Picture not up to date!
-
-Main script
-~~~~~~~~~~~
-
-The module pytornado is executed as a script whenever the program is called from terminal. Input arguments are parsed, data structures are initialized, and program tasks are managed at the highest level by calls to various lower-level packages.
 
 Data structures
 ---------------

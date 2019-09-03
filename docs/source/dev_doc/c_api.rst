@@ -18,6 +18,7 @@ Consider the lattice generation routine. To execute this operation, Python must 
     General details on the Python C/C++ extension API can be found here.
 
         * https://docs.python.org/3/extending/extending.html
+        * https://numpy.org/devdocs/reference/c-api/
 
 Header file
 -----------

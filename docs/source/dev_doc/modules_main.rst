@@ -1,9 +1,9 @@
+.. _module_descriptions:
+
 Module descriptions
 ===================
 
-**TO BE UPDATED...**
-
-This section list all packages, modules, classes and function.
+This section list packages, modules, classes and functions.
 
 .. toctree::
    :maxdepth: 4
