@@ -27,12 +27,6 @@ Authors:
 void vlm_lattice(latticestruct* lattice, infostruct* info, statestruct* state,
                  double* pts, long int* sym, long int* pan)
 {
-    // Get freestream direction
-    double alpha = deg2rad(state->alpha);
-    double beta = deg2rad(state->beta);
-    double freestream_dir[3];
-    get_freestream_direction(freestream_dir, alpha, beta);
-
     // NOTE:
     // * alpha{1,2,3,4}, beta{1,2,3,4} and gamma{1,2,3,4} are geometric properties
     // * Do NOT confuse with angle of attack, side slip angle or vortex strength!
@@ -51,8 +45,20 @@ void vlm_lattice(latticestruct* lattice, infostruct* info, statestruct* state,
     double gamma3;
     double gamma4;
 
+    // Get freestream direction
+    double alpha = deg2rad(state->alpha);
+    double beta = deg2rad(state->beta);
+    double freestream_dir[3];
+    get_freestream_direction(freestream_dir, alpha, beta);
+
     // Large number (=infinity) used to place the end points of the horseshoe trailing legs
     const int infty = 10000;
+
+    // Horseshoe vortex trailing leg direction
+    double hv_trail_leg_dir[3];
+    hv_trail_leg_dir[0] = freestream_dir[0]*infty;
+    hv_trail_leg_dir[1] = freestream_dir[1]*infty;
+    hv_trail_leg_dir[2] = freestream_dir[2]*infty;
 
     // Initialise lattice properties
     info->area_min = +DBL_MAX;
@@ -201,8 +207,8 @@ void vlm_lattice(latticestruct* lattice, infostruct* info, statestruct* state,
                         // First compute V2 and V3, then V1 and V4 (order of assignment)
                         lattice->V[index_V2 + k] = 0.75*lattice->P[index_P + k] + 0.25*lattice->P[index_S + k];
                         lattice->V[index_V3 + k] = 0.75*lattice->P[index_Q + k] + 0.25*lattice->P[index_R + k];
-                        lattice->V[index_V1 + k] = lattice->V[index_V2 + k] + infty*freestream_dir[k];
-                        lattice->V[index_V4 + k] = lattice->V[index_V3 + k] + infty*freestream_dir[k];
+                        lattice->V[index_V1 + k] = lattice->V[index_V2 + k] + hv_trail_leg_dir[k];
+                        lattice->V[index_V4 + k] = lattice->V[index_V3 + k] + hv_trail_leg_dir[k];
                     }
 
                     // ===== COMPUTE PANEL COLLOCATION POINTS =====

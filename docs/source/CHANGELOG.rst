@@ -18,6 +18,11 @@ Changed
 * Commonlibs >=2.0.1 is required (new path handling methods were added)
 * `io.native.aircraft.load()` saves relative path to airfoil paths (makes PyTornado project directories more portable)
 
+Removed
+~~~~~~~
+
+* Horseshoe vortices 'type 0' and 'type 1' removed. Trailing legs of horseshoe vortex should always be aligned with freestream direction (see also Katz and Plotkin, 2001).
+
 [0.4.0] -- 2019-08-28
 ---------------------
 
