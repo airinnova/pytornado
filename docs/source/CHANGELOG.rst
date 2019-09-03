@@ -16,6 +16,7 @@ Changed
 ~~~~~~~
 
 * Commonlibs >=2.0.1 is required (new path handling methods were added)
+* `io.native.aircraft.load()` saves relative path to airfoil paths (makes PyTornado project directories more portable)
 
 [0.4.0] -- 2019-08-28
 ---------------------

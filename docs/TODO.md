@@ -1,7 +1,6 @@
 # TODO
 
 ## Important
-* (l) JSON: make airfoil paths *relative*
 * Better system for airfoil modelling (check that camber line rotation axis correct, or better: compute camber line "roatations" as normals of a curved surface?)
 * Better "normal rotation" scheme: see Drela with small-angle approximations (would only change RHS!)
 * Check: `c_results.cpp` --> sign of `results->iw_x[i]` correct?
