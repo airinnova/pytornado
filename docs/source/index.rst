@@ -47,6 +47,7 @@ For simpler analyses |name| provides a simple command line interface. More compl
    :maxdepth: 1
    :caption: Developer documentation
 
+   dev_doc/general_remarks
    dev_doc/program_structure
    dev_doc/conventions
    dev_doc/theory
