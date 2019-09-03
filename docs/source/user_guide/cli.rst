@@ -54,11 +54,21 @@ If you start with a new project, |name| allows you to easily generate a clean pr
 
 **Converting CPACS to JSON**
 
-TODO
+|name|'s native JSON format has a simpler and flatter structure than CPACS_. Sometimes, it may be more convenient to edit the aircraft definition using the JSON format rather than CPACS_. CPACS_ files can easily be converted to JSON. Change into a project directory (see :ref:`project_dir`) with a CPACS_ file in the *aircraft* subdirectory. Now you may run:
 
 .. code::
 
-    pytornado --cpacs2json path/to/CPACS_file.xml
+    pytornado --cpacs2json aircraft/CPACS_file.xml
+
+The CPACS_ file ``aircraft/CPACS_file.xml`` will be loaded and a new file ``aircraft/CPACS_file.json`` will be created. Notice that the file extension of the new file is ``.json``.
+
+.. warning::
+
+    An existing file ``aircraft/CPACS_file.json`` will be overwritten.
+
+To use the new JSON file instead of CPACS_ you will have to edit your main settings file (:ref:`input_files`).
+
+**General notes**
 
 .. note::
 

@@ -33,8 +33,9 @@ import json
 
 from commonlibs.logger import truncate_filepath
 
-from pytornado.objects.aircraft import Aircraft
 from pytornado.fileio.utils import dump_pretty_json
+from pytornado.objects.aircraft import Aircraft
+from pytornado.objects.settings import PATHS
 
 logger = logging.getLogger(__name__)
 
@@ -46,8 +47,10 @@ def load(settings):
     Searches for file 'aircraft.*' in the 'aircraft' folder of the WKDIR.
 
     Args:
-        :aircraft: (object) data structure for aircraft model
         :settings: (object) data structure for execution settings
+
+    Returns:
+        :aircraft: (object) data structure for aircraft model
     """
 
     aircraft_file = settings.paths('f_aircraft')
@@ -152,6 +155,11 @@ def save(aircraft, settings):
 
             segment_entry['airfoils'] = {}
             for key, value in segment.airfoils.items():
+                # If airfoil is "blade" file, make sure to save as relative path
+                # Note: Airfoil definition may also be for instance "NACA1234"
+                if "blade." in value:
+                    # Make path relative!
+                    value = os.path.join(PATHS.DIR.AIRFOILS, os.path.basename(value))
                 segment_entry['airfoils'][key] = value
 
             segment_entry['panels'] = {}

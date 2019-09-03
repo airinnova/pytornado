@@ -131,30 +131,26 @@ def setup_wkdir():
     io.native.aircraft.save(aircraft, settings)
     return project_dir
 
-# def cpacs2pytornado(file_cpacs):
-#     """Load CPACS file and export to JSON Aircraft and state files.
+def cpacs2pytornado(file_cpacs):
+    """
+    Load a CPACS file and export JSON Aircraft and state files
 
-#     Args:
-#         :file_cpacs: (string) absolute path to project directory
-#     """
+    Args:
+        :file_cpacs: (string) absolute path to project directory
+    """
 
-#     project_basename = os.path.splitext(os.path.basename(file_cpacs))[0]
-#     file_cpacs = os.path.abspath(file_cpacs)
+    settings = Settings(
+        settings_filename='',
+        project_dir=os.getcwd(),
+        make_dirs=False,
+        check_ac_file_type=False
+    )
+    settings.paths.remove_path('f_aircraft')
+    settings.paths.add_path(path=os.path.abspath(file_cpacs), uid='f_aircraft', is_absolute=True)
 
-#     settings = Settings(project_basename, wkdir=os.path.abspath(os.getcwd()))
-#     settings.paths('f_aircraft') = file_cpacs
+    # Get the aircraft object
+    aircraft = io.cpacs.aircraft.load(settings)
 
-#     aircraft = Aircraft()
-#     state = FlightState()
-
-#     # Read the CPACS file
-#     io.cpacs.load(aircraft, state, settings)
-#     aircraft.generate(check=False)
-
-#     # Modify file extension
-#     file_cpacs = file_cpacs.replace('.xml', '.json')
-#     file_cpacs = file_cpacs.replace('.XML', '.json')
-#     settings.paths('f_aircraft') = file_cpacs
-
-#     # Finally, serialise...
-#     io_model.save(aircraft, settings)
+    # Write JSON file
+    settings.paths.change_suffix(uid='f_aircraft', new_suffix='.json')
+    io.native.aircraft.save(aircraft, settings)
