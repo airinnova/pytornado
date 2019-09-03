@@ -58,6 +58,9 @@ def save_aeroperformance_map(state, settings):
         ('cl', 'CL'),  # Lift coefficient in aerodynamic coordinates
         ('cd', 'CD'),  # Drag coefficient in aerodynamic coordinates
         ('cs', 'CC'),  # Coefficient of the side force vector in aerodynamic coordinates
+        ('cmd', 'Cl'),  # Moment coefficient about x
+        ('cms', 'Cm'),  # Moment coefficient about y
+        ('cml', 'Cn'),  # Moment coefficient about z
     }
 
     with modify_cpacs(cpacs_file) as tixi:
