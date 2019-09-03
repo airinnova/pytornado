@@ -198,9 +198,10 @@ void vlm_lattice(latticestruct* lattice, infostruct* info, statestruct* state,
 
                     // ===== HORSESHOE GEOMETRY =====
                     for (int k = 0; k < 3; ++k) {
-                        lattice->V[index_V1 + k] = lattice->V[index_V2 + k] + infty*freestream_dir[k];
+                        // First compute V2 and V3, then V1 and V4 (order of assignment)
                         lattice->V[index_V2 + k] = 0.75*lattice->P[index_P + k] + 0.25*lattice->P[index_S + k];
                         lattice->V[index_V3 + k] = 0.75*lattice->P[index_Q + k] + 0.25*lattice->P[index_R + k];
+                        lattice->V[index_V1 + k] = lattice->V[index_V2 + k] + infty*freestream_dir[k];
                         lattice->V[index_V4 + k] = lattice->V[index_V3 + k] + infty*freestream_dir[k];
                     }
 
