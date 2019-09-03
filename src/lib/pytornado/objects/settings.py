@@ -63,7 +63,6 @@ DEFAULT_SETTINGS = {
     # Underscore settings are "hidden" settings that generally shouldn't be changed
     '_do_normal_rotations': (True, bool),
     '_deformation_check': (True, bool),
-    '_horseshoe_type': (2, int),
     '_epsilon': (1e-6, float),
 }
 
@@ -225,8 +224,5 @@ class Settings:
         check_dict(template_dict=DEFAULT_SETTINGS, test_dict=self.settings)
 
         # ===== Other checks =====
-        if self.settings['_horseshoe_type'] not in (0, 1, 2):
-            raise ValueError("'_horseshoe_type' must be of type int (0, 1, 2)")
-
         if not (0 < self.settings['_epsilon'] < 1):
             raise ValueError("'_epsilon' must be a (small) float in range (0, 1)")

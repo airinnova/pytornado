@@ -184,8 +184,7 @@ void vlm_lattice( latticestruct* lattice,
                   statestruct* state,
                   double* pts,
                   long int* sym,
-                  long int* pan,
-                  int horseshoe_type);
+                  long int* pan);
 
 // Main function for downwash factor calculation
 void vlm_downwash( latticestruct* lattice,

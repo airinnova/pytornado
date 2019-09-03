@@ -86,16 +86,14 @@ static PyObject* py2c_lattice( PyObject *self, PyObject *args )
     PyArrayObject* py_pts = NULL;
     PyArrayObject* py_sym = NULL;
     PyArrayObject* py_pan = NULL;
-    int horseshoe_type;
 
     // PARSE INPUTS FROM PYTHON
-    if (!PyArg_ParseTuple(args, "OOO!O!O!i",
+    if (!PyArg_ParseTuple(args, "OOO!O!O!",
                 &py_lattice,
                 &py_state,
                 &PyArray_Type, &py_pts,
                 &PyArray_Type, &py_sym,
-                &PyArray_Type, &py_pan,
-                &horseshoe_type))
+                &PyArray_Type, &py_pan))
         return NULL;
 
     latticestruct lattice;
@@ -147,7 +145,7 @@ static PyObject* py2c_lattice( PyObject *self, PyObject *args )
 
     // RUN LATTICE GENERATION ROUTINE
     // Send to actual C CODE
-    vlm_lattice(&lattice, &info, &state, pts, sym, pan, horseshoe_type);
+    vlm_lattice(&lattice, &info, &state, pts, sym, pan);
 
     // SET LATTICE QUALITY CONTROLS IN PYDICT
     if (!set_infostruct(py_lattice, &info) == ERR_SUCCESS)

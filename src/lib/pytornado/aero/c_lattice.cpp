@@ -25,8 +25,14 @@ Authors:
 #include "c_vlm.h"
 
 void vlm_lattice(latticestruct* lattice, infostruct* info, statestruct* state,
-                 double* pts, long int* sym, long int* pan, int horseshoe_type)
+                 double* pts, long int* sym, long int* pan)
 {
+    // Get freestream direction
+    double alpha = deg2rad(state->alpha);
+    double beta = deg2rad(state->beta);
+    double freestream_dir[3];
+    get_freestream_direction(freestream_dir, alpha, beta);
+
     // NOTE:
     // * alpha{1,2,3,4}, beta{1,2,3,4} and gamma{1,2,3,4} are geometric properties
     // * Do NOT confuse with angle of attack, side slip angle or vortex strength!
@@ -44,10 +50,6 @@ void vlm_lattice(latticestruct* lattice, infostruct* info, statestruct* state,
     double gamma2;
     double gamma3;
     double gamma4;
-
-    // Vector pointing in direction of horseshoe trailing legs
-    double d_v2v1[3];  // Vector with direction from V2 to V1
-    double d_v3v4[3];  // Vector with direction from V3 to V4
 
     // Large number (=infinity) used to place the end points of the horseshoe trailing legs
     const int infty = 10000;
@@ -195,52 +197,11 @@ void vlm_lattice(latticestruct* lattice, infostruct* info, statestruct* state,
                     int index_V4 = (start_pan + index_pan)*NUM_V*NUM_COORD + 3*NUM_COORD;
 
                     // ===== HORSESHOE GEOMETRY =====
-                    // ----- Bound vortex filament ends -----
                     for (int k = 0; k < 3; ++k) {
+                        lattice->V[index_V1 + k] = lattice->V[index_V2 + k] + infty*freestream_dir[k];
                         lattice->V[index_V2 + k] = 0.75*lattice->P[index_P + k] + 0.25*lattice->P[index_S + k];
                         lattice->V[index_V3 + k] = 0.75*lattice->P[index_Q + k] + 0.25*lattice->P[index_R + k];
-                    }
-
-                    // ----- Far field vortex filament ends -----
-                    if (horseshoe_type == 0) {
-                        d_v2v1[0] = 1;  // x
-                        d_v2v1[1] = 0;  // y
-                        d_v2v1[2] = 0;  // z
-
-                        d_v3v4[0] = 1;  // x
-                        d_v3v4[1] = 0;  // y
-                        d_v3v4[2] = 0;  // z
-                    }
-                    else if (horseshoe_type == 1) {
-                        // Get vectors from P to S and from Q to R
-                        for (int k = 0; k < 3; ++k) {
-                            d_v2v1[k] = lattice->P[index_S + k] - lattice->P[index_P + k];
-                            d_v3v4[k] = lattice->P[index_R + k] - lattice->P[index_Q + k];
-                        }
-
-                        normalise_vector(d_v2v1);
-                        normalise_vector(d_v3v4);
-                    }
-                    else if (horseshoe_type == 2) {
-                        // Get freestream direction
-                        double alpha = deg2rad(state->alpha);
-                        double beta = deg2rad(state->beta);
-                        double freestream_dir[3];
-
-                        get_freestream_direction(freestream_dir, alpha, beta);
-
-                        for (int k = 0; k < 3; ++k) {
-                            d_v2v1[k] = freestream_dir[k];
-                            d_v3v4[k] = freestream_dir[k];
-                        }
-                    }
-                    else {
-                        throw std::invalid_argument("Horseshoe type must be 0, 1 or 2\n");
-                    }
-
-                    for (int k = 0; k < 3; ++k) {
-                        lattice->V[index_V1 + k] = lattice->V[index_V2 + k] + infty*d_v2v1[k];
-                        lattice->V[index_V4 + k] = lattice->V[index_V3 + k] + infty*d_v3v4[k];
+                        lattice->V[index_V4 + k] = lattice->V[index_V3 + k] + infty*freestream_dir[k];
                     }
 
                     // ===== COMPUTE PANEL COLLOCATION POINTS =====
