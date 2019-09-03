@@ -58,7 +58,7 @@ class _XPaths:
     WINGS = MODEL + '/wings'
     REFS = MODEL + '/reference'
     AIRFOILS = '/cpacs/vehicles/profiles/wingAirfoils'
-    APMAP = '/cpacs/vehicles/aircraft/analyses/aeroPerformanceMap'
+    APMAP = MODEL + '/analyses/aeroPerformance'
 
     # Tool specific
     TOOLSPEC = '/cpacs/toolspecific/pytornado'
@@ -91,6 +91,10 @@ class _XPaths:
         """
         Return the UID of the aeroperformance map to import
 
+        Notes:
+            * If there is only a single aeroperformance map, we use that one
+            * If there are multiple maps, a UID must be provided
+
         Args:
             :tixi: Tixi handle
 
@@ -98,8 +102,12 @@ class _XPaths:
             :uid_apm: UID of the aeroperformance map
         """
 
-        xpath_apm_uid = cls.TOOLSPEC + '/aeroMapUID'
-        uid_apm = tixi.getTextElement(xpath_apm_uid)
+        num_apm = tixi.getNumberOfChilds(cls.APMAP)
+        if num_apm == 1:
+            uid_apm = tixi.getTextAttribute(cls.APMAP + '/aeroMap', 'uID')
+        else:
+            uid_apm = tixi.getTextElement(cls.TOOLSPEC + '/aeroMapUID')
+
         return uid_apm
 
 XPATHS = _XPaths
