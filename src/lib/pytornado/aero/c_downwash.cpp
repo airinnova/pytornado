@@ -35,9 +35,6 @@ void vlm_downwash(latticestruct* lattice, double* dw, long int num_pan)
         // Inner loop over all panels
     	for (int j = 0 ; j < num_pan ; ++j)
         {
-            // Index of panel j which is inducing some velocity at i ("index of emitting panel j")
-            int index_j = j*NUM_COORD;
-
             // Index of downwash factor A_ij
             // 0, 1, 2, ..., N, N+1, N+2, ..., 2N, 2N+1, 2N+2, ... (N: number of panels)
             int index_ij = i*num_pan + j;

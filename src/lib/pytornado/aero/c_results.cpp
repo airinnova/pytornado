@@ -41,11 +41,6 @@ void vlm_results(latticestruct* lattice, statestruct* state,
     double alpha = deg2rad(state->alpha);
     double beta = deg2rad(state->beta);
 
-    double sin_a = sin(alpha);
-    double cos_a = cos(alpha);
-    double sin_b = sin(beta);
-    double cos_b = cos(beta);
-
     double freestream_dir[3];
     get_freestream_direction(freestream_dir, alpha, beta);
 
@@ -75,9 +70,6 @@ void vlm_results(latticestruct* lattice, statestruct* state,
 
         for (int j = 0 ; j < num_pan ; ++j)
         {
-            // Index of emitting panel j
-            int index_j = j*NUM_COORD;
-
             double dw_x = 0.0;
             double dw_y = 0.0;
             double dw_z = 0.0;

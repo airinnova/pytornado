@@ -32,11 +32,6 @@ void vlm_boundary(latticestruct* lattice, statestruct* state,
     double alpha = deg2rad(state->alpha);
     double beta = deg2rad(state->beta);
 
-    double sin_a = sin(alpha);
-    double cos_a = cos(alpha);
-    double sin_b = sin(beta);
-    double cos_b = cos(beta);
-
     // Orientation of the far-field flow
     double freestream_dir[3];
     get_freestream_direction(freestream_dir, alpha, beta);

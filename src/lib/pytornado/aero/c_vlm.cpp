@@ -166,7 +166,6 @@ static PyObject* py2c_downwash( PyObject *self, PyObject *args )
 {
     // Declare pointer to PYTHON objects (NUMPY arrays, dicts)
     PyObject* py_lattice = NULL;
-    PyObject* py_info = NULL;
     PyArrayObject* py_dw = NULL;
 
     // PARSE INPUTS FROM PYTHON
@@ -205,7 +204,6 @@ static PyObject* py2c_boundary( PyObject *self, PyObject *args )
     // Declare pointer to PYTHON objects (NUMPY arrays, dicts)
     PyObject* py_lattice = NULL;
     PyObject* py_state = NULL;
-    PyObject* py_info = NULL;
     PyArrayObject* py_rhs = NULL;
 
     // PARSE INPUTS FROM PYTHON
@@ -259,7 +257,6 @@ static PyObject* py2c_results( PyObject *self, PyObject *args )
     // Declare pointer to PYTHON objects (NUMPY arrays, dicts)
     PyObject* py_lattice = NULL;
     PyObject* py_state = NULL;
-    PyObject* py_info = NULL;
     PyObject* py_results = NULL;
 
     // PARSE INPUTS FROM PYTHON
@@ -546,7 +543,6 @@ static int set_infostruct( PyObject* py_lattice, infostruct* info )
     PyObject* py_attr = NULL;
     PyObject* py_dict = NULL;
     PyObject* py_key = NULL;
-    PyObject* py_val = NULL;
 
     // GET LATTICE CONTROLS DICT
 
