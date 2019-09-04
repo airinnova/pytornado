@@ -82,6 +82,7 @@ pygments_style = None
 rst_prolog = f"""
 .. |name| replace:: {NAME}
 .. |name_bold| replace:: **{NAME}**
+.. |apm| replace:: aero-performance map
 .. _FEM: https://en.wikipedia.org/wiki/Finite_element_method
 .. _FE: https://en.wikipedia.org/wiki/Finite_element_method
 .. _aeroelasticity: https://en.wikipedia.org/wiki/Aeroelasticity

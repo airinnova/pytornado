@@ -24,7 +24,48 @@ To run any |name| analysis, a settings file is required. All settings are define
 .. include:: pytornado/settings/template.json
     :code: json
 
-**TODO** Explain
+The project file structure corresponding to this settings file will look as follows. Notice where the aircraft and the state file are located.
+
+.. code::
+
+    .
+    ├── aircraft
+    │   └── template_aircraft.json
+    ├── airfoils
+    ├── deformation
+    ├── log.txt
+    ├── _plots
+    ├── _results
+    ├── settings
+    │   └── template.json
+    └── state
+        └── template.json
+
+**Explanation of expected input**
+
+* ``aircraft`` The aircraft key must be followed by the name of the aircraft file which is to be loaded. The corresponding aircraft file must be located in the **aircraft** folder of the project directory. The referenced aircraft file may be a JSON file (native format) or a CPACS_ file. |name| will automatically detect the aircraft file type.
+
+* ``state`` The state key must be followed by the name of the state file which is to be loaded. The corresponding state file must be located in the **state** folder of the project directory.
+
+.. hint::
+
+    |name| can perform analyses based on the |apm| provided in a CPACS_ file. To load and evaluate the CPACS_ |apm|, the ``state`` field must be followed by the special keyword ``__CPACS``.
+
+    .. code:: json
+
+        "state": "__CPACS",
+
+    Note that the ``aircraft`` must be provided in CPACS_ format.
+
+* ``deformation`` **TODO**
+
+* ``vlm_autopanels_c`` **TODO**
+
+* ``vlm_autopanels_s`` **TODO**
+
+* ``save_results`` **TODO**
+
+* ``plot`` **TODO**
 
 Aircraft file
 -------------

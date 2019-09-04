@@ -9,4 +9,4 @@ settings['plot']['show'] = False
 settings['plot']['save'] = True
 
 with open(settings_file, 'w') as fp:
-    json.dump(settings, fp)
+    json.dump(settings, fp, indent=4, separators=(',', ': '))
