@@ -362,8 +362,7 @@ def gen_lattice(aircraft, state, settings, make_new_subareas=True):
     lattice.epsilon = settings.settings['_epsilon']
 
     logger.info("Generating lattice...")
-    c_vlm.py2c_lattice(lattice, state, array_subareas, array_symmetry,
-                       array_panels, settings.settings['_horseshoe_type'])
+    c_vlm.py2c_lattice(lattice, state, array_subareas, array_symmetry, array_panels)
 
     # ----- Compute the length of the bound leg -----
     # TODO: If length is needed, move computation to C code
