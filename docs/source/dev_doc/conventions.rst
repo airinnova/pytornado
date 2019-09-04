@@ -3,23 +3,23 @@ Conventions
 
 This page summarises conventions used in the program.
 
-Hierarchy
----------
+Object hierarchy
+----------------
 
 All data related to the aircraft model is contained in the ``Aircraft`` class. Much like in the CPACS_ definition, the aircraft is represented as an assembly of components structured hierarchically:
 
     * The ``Aircraft`` has lifting surfaces which are instances of class ``Wing``
     * Each ``Wing`` is defined as the assembly of twisted quadrilaterals ``WingSegment``
-    * Each ``WingSegment`` is further divided into **TODO**
-    * Each **TODO** is further divided into **TODO**
+    * Each ``WingSegment`` is further divided into ``SegmentStrip``
+    * Each ``SegmentStrip`` is further divided into ``StripSubdivision``
     * Each ``Wing`` can have control surfaces ``WingControl``
 
-.. figure:: _static/images/basic_hierarchy.png
-   :scale: 50
+.. figure:: _static/images/basic_hierarchy.svg
+   :width: 800 px
    :alt: Basic hierarchy
    :align: center
 
-   Basic hierarchy
+   Basic object hierarchy. An aircraft object is made up of wings, segments, controls, strips and strip subdivisions.
 
 .. note::
 
@@ -54,7 +54,7 @@ All data related to the aircraft model is contained in the ``Aircraft`` class. M
 For the meshing of the wing, it is important to keep track of what parts of the wing is "static" and what parts are "movable" (control surfaces). This book keeping is done using ``Subdivisions`` and ``Subareas``. The smallest unit (subareas) are small quadrilateral segments of the wing. They "know" where they are located, and to what segment and to what control device they belong.
 
 .. figure:: _static/images/2019-02-03_PyTornado_Hierarchy_cropped.jpg
-   :scale: 50
+   :width: 800 px
    :alt: Internal hierarchy
    :align: center
 
