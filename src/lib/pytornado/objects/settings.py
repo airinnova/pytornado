@@ -138,12 +138,26 @@ class Settings:
         self.paths = None
         self.generate_paths()
 
+        # Aircraft format
         self.aircraft_is_cpacs = None
         if check_ac_file_type:
             self._check_aircraft_file_type()
 
         if make_dirs:
             self.paths.make_dirs_for_groups('dir')
+
+    @property
+    def state_is_cpacs(self):
+        """
+        Flag indicating if state is to be read from CPACS
+        """
+
+        if self.settings['state'].upper() == '__CPACS':
+            if not self.aircraft_is_cpacs:
+                raise RuntimeError("State cannot be read from CPACS if aircraft file is not CPACS")
+            return True
+        else:
+            return False
 
     def generate_paths(self):
         """

@@ -3462,10 +3462,10 @@
                 <angleOfSideslip mapType="vector">0.0</angleOfSideslip>
                 <cd mapType="vector">0.00240691</cd>
                 <cl mapType="vector">0.253026</cl>
-                <cs mapType="vector">-2.5246e-13</cs>
+                <cs mapType="vector">-1.69613e-12</cs>
                 <cms mapType="vector">-0.915656</cms>
-                <cml mapType="vector">-1.45658e-12</cml>
-                <cmd mapType="vector">1.13062e-13</cmd>
+                <cml mapType="vector">-1.1293e-11</cml>
+                <cmd mapType="vector">-3.73323e-13</cmd>
               </aeroPerformanceMap>
             </aeroMap>
             <aeroMap uID="aeroMap_Test2">

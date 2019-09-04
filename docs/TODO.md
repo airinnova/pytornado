@@ -1,8 +1,10 @@
 # TODO
 
 ## Important
+=========================================
 * Better system for airfoil modelling (check that camber line rotation axis correct, or better: compute camber line "roatations" as normals of a curved surface?)
 * Better "normal rotation" scheme: see Drela with small-angle approximations (would only change RHS!)
+=========================================
 * Check: `c_results.cpp` --> sign of `results->iw_x[i]` correct?
 * Standard value for EPSILON?
 * Currently: state file
@@ -25,6 +27,9 @@
     * "subarea": ??
 * Hinge axis orientation in global system (always consistent?)
 * Subdivision with cosine distribution towards wing tip (how for Boxwing?)
+
+## `fileio.native.resuls`
+* Don't save results as JSON files (serialisation too slow)
 
 ## Known bugs
 * Bug with Cm coefficient value?
@@ -57,7 +62,12 @@
         * Definition of some coefficients in CPACS is still unclear
 
 ## PyTornado distribution
-* PyPI: Provide pre-compiled builds (current workaround --> only distribute source code, see also https://www.scivision.dev/easy-upload-to-pypi/)
+* PyPI: Provide pre-compiled builds
+    * Current workaround --> only distribute source code, see also https://www.scivision.dev/easy-upload-to-pypi/
+    * Build on TravisCI?
+        * https://docs.travis-ci.com/user/deployment/pypi/
+        * https://github.com/pypa/python-manylinux-demo
+    * Distribute with Conda (less general!)
 
 ### `aero.vlm`
 * `pre_panelling`: interpolation of xsi values at segment borders creates curved lines

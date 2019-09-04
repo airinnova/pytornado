@@ -110,18 +110,10 @@ def standard_run(args):
     logger.info(hlogger.decorate(f"{__prog_name__} {__version__}"))
 
     # ===== Setup aircraft model and flight state =====
-    if settings.aircraft_is_cpacs:
-        aircraft = io.cpacs.aircraft.load(settings)
-    else:
-        aircraft = io.native.aircraft.load(settings)
+    aircraft = io.cpacs.aircraft.load(settings) if settings.aircraft_is_cpacs else io.native.aircraft.load(settings)
+    state = io.cpacs.state.load(settings) if settings.state_is_cpacs else io.native.state.load(settings)
 
-    ######################################################
-    if settings.settings['state'].upper() == '__CPACS':
-        state = io.cpacs.state.load(settings)
-    else:
-        state = io.native.state.load(settings)
-    ######################################################
-
+    # TODO: load as part of aircraft definition
     if settings.settings['deformation']:
         io.native.deformation.load(aircraft, settings)
 
@@ -132,7 +124,6 @@ def standard_run(args):
     # ----- Iterate through the flight states -----
     for i, cur_state in enumerate(state.iter_states()):
         settings.paths.counter = i
-
         ##########################################################
         # TODO: Temporary workaround!
         settings.paths('d_results', make_dirs=True, is_dir=True)
@@ -186,13 +177,11 @@ def standard_run(args):
         state.results['Cn'].append(vlmdata.coeffs['n'])
         ###############################################
 
-    ###############################################
-    # Save aeroperformance map
-    io.native.results.save_aeroperformance_map(state, settings)
-
-    if settings.aircraft_is_cpacs and settings.settings['state'].upper() == '__CPACS':
+    # ---------- Save aeroperformance map ----------
+    if settings.aircraft_is_cpacs and settings.state_is_cpacs:
         io.cpacs.results.save_aeroperformance_map(state, settings)
-    ###############################################
+    else:
+        io.native.results.save_aeroperformance_map(state, settings)
 
     logger.info(f"{__prog_name__} {__version__} terminated")
 
