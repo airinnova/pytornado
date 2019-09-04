@@ -157,20 +157,8 @@ def standard_run(args):
         vlm.solver(vlmdata)
         vlm.calc_results(lattice, cur_state, vlmdata)
 
-        # ===== Save results =====
-        if 'panelwise' in settings.settings['save_results']:
-            io.native.results.save_panelwise(cur_state, vlmdata, settings)
-
-        if 'global' in settings.settings['save_results']:
-            io.native.results.save_glob_results(cur_state, vlmdata, settings)
-
-        if 'loads_with_deformed_mesh' in settings.settings['save_results']:
-            io.native.results.save_loads(aircraft, settings, cur_state, vlmdata, lattice)
-
-        if 'loads_with_undeformed_mesh' in settings.settings['save_results']:
-            io.native.results.save_loads(aircraft, settings, cur_state, vlmdata, lattice=None)
-
-        # ===== Generate plots =====
+        # ===== Create plots and result files =====
+        io.native.results.save_all(settings, aircraft, cur_state, vlmdata, lattice)
         makeplots.make_all(settings, aircraft, cur_state, vlmdata, lattice)
 
         ###############################################

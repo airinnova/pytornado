@@ -39,7 +39,32 @@ from pytornado.fileio.utils import dump_pretty_json
 logger = logging.getLogger(__name__)
 
 
-def save_glob_results(state, vlmdata, settings):
+def save_all(settings, aircraft, state, vlmdata, lattice):
+    """
+    Evaluate all 'save' settings and create result files
+
+    Args:
+        :settings: settings instance
+        :aircraft: (object) data structure for aircraft model
+        :state: (object) data structure for operating conditions
+        :vlmdata: (object) data structure for VLM calculation data
+        :lattice: (object) data structure for VLM lattice
+    """
+
+    if 'panelwise' in settings.settings['save_results']:
+        _save_panelwise(state, vlmdata, settings)
+
+    if 'global' in settings.settings['save_results']:
+        _save_glob_results(state, vlmdata, settings)
+
+    if 'loads_with_deformed_mesh' in settings.settings['save_results']:
+        _save_loads(aircraft, settings, state, vlmdata, lattice)
+
+    if 'loads_with_undeformed_mesh' in settings.settings['save_results']:
+        _save_loads(aircraft, settings, state, vlmdata, lattice=None)
+
+
+def _save_glob_results(state, vlmdata, settings):
     """
     Save global results
 
@@ -64,7 +89,7 @@ def save_glob_results(state, vlmdata, settings):
         dump_pretty_json(output, fp)
 
 
-def save_panelwise(state, vlmdata, settings):
+def _save_panelwise(state, vlmdata, settings):
     """
     Save panelwise results
 
@@ -85,23 +110,23 @@ def save_panelwise(state, vlmdata, settings):
 
     for i in range(0, len(vlmdata.panelwise['gamma'])):
         output[i] = {
-                'gamma': vlmdata.panelwise['gamma'][i],
-                'vx': vlmdata.panelwise['vx'][i],
-                'vy': vlmdata.panelwise['vy'][i],
-                'vz': vlmdata.panelwise['vz'][i],
-                'vmag': vlmdata.panelwise['vmag'][i],
-                'fx': vlmdata.panelwise['fx'][i],
-                'fy': vlmdata.panelwise['fy'][i],
-                'fz': vlmdata.panelwise['fz'][i],
-                'fmag': vlmdata.panelwise['fmag'][i],
-                'cp': vlmdata.panelwise['cp'][i],
-                }
+            'gamma': vlmdata.panelwise['gamma'][i],
+            'vx': vlmdata.panelwise['vx'][i],
+            'vy': vlmdata.panelwise['vy'][i],
+            'vz': vlmdata.panelwise['vz'][i],
+            'vmag': vlmdata.panelwise['vmag'][i],
+            'fx': vlmdata.panelwise['fx'][i],
+            'fy': vlmdata.panelwise['fy'][i],
+            'fz': vlmdata.panelwise['fz'][i],
+            'fmag': vlmdata.panelwise['fmag'][i],
+            'cp': vlmdata.panelwise['cp'][i],
+        }
 
         with open(filepath, "w") as fp:
             dump_pretty_json(output, fp)
 
 
-def save_loads(aircraft, settings, state, vlmdata, lattice=None):
+def _save_loads(aircraft, settings, state, vlmdata, lattice=None):
     """
     Save computed loads in a JSON file
 
