@@ -31,10 +31,25 @@ import os
 import logging
 from pathlib import Path
 
-from pytornado.objects.utils import check_dict
+from pytornado.objects.utils import check_dict, get_default_dict
 from commonlibs.fileio.paths import ProjectPaths
 
 logger = logging.getLogger(__name__)
+
+# =======================================================
+# _PLOT_OPTIONS = {
+#     'opt': ([], list),
+#     'show': (True, bool),
+#     'save': (False, bool),
+# }
+
+# _DEFAULT_PLOT_DICT = {
+#     'geometry': _PLOT_OPTIONS,
+#     'lattice': _PLOT_OPTIONS,
+#     'matrix_downwash': _PLOT_OPTIONS,
+#     'results': _PLOT_OPTIONS,
+# }
+# # =======================================================
 
 _DEFAULT_PLOT_DICT = {
     'geometry': (False, bool),
@@ -120,17 +135,7 @@ class Settings:
 
         self.project_dir = Path(project_dir).resolve()
         self.project_basename = os.path.splitext(settings_filename)[0]
-
-        # Initialise settings dict
-        # TODO: generelise
-        self.settings = {}
-        for key1, (default1, _) in DEFAULT_SETTINGS.items():
-            if isinstance(default1, dict):
-                self.settings[key1] = {}
-                for key2, (default2, _) in default1.items():
-                    self.settings[key1][key2] = default2
-            else:
-                self.settings[key1] = default1
+        self.settings = get_default_dict(template_dict=DEFAULT_SETTINGS)
 
         if settings_dict is not None:
             self.update_from_dict(settings_dict)

@@ -184,3 +184,41 @@ def check_dict(template_dict, test_dict):
 
         if dtype[0] is dict:
             check_dict(value, test_dict[key])
+
+
+def get_default_dict(template_dict):
+    """
+    Return a default dict from a template dictionary
+
+    Args:
+        :template_dict: Template dictionary
+
+    Returns:
+        :default_dict: New dictionary with defaults generated from 'template_dict'
+
+    The template dictionary must have a specific structure as outlined below:
+
+    .. code:: python
+
+        template_dict = {
+            'test_key1': ('default_value1', str),
+            'test_key2': (1792, (int, float)),
+        }
+
+    The 'default_dict' will look like this:
+
+    .. code:: python
+
+        default_dict = {
+            'test_key1': 'default_value1',
+            'test_key2': 1792,
+        }
+    """
+
+    default_dict = {}
+    for key, (value, _) in template_dict.items():
+        # Treat non-empty dictionary recursively
+        if isinstance(value, dict) and value:
+            value = get_default_dict(template_dict=value)
+        default_dict[key] = value
+    return default_dict
