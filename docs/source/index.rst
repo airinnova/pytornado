@@ -29,6 +29,7 @@ For simpler analyses |name| provides a simple command line interface. More compl
    user_guide/detailed_user_guide
    user_guide/tutorials
    user_guide/limitations
+   user_guide/related_projects
 
 .. toctree::
    :maxdepth: 2

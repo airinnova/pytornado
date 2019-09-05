@@ -1,6 +1,7 @@
 # TODO
 
 ## Important
+* Better autopanneling
 =========================================
 * 'save_results' --> lattice --> `*.dat`
 =========================================
