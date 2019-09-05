@@ -2,6 +2,8 @@
 
 ## Important
 =========================================
+* 'save_results' --> lattice --> `*.dat`
+=========================================
 * Better system for airfoil modelling (check that camber line rotation axis correct, or better: compute camber line "roatations" as normals of a curved surface?)
 * Better "normal rotation" scheme: see Drela with small-angle approximations (would only change RHS!)
 =========================================

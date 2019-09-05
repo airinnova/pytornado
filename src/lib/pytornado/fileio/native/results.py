@@ -92,8 +92,6 @@ def _save_panelwise(state, vlmdata, settings):
         :settings: (object) data structure for execution settings
     """
 
-    # * Save panel points?
-
     filepath = settings.paths('f_results_panelwise')
     logger.info(f"Writing panelwise results to file '{truncate_filepath(filepath)}'")
 
@@ -110,28 +108,18 @@ def _save_panelwise(state, vlmdata, settings):
         'cp',
     ]
 
-    data = np.c_[
-        vlmdata.panelwise['gamma'],
-        vlmdata.panelwise['vx'],
-        vlmdata.panelwise['vy'],
-        vlmdata.panelwise['vz'],
-        vlmdata.panelwise['vmag'],
-        vlmdata.panelwise['fx'],
-        vlmdata.panelwise['fy'],
-        vlmdata.panelwise['fz'],
-        vlmdata.panelwise['fmag'],
-        vlmdata.panelwise['cp'],
-    ]
-
+    # ----- Data and formatting -----
+    data = np.stack([vlmdata.panelwise[data_key] for data_key in data_keys], axis=-1)
     fmt = ['%13.6e' for _ in data_keys]
 
-
+    # ----- Header -----
     field_size = 12
     header = ''
     for i, data_key in enumerate(data_keys):
         header += f'{data_key}'.center(field_size)
         field_size = 14
 
+    # ----- Save -----
     np.savetxt(
         filepath,
         data,

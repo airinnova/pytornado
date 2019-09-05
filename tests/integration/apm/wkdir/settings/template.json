@@ -3,23 +3,5 @@
     "state": "template.json",
     "deformation": false,
     "vlm_autopanels_c": 5,
-    "vlm_autopanels_s": 20,
-    "save_results": [
-        "NO_global",
-        "NO_panelwise",
-        "NO_loads_with_undeformed_mesh",
-        "NO_loads_with_deformed_mesh"
-    ],
-    "plot_geometry_aircraft": false,
-    "plot_geometry_wing": null,
-    "plot_geometry_segment": null,
-    "plot_geometry_property": null,
-    "plot_lattice_aircraft": false,
-    "plot_lattice_aircraft_optional": [],
-    "plot_lattice_wing": null,
-    "plot_lattice_segment": null,
-    "plot_results_downwash": false,
-    "plot_results_panelwise": [ "cp" ],
-    "plot_show": false,
-    "plot_save": false
+    "vlm_autopanels_s": 20
 }

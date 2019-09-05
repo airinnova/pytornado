@@ -4,7 +4,11 @@
     "deformation": null,
     "vlm_autopanels_c": 5,
     "vlm_autopanels_s": 20,
-    "save_results": [],
+    "save_results": {
+        "global": true,
+        "panelwise": true,
+        "aeroperformance": true
+    },
     "plot": {
         "geometry": {
             "opt": [],

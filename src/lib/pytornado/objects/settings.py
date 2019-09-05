@@ -52,6 +52,7 @@ _DEFAULT_PLOT_DICT = {
 _DEFAULT_SAVE_DICT = {
     'global': (False, bool),
     'panelwise': (False, bool),
+    'aeroperformance': (False, bool),
 }
 
 DEFAULT_SETTINGS = {
@@ -179,9 +180,9 @@ class Settings:
         self.paths.add_subpath(uid_parent='d_settings', uid='f_settings', path=f"{self.project_basename}.json")
         self.paths.add_subpath(uid_parent='d_state', uid='f_state', path=f"{self.settings['state']}")
         # Output files
-        self.paths.add_subpath(uid_parent='d_results', uid='f_results_global', path=f"{self.project_basename}_global.json")
-        self.paths.add_subpath(uid_parent='d_results', uid='f_results_panelwise', path=f"{self.project_basename}_panelwise.dat")
-        self.paths.add_subpath(uid_parent='d_results', uid='f_results_apm_global', path=f"{self.project_basename}_APM.json")
+        self.paths.add_subpath(uid_parent='d_results', uid='f_results_global', path=f"global.json")  # File namespaced with folder
+        self.paths.add_subpath(uid_parent='d_results', uid='f_results_panelwise', path=f"panelwise.dat")  # File namespaced with folder
+        self.paths.add_subpath(uid_parent='d_results_TOP', uid='f_results_apm_global', path=f"{self.project_basename}_aeroperformance.json")
 
     def _check_aircraft_file_type(self):
         """Check whether aircraft is a CPACS or a JSON file"""
