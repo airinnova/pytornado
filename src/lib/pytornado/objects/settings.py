@@ -31,18 +31,22 @@ import os
 import logging
 from pathlib import Path
 
-from pytornado.objects.utils import check_dict
+from pytornado.objects.utils import check_dict, get_default_dict
 from commonlibs.fileio.paths import ProjectPaths
 
 logger = logging.getLogger(__name__)
 
-_DEFAULT_PLOT_DICT = {
-    'geometry': (False, bool),
-    'lattice': (False, bool),
-    'matrix_downwash': (False, bool),
-    'results': ([], (list, bool)),
-    'show': (True, bool),
+_PLOT_OPTIONS = {
+    'opt': ([], list),
+    'show': (False, bool),
     'save': (False, bool),
+}
+
+_DEFAULT_PLOT_DICT = {
+    'geometry': (_PLOT_OPTIONS, dict),
+    'lattice': (_PLOT_OPTIONS, dict),
+    'matrix_downwash': (_PLOT_OPTIONS, dict),
+    'results': (_PLOT_OPTIONS, dict),
 }
 
 _SAVE_RESULTS = [
@@ -120,17 +124,7 @@ class Settings:
 
         self.project_dir = Path(project_dir).resolve()
         self.project_basename = os.path.splitext(settings_filename)[0]
-
-        # Initialise settings dict
-        # TODO: generelise
-        self.settings = {}
-        for key1, (default1, _) in DEFAULT_SETTINGS.items():
-            if isinstance(default1, dict):
-                self.settings[key1] = {}
-                for key2, (default2, _) in default1.items():
-                    self.settings[key1][key2] = default2
-            else:
-                self.settings[key1] = default1
+        self.settings = get_default_dict(template_dict=DEFAULT_SETTINGS)
 
         if settings_dict is not None:
             self.update_from_dict(settings_dict)
@@ -217,8 +211,8 @@ class Settings:
             self.settings[key] = value
 
         # If 'results' are not specified, plot 'cp' values
-        if self.settings['plot']['results'] is True:
-            self.settings['plot']['results'] = ['cp']
+        if not self.settings['plot']['results']['opt']:
+            self.settings['plot']['results']['opt'] = ['cp']
 
         self._check_settings_dict()
 

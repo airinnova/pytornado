@@ -47,28 +47,33 @@ def make_all(settings, aircraft, cur_state, vlmdata, lattice):
         :lattice: Lattice
     """
 
-    plot_settings = {
-        "plot_dir": settings.paths('d_plots'),
-        "save": settings.settings['plot']['save'],
-        "show": settings.settings['plot']['show'],
-        "result_keys": settings.settings['plot']['results'],
-    }
+    def get_plot_settings(plot_name):
+        """Return a 'plot_settings' dictionary"""
 
-    # If there is nothing to plot, exit...
-    if not any((plot_settings['save'], plot_settings['show'])):
-        return
+        plot_settings = settings.settings['plot'][plot_name]
+        plot_settings['plot_dir'] = settings.paths('d_plots')
+        return plot_settings
 
-    # Create plots
-    if settings.settings['plot']['matrix_downwash']:
+    def evaluate_plot(plot_settings):
+        """Returns 'True' if 'save' or 'show' is True, otherwise 'False'"""
+
+        return any((plot_settings['save'], plot_settings['show']))
+
+    # ----- Generate plots -----
+    plot_settings = get_plot_settings('matrix_downwash')
+    if evaluate_plot(plot_settings):
         pl_downwash.view_downwash(vlmdata, plot_settings)
 
-    if settings.settings['plot']['geometry']:
+    plot_settings = get_plot_settings('geometry')
+    if evaluate_plot(plot_settings):
         plot_geometry_aircraft(aircraft, plot_settings)
 
-    if settings.settings['plot']['lattice']:
+    plot_settings = get_plot_settings('lattice')
+    if evaluate_plot(plot_settings):
         plot_lattice_aircraft(aircraft, lattice, plot_settings)
 
-    if settings.settings['plot']['results']:
+    plot_settings = get_plot_settings('results')
+    if evaluate_plot(plot_settings):
         plot_results_aircraft(aircraft, lattice, cur_state, vlmdata, plot_settings)
 
 
@@ -114,7 +119,7 @@ def plot_results_aircraft(aircraft, lattice, state, vlmdata, plot_settings):
     """
 
     logger.info("Generating results plot...")
-    for key in plot_settings['result_keys']:
+    for key in plot_settings['opt']:
         with pt.plot2d3d(aircraft, f'results_{key}', plot_settings) as (_, axes_2d, figure_3d, axes_3d):
             pt.add_freestream_vector(axes_2d, axes_3d, state)
             pt.add_results(axes_2d, axes_3d, figure_3d, vlmdata, lattice, aircraft, key)
