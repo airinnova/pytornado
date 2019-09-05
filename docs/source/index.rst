@@ -39,6 +39,12 @@ For simpler analyses |name| provides a simple command line interface. More compl
 
 .. toctree::
    :maxdepth: 1
+   :caption: Contributing
+
+   contribute/index
+
+.. toctree::
+   :maxdepth: 1
    :caption: Changelog
 
    CHANGELOG
