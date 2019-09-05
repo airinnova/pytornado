@@ -6,11 +6,25 @@
     "vlm_autopanels_s": 20,
     "save_results": [],
     "plot": {
-        "geometry": false,
-        "lattice": false,
-        "matrix_downwash": false,
-        "results": ["cp"],
-        "show": false,
-        "save": false
+        "geometry": {
+            "opt": [],
+            "show": false,
+            "save": false
+        },
+        "lattice": {
+            "opt": [],
+            "show": false,
+            "save": false
+        },
+        "matrix_downwash": {
+            "opt": [],
+            "show": false,
+            "save": false
+        },
+        "results": {
+            "opt": ["cp"],
+            "show": false,
+            "save": false
+        }
     }
 }

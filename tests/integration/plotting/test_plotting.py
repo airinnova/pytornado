@@ -23,12 +23,9 @@ def test_plotting():
     with open(settings_file, 'r') as fp:
         settings = json.load(fp)
 
-    settings['plot']['geometry'] = True
-    settings['plot']['lattice'] = True
-    settings['plot']['matrix_downwash'] = True
-    settings['plot']['results'] = ['cp']
-    settings['plot']['save'] = True
-    settings['plot']['show'] = False
+    for plot_name in ['geometry', 'lattice', 'matrix_downwash', 'results']:
+        settings['plot'][plot_name]['save'] = True
+        settings['plot'][plot_name]['show'] = False
 
     with open(settings_file, 'w') as fp:
         json.dump(settings, fp)

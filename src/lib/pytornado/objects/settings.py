@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 
 _PLOT_OPTIONS = {
     'opt': ([], list),
-    'show': (True, bool),
+    'show': (False, bool),
     'save': (False, bool),
 }
 
