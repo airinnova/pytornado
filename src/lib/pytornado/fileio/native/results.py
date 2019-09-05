@@ -96,27 +96,27 @@ def _save_panelwise(state, vlmdata, settings):
     logger.info(f"Writing panelwise results to file '{truncate_filepath(filepath)}'")
 
     data_keys = [
-        'gamma',
-        'vx',
-        'vy',
-        'vz',
-        'vmag',
-        'fx',
-        'fy',
-        'fz',
-        'fmag',
-        'cp',
+        ('gamma', 'm^2/s'),
+        ('vx', 'm/s'),
+        ('vy', 'm/s'),
+        ('vz', 'm/s'),
+        ('vmag', 'm/s'),
+        ('fx', 'N'),
+        ('fy', 'N'),
+        ('fz', 'N'),
+        ('fmag', 'N'),
+        ('cp', '1'),
     ]
 
     # ----- Data and formatting -----
-    data = np.stack([vlmdata.panelwise[data_key] for data_key in data_keys], axis=-1)
+    data = np.stack([vlmdata.panelwise[data_key] for (data_key, _) in data_keys], axis=-1)
     fmt = ['%13.6e' for _ in data_keys]
 
     # ----- Header -----
     field_size = 12
     header = ''
-    for i, data_key in enumerate(data_keys):
-        header += f'{data_key}'.center(field_size)
+    for i, (data_key, unit) in enumerate(data_keys):
+        header += f'{data_key} [{unit}]'.center(field_size)
         field_size = 14
 
     # ----- Save -----
