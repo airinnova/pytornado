@@ -84,7 +84,7 @@ class _Colors:
 C = _Colors
 
 
-def get_limits(points, lims, symmetry=0):
+def _get_limits(points, lims, symmetry=0):
     """
     Determine external limits of domain occupied by set of points
 
@@ -134,7 +134,7 @@ def get_limits(points, lims, symmetry=0):
             lims_max[0] = -points_min[0]
 
 
-def scale_fig(axes, lims, directions='xyz'):
+def _scale_fig(axes, lims, directions='xyz'):
     """
     Scale axes to ensure unit aspect ratio between plot axes
 
@@ -235,7 +235,7 @@ def plot2d3d(aircraft, plot_name, plot_settings):
     # ----- 2D plot -----
     figure_2d, axes_2d = _init_plot2d(title=aircraft.uid)
 
-    scale_plots(axes_2d, axes_3d, aircraft)
+    _scale_plots(axes_2d, axes_3d, aircraft)
 
     try:
         yield (figure_2d, axes_2d, figure_3d, axes_3d)
@@ -270,10 +270,10 @@ def _init_plot3d(title=''):
     axes_3d.set_title(title)
 
     figure_3d.subplots_adjust(
-        left=0.15,
+        left=0.00,
         bottom=0.01,
         right=0.90,
-        top=0.99,
+        top=0.96,
         wspace=0.39,
         hspace=0.45
     )
@@ -320,7 +320,7 @@ def _init_plot2d(title=''):
     return figure_2d, (axes_yz, axes_xz, axes_xy)
 
 
-def scale_plots(axes_2d, axes_3d, aircraft):
+def _scale_plots(axes_2d, axes_3d, aircraft):
     """
     Correct the axes scaling
 
@@ -340,13 +340,13 @@ def scale_plots(axes_2d, axes_3d, aircraft):
                            segment.vertices['c'],
                            segment.vertices['d'],
                            segment.vertices['a']])
-        get_limits(points, lims, symmetry=wing.symmetry)
+        _get_limits(points, lims, symmetry=wing.symmetry)
 
     # Adjust scaling for all axes objects
-    scale_fig(axes_3d, lims)
-    scale_fig(axes_yz, lims, directions='yz')
-    scale_fig(axes_xz, lims, directions='xz')
-    scale_fig(axes_xy, lims, directions='xy')
+    _scale_fig(axes_3d, lims)
+    _scale_fig(axes_yz, lims, directions='yz')
+    _scale_fig(axes_xz, lims, directions='xz')
+    _scale_fig(axes_xy, lims, directions='xy')
 
 
 def _add_CG_plot3d(axes_3d, aircraft):
@@ -674,9 +674,8 @@ def add_results(axes_2d, axes_3d, figure_3d, vlmdata, lattice, aircraft, key):
 
     cbar = cm.ScalarMappable(cmap=C.COLORMAP)
     cbar.set_array(vlmdata.panelwise[key])
-
-    cbar = figure_3d.colorbar(cbar)
-    cbar.set_label(key)
+    cb = figure_3d.colorbar(cbar)
+    cb.set_label(key)
 
 
 def _plot_XYZ_points(axes_2d, axes_3d, points, symmetry, *, linewidth, color, color_mirror=None):
