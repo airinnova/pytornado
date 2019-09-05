@@ -47,28 +47,25 @@ def make_all(settings, aircraft, cur_state, vlmdata, lattice):
         :lattice: Lattice
     """
 
-    plot_settings = {
-        "plot_dir": settings.paths('d_plots'),
-        "save": settings.settings['plot']['save'],
-        "show": settings.settings['plot']['show'],
-        "result_keys": settings.settings['plot']['results'],
-    }
-
-    # If there is nothing to plot, exit...
-    if not any((plot_settings['save'], plot_settings['show'])):
-        return
-
-    # Create plots
-    if settings.settings['plot']['matrix_downwash']:
+    plot_settings = settings.settings['plot']['matrix_downwash']
+    plot_settings['plot_dir'] = settings.paths('d_plots')
+    if plot_settings['save'] or plot_settings['show']:
         pl_downwash.view_downwash(vlmdata, plot_settings)
 
-    if settings.settings['plot']['geometry']:
+    plot_settings = settings.settings['plot']['geometry']
+    plot_settings['plot_dir'] = settings.paths('d_plots')
+    if plot_settings['save'] or plot_settings['show']:
         plot_geometry_aircraft(aircraft, plot_settings)
 
-    if settings.settings['plot']['lattice']:
+    plot_settings = settings.settings['plot']['lattice']
+    plot_settings['plot_dir'] = settings.paths('d_plots')
+    if plot_settings['save'] or plot_settings['show']:
         plot_lattice_aircraft(aircraft, lattice, plot_settings)
 
-    if settings.settings['plot']['results']:
+    plot_settings = settings.settings['plot']['results']
+    plot_settings['plot_dir'] = settings.paths('d_plots')
+    plot_settings['result_keys'] = plot_settings['opt']
+    if plot_settings['save'] or plot_settings['show']:
         plot_results_aircraft(aircraft, lattice, cur_state, vlmdata, plot_settings)
 
 

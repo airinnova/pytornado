@@ -36,28 +36,17 @@ from commonlibs.fileio.paths import ProjectPaths
 
 logger = logging.getLogger(__name__)
 
-# =======================================================
-# _PLOT_OPTIONS = {
-#     'opt': ([], list),
-#     'show': (True, bool),
-#     'save': (False, bool),
-# }
-
-# _DEFAULT_PLOT_DICT = {
-#     'geometry': _PLOT_OPTIONS,
-#     'lattice': _PLOT_OPTIONS,
-#     'matrix_downwash': _PLOT_OPTIONS,
-#     'results': _PLOT_OPTIONS,
-# }
-# # =======================================================
-
-_DEFAULT_PLOT_DICT = {
-    'geometry': (False, bool),
-    'lattice': (False, bool),
-    'matrix_downwash': (False, bool),
-    'results': ([], (list, bool)),
+_PLOT_OPTIONS = {
+    'opt': ([], list),
     'show': (True, bool),
     'save': (False, bool),
+}
+
+_DEFAULT_PLOT_DICT = {
+    'geometry': (_PLOT_OPTIONS, dict),
+    'lattice': (_PLOT_OPTIONS, dict),
+    'matrix_downwash': (_PLOT_OPTIONS, dict),
+    'results': (_PLOT_OPTIONS, dict),
 }
 
 _SAVE_RESULTS = [
@@ -222,8 +211,8 @@ class Settings:
             self.settings[key] = value
 
         # If 'results' are not specified, plot 'cp' values
-        if self.settings['plot']['results'] is True:
-            self.settings['plot']['results'] = ['cp']
+        if not self.settings['plot']['results']['opt']:
+            self.settings['plot']['results']['opt'] = ['cp']
 
         self._check_settings_dict()
 
