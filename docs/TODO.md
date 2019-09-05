@@ -39,11 +39,6 @@
 ## `fileio.native.resuls`
 * Don't save results as JSON files (serialisation too slow)
 
-## Known bugs
-* Bug with Cm coefficient value?
-    * May there is some unassigned value in the C++ code, check reference values...
-    * 2019-08-28: Cannot reproduce
-
 ## Testing
 * Make `tox` work with Anaconda packages (Tigl/Tixi only available through Conda, not on PyPI)
 
