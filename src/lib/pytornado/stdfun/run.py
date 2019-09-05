@@ -39,8 +39,6 @@ import pytornado.fileio as io
 import pytornado.plot.makeplots as makeplots
 
 logger = logging.getLogger(__name__)
-
-FILE_LOG = os.path.join(os.getcwd(), 'log.txt')
 __prog_name__ = 'pytornado'
 
 
@@ -180,12 +178,13 @@ def standard_run(args):
     # ---------- Save aeroperformance map ----------
     if settings.aircraft_is_cpacs and settings.state_is_cpacs:
         io.cpacs.results.save_aeroperformance_map(state, settings)
-    else:
+
+    if settings.settings['save_results']['aeroperformance']:
         io.native.results.save_aeroperformance_map(state, settings)
 
     logger.info(f"{__prog_name__} {__version__} terminated")
 
-    # Return data to caller
+    # ---------- Return data to caller ----------
     results = {
         "lattice": lattice,
         "vlmdata": vlmdata,

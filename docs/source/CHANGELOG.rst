@@ -10,7 +10,8 @@ Versioning <https://semver.org/spec/v2.0.0.html>`__.
 Changed
 ~~~~~~~
 
-* Changed the plot settings in the JSON settings file
+* Changed the 'plot' settings in the JSON settings file
+* Changed the 'save_results' settings in the JSON settings file
 
 [0.4.1] -- 2019-09-03
 ---------------------

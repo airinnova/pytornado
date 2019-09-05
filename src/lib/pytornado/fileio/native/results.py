@@ -30,6 +30,7 @@ Developed at Airinnova AB, Stockholm, Sweden.
 import os
 import logging
 
+import numpy as np
 from commonlibs.logger import truncate_filepath
 
 from pytornado.objects.vlm_struct import VLMLattice
@@ -51,17 +52,11 @@ def save_all(settings, aircraft, state, vlmdata, lattice):
         :lattice: (object) data structure for VLM lattice
     """
 
-    if 'panelwise' in settings.settings['save_results']:
-        _save_panelwise(state, vlmdata, settings)
-
-    if 'global' in settings.settings['save_results']:
+    if settings.settings['save_results']['global']:
         _save_glob_results(state, vlmdata, settings)
 
-    if 'loads_with_deformed_mesh' in settings.settings['save_results']:
-        _save_loads(aircraft, settings, state, vlmdata, lattice)
-
-    if 'loads_with_undeformed_mesh' in settings.settings['save_results']:
-        _save_loads(aircraft, settings, state, vlmdata, lattice=None)
+    if settings.settings['save_results']['panelwise']:
+        _save_panelwise(state, vlmdata, settings)
 
 
 def _save_glob_results(state, vlmdata, settings):
@@ -73,8 +68,6 @@ def _save_glob_results(state, vlmdata, settings):
         :vlmdata: (object) data structure for VLM calculation data
         :settings: (object) data structure for execution settings
     """
-
-    # TODO: make numpy-->list conversion more general
 
     filepath = settings.paths('f_results_global')
     logger.info(f"Writing global results to file '{truncate_filepath(filepath)}'")
@@ -99,90 +92,107 @@ def _save_panelwise(state, vlmdata, settings):
         :settings: (object) data structure for execution settings
     """
 
-    # * Slow function !!!
-    # * Make a fast alternative (save tabluated as before)
-    # * Save panel points?
-
     filepath = settings.paths('f_results_panelwise')
     logger.info(f"Writing panelwise results to file '{truncate_filepath(filepath)}'")
 
-    output = {}
+    data_keys = [
+        'gamma',
+        'vx',
+        'vy',
+        'vz',
+        'vmag',
+        'fx',
+        'fy',
+        'fz',
+        'fmag',
+        'cp',
+    ]
 
-    for i in range(0, len(vlmdata.panelwise['gamma'])):
-        output[i] = {
-            'gamma': vlmdata.panelwise['gamma'][i],
-            'vx': vlmdata.panelwise['vx'][i],
-            'vy': vlmdata.panelwise['vy'][i],
-            'vz': vlmdata.panelwise['vz'][i],
-            'vmag': vlmdata.panelwise['vmag'][i],
-            'fx': vlmdata.panelwise['fx'][i],
-            'fy': vlmdata.panelwise['fy'][i],
-            'fz': vlmdata.panelwise['fz'][i],
-            'fmag': vlmdata.panelwise['fmag'][i],
-            'cp': vlmdata.panelwise['cp'][i],
-        }
+    # ----- Data and formatting -----
+    data = np.stack([vlmdata.panelwise[data_key] for data_key in data_keys], axis=-1)
+    fmt = ['%13.6e' for _ in data_keys]
 
-        with open(filepath, "w") as fp:
-            dump_pretty_json(output, fp)
+    # ----- Header -----
+    field_size = 12
+    header = ''
+    for i, data_key in enumerate(data_keys):
+        header += f'{data_key}'.center(field_size)
+        field_size = 14
+
+    # ----- Save -----
+    np.savetxt(
+        filepath,
+        data,
+        delimiter=',',
+        header=header,
+        fmt=fmt,
+        comments='# '
+    )
 
 
-def _save_loads(aircraft, settings, state, vlmdata, lattice=None):
-    """
-    Save computed loads in a JSON file
+# ===========================================================================
+# ===========================================================================
+# ===========================================================================
+# def _save_loads(aircraft, settings, state, vlmdata, lattice=None):
+#     """
+#     Save computed loads in a JSON file
 
-    Note:
-        * If lattice is None, the lattice in the undeformed state will be computed
+#     Note:
+#         * If lattice is None, the lattice in the undeformed state will be computed
 
-    Args:
-        :aircraft: (object) data structure for aircraft model
-        :settings: (object) data structure for execution settings
-        :vlmdata: (object) data structure for VLM calculation data
-        :lattice: (object) data structure for VLM lattice
-    """
+#     Args:
+#         :aircraft: (object) data structure for aircraft model
+#         :settings: (object) data structure for execution settings
+#         :vlmdata: (object) data structure for VLM calculation data
+#         :lattice: (object) data structure for VLM lattice
+#     """
 
-    # TODO:
-    # * Make better
-    # * Better way to deal with filenames
+#     # TODO:
+#     # * Make better
+#     # * Better way to deal with filenames
 
-    # Regenerate lattice for collocation points in undeformed state
-    if lattice is None:
-        logger.info("Regenerating lattice data of the undeformed state...")
-        aircraft.turn_off_all_deformation()
-        lattice = VLMLattice()
-        lattice = vlm.gen_lattice(aircraft, state, settings, make_new_subareas=False)
-        aircraft.turn_on_all_deformation()
+#     # Regenerate lattice for collocation points in undeformed state
+#     if lattice is None:
+#         logger.info("Regenerating lattice data of the undeformed state...")
+#         aircraft.turn_off_all_deformation()
+#         lattice = VLMLattice()
+#         lattice = vlm.gen_lattice(aircraft, state, settings, make_new_subareas=False)
+#         aircraft.turn_on_all_deformation()
 
-    for wing_uid, panellist in lattice.bookkeeping_by_wing_uid.items():
-        output = []
-        for entry in panellist:
-            for i in entry.pan_idx:
-                force_point = lattice.bound_leg_midpoints[i]
+#     for wing_uid, panellist in lattice.bookkeeping_by_wing_uid.items():
+#         output = []
+#         for entry in panellist:
+#             for i in entry.pan_idx:
+#                 force_point = lattice.bound_leg_midpoints[i]
 
-                fx = vlmdata.panelwise['fx'][i]
-                fy = vlmdata.panelwise['fy'][i]
-                fz = vlmdata.panelwise['fz'][i]
-                output.append({"coord": list(force_point), "load": [fx, fy, fz, 0, 0, 0]})
+#                 fx = vlmdata.panelwise['fx'][i]
+#                 fy = vlmdata.panelwise['fy'][i]
+#                 fz = vlmdata.panelwise['fz'][i]
+#                 output.append({"coord": list(force_point), "load": [fx, fy, fz, 0, 0, 0]})
 
-        filepath = os.path.join(settings.paths('d_results'), f"loads_UID_{wing_uid}.json")
-        logger.info(f"Writing loads to file '{truncate_filepath(filepath)}'")
-        with open(filepath, "w") as fp:
-            dump_pretty_json(output, fp)
+#         filepath = os.path.join(settings.paths('d_results'), f"loads_UID_{wing_uid}.json")
+#         logger.info(f"Writing loads to file '{truncate_filepath(filepath)}'")
+#         with open(filepath, "w") as fp:
+#             dump_pretty_json(output, fp)
 
-    for wing_uid, panellist in lattice.bookkeeping_by_wing_uid_mirror.items():
-        output = []
-        for entry in panellist:
-            for i in entry.pan_idx:
-                force_point = lattice.bound_leg_midpoints[i]
+#     for wing_uid, panellist in lattice.bookkeeping_by_wing_uid_mirror.items():
+#         output = []
+#         for entry in panellist:
+#             for i in entry.pan_idx:
+#                 force_point = lattice.bound_leg_midpoints[i]
 
-                fx = vlmdata.panelwise['fx'][i]
-                fy = vlmdata.panelwise['fy'][i]
-                fz = vlmdata.panelwise['fz'][i]
-                output.append({"coord": list(force_point), "load": [fx, fy, fz, 0, 0, 0]})
+#                 fx = vlmdata.panelwise['fx'][i]
+#                 fy = vlmdata.panelwise['fy'][i]
+#                 fz = vlmdata.panelwise['fz'][i]
+#                 output.append({"coord": list(force_point), "load": [fx, fy, fz, 0, 0, 0]})
 
-        filepath = os.path.join(settings.paths('d_results'), f"loads_mirror_UID_{wing_uid}.json")
-        logger.info(f"Writing loads to file '{truncate_filepath(filepath)}'")
-        with open(filepath, "w") as fp:
-            dump_pretty_json(output, fp)
+#         filepath = os.path.join(settings.paths('d_results'), f"loads_mirror_UID_{wing_uid}.json")
+#         logger.info(f"Writing loads to file '{truncate_filepath(filepath)}'")
+#         with open(filepath, "w") as fp:
+#             dump_pretty_json(output, fp)
+# ===========================================================================
+# ===========================================================================
+# ===========================================================================
 
 
 def save_aeroperformance_map(state, settings):
