@@ -30,6 +30,8 @@ Developed at Airinnova AB, Stockholm, Sweden.
 import logging
 import numpy as np
 
+from commonlibs.fileio.paths import join_paths
+
 from pytornado.fileio.utils import parse_str
 from pytornado.objects.aircraft import ComponentDefinitionError, Aircraft
 from pytornado.objects.settings import PATHS
@@ -354,7 +356,7 @@ def get_aircraft_airfoils(aircraft, settings, tigl, wing_uid, segment_uid, idx_w
             """
             raise ValueError(err_msg)
 
-        file_airfoil = settings.paths.join_paths(settings.paths('root'), PATHS.FILES.AIRFOIL(name_airfoil))
+        file_airfoil = join_paths(settings.paths('root'), PATHS.FILES.AIRFOIL(name_airfoil))
         aircraft.wing[wing_uid].segment[segment_uid].airfoils[position] = str(file_airfoil)
 
 
@@ -378,7 +380,7 @@ def write_airfoil_files(settings, tixi):
         except tixiwrapper.TixiException:
             name_airfoil = f'AIRFOIL{i:02d}'
 
-        file_airfoil = settings.paths.join_paths(settings.paths('root'), PATHS.FILES.AIRFOIL(name_airfoil))
+        file_airfoil = join_paths(settings.paths('root'), PATHS.FILES.AIRFOIL(name_airfoil))
 
         # Convert string to numpy array
         coords_x = np.fromstring(tixi.getTextElement(node_data + '/x'), sep=';')

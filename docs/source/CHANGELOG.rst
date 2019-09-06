@@ -4,6 +4,14 @@ Changelog
 Changelog for PyTornado. Version numbers try to follow `Semantic
 Versioning <https://semver.org/spec/v2.0.0.html>`__.
 
+[0.4.3] -- 2019-09-06
+---------------------
+
+Changed
+~~~~~~~
+
+* Updated to `commonlibs` library version 0.2.2 (API changed)
+
 [0.4.2] -- 2019-09-05
 ---------------------
 
