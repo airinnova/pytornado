@@ -43,4 +43,9 @@ For instance, if ``airspeed`` and ``density`` are used, ``mach`` and ``altitude`
 
     Internally, |name| will run all computations using the *airspeed* and the *air density*. If you choose ``altitude`` as input, |name| will compute the *air density* and the *speed of sound*. |name| uses the `ICAO Standard Atmosphere 1993 <https://github.com/aarondettmann/ambiance>`_ as the atmospheric model.
 
-**TODO** State from CPACS
+CPACS |Apms|
+------------
+
+|Apms| defined in CPACS_ can also be evaluated using |name|. How to load CPACS_ defined |apms| is described here:
+
+   * :ref:`input_file_cpacs`
