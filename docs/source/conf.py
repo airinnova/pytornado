@@ -86,6 +86,7 @@ rst_prolog = f"""
 .. |apms| replace:: aero-performance maps
 .. |Apm| replace:: Aero-performance map
 .. |Apms| replace:: Aero-performance maps
+.. |uid| replace:: unique identifier
 .. _FEM: https://en.wikipedia.org/wiki/Finite_element_method
 .. _FE: https://en.wikipedia.org/wiki/Finite_element_method
 .. _aeroelasticity: https://en.wikipedia.org/wiki/Aeroelasticity

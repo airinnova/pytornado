@@ -15,7 +15,7 @@ Flight state keywords
 * ``alpha`` Angle of attack in *degrees*
 * ``altitude`` Flight altitude as geometric height in *meters*
 * ``beta`` Side slip angles in *degrees*
-* ``density`` Air density in *kilogram per meter^3*
+* ``density`` Air density in *kilogram per meter³*
 * ``mach`` Flight Mach number
 * ``rate_P`` Aircraft rotation rate about the body-fixed *X-axis* in *radians per seconds*
 * ``rate_Q`` Aircraft rotation rate about the body-fixed *Y-axis* in *radians per seconds*

@@ -36,6 +36,8 @@ For simpler analyses |name| provides a simple command line interface. More compl
    :caption: Theory
 
    theory/index
+   theory/coordinate_systems
+   theory/global_coeffs
    theory/references
 
 .. toctree::
