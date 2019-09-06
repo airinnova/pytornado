@@ -31,3 +31,7 @@ While creating this minimalistic example, several directories and files were cre
     Learn more about the |name|'s command line interface:
 
     * :ref:`command_line_interface`
+
+    Learn more about |name|'s input files:
+
+    * :ref:`input_files`
