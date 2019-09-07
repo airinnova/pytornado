@@ -55,7 +55,7 @@ from commonlibs.math.vectors import get_plane_line_intersect, rotate_vector_arou
 from airfoils import Airfoil, MorphAirfoil
 from airfoils.fileio import import_airfoil_data
 
-from pytornado.objects.utils import FixedNamespace, FixedOrderedDict
+from pytornado.objects.utils import FixedNamespace, FixedOrderedDict, check_dict_against_schema
 
 # Global unit vectors
 X_axis = np.array([1, 0, 0])
@@ -80,21 +80,18 @@ class Aircraft:
 
     # Schema for reference values
     REF_SCHEMA = {
+        '__REQUIRED_KEYS': ['gcenter', 'rcenter', 'area', 'chord', 'span'],
         'gcenter': {
-            'type': tuple,
+            'type': list,
             'min_len': 3,
             'max_len': 3,
-            'items': {
-                'type': float,
-            },
+            'item_types': (int, float),
         },
         'rcenter': {
-            'type': tuple,
+            'type': list,
             'min_len': 3,
             'max_len': 3,
-            'items': {
-                'type': float,
-            },
+            'item_types': (int, float),
         },
         'area': {
             'type': float,
@@ -277,84 +274,22 @@ class Aircraft:
         self.wings.update({wing_uid: Wing(wing_uid)})
         return self.wings[wing_uid]
 
-    def generate(self, check=True):
-        """ Generate AIRCRAFT model from provided data.
-
-        Procedure is as follows:
-            * check if AIRCRAFT properties are correctly defined.
-            * generate WING components and sub-components.
-            * generate AIRCRAFT SIZE and AREA.
-        """
+    def generate(self):
+        """Generate the aircraft model"""
 
         logger.debug(f"Generating aircraft '{self.uid}'...")
 
-        if check:
-        # =========================================================================
-        # =========================================================================
-        # =========================================================================
-            logger.info("Checking reference values...")
+        logger.info("Checking reference values...")
+        self.refs['area'] = float(self.refs['area'])
+        self.refs['chord'] = float(self.refs['chord'])
+        self.refs['span'] = float(self.refs['span'])
+        self.refs['gcenter'] = list(self.refs['gcenter'])
+        self.refs['rcenter'] = list(self.refs['rcenter'])
 
-            # 1. CHECK REFERENCE VALUES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-            if self.refs['gcenter'] is None:
-                raise ComponentDefinitionError("'refs.gcenter' is not defined.")
-            elif isinstance(self.refs['gcenter'], (list, np.ndarray)) and len(self.refs['gcenter']) == 3:
+        check_dict_against_schema(self.refs, self.REF_SCHEMA)
 
-                if not isinstance(self.refs['gcenter'][0], (float, int)):
-                    raise TypeError("x-coordinate of 'self.gcenter' must be FLOAT.")
-                if not isinstance(self.refs['gcenter'][1], (float, int)):
-                    raise TypeError("y-coordinate of 'self.gcenter' must be FLOAT.")
-                if not isinstance(self.refs['gcenter'][2], (float, int)):
-                    raise TypeError("z-coordinate of 'self.gcenter' must be FLOAT.")
-
-                # convert to NUMPY array
-                self.refs['gcenter'] = np.array(self.refs['gcenter'], dtype=float, order='C')
-
-            else:
-                raise TypeError("'self.gcenter' must be ARRAY of FLOAT [X, Y, Z].")
-
-            if self.refs['rcenter'] is None:
-                raise ComponentDefinitionError("'refs.rcenter' is not defined.")
-            elif isinstance(self.refs['rcenter'], (list, np.ndarray)) and len(self.refs['rcenter']) == 3:
-
-                if not isinstance(self.refs['rcenter'][0], (float, int)):
-                    raise TypeError("x-coordinate of 'self.rcenter' must be FLOAT.")
-                if not isinstance(self.refs['rcenter'][1], (float, int)):
-                    raise TypeError("y-coordinate of 'self.rcenter' must be FLOAT.")
-                if not isinstance(self.refs['rcenter'][2], (float, int)):
-                    raise TypeError("z-coordinate of 'self.rcenter' must be FLOAT.")
-
-                # convert to MUMPY array
-                self.refs['rcenter'] = np.array(self.refs['rcenter'], dtype=float, order='C')
-
-            else:
-                raise TypeError("'self.rcenter' must be ARRAY of FLOAT [X, Y, Z].")
-
-            if self.refs['area'] is None:
-                raise ComponentDefinitionError("'refs.area' is not defined.")
-            elif not isinstance(self.refs['area'], (float, int)):
-                raise TypeError("'refs.area' must be positive FLOAT.")
-            elif not self.refs['area'] >= 0.0:
-                raise ValueError("'refs.area' must be positive.")
-            self.refs['area'] = float(self.refs['area'])
-
-            if self.refs['span'] is None:
-                raise ComponentDefinitionError("'refs.span' is not defined.")
-            elif not isinstance(self.refs['span'], (float, int)):
-                raise TypeError("'refs.span' must be positive FLOAT.")
-            elif not self.refs['span'] >= 0.0:
-                raise ValueError("'refs.span' must be positive.")
-            self.refs['span'] = float(self.refs['span'])
-
-            if self.refs['chord'] is None:
-                raise ComponentDefinitionError("'refs.chord' is not defined.")
-            elif not isinstance(self.refs['chord'], (float, int)):
-                raise TypeError("'refs.chord' must be positive FLOAT.")
-            elif not self.refs['chord'] >= 0.0:
-                raise ValueError("'refs.chord' must be positive.")
-            self.refs['chord'] = float(self.refs['chord'])
-            # =========================================================================
-            # =========================================================================
-            # =========================================================================
+        self.refs['gcenter'] = np.array(self.refs['gcenter'], dtype=float, order='C')
+        self.refs['rcenter'] = np.array(self.refs['rcenter'], dtype=float, order='C')
 
         for wing_uid, wing in self.wings.items():
             logger.debug(f"Generating wing '{wing_uid}'...")
