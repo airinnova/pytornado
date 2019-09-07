@@ -267,7 +267,7 @@ def get_aircraft_controls(aircraft, wing_uid, idx_wing, tixi, tigl):
                     _, _, _, xsi_h2 = tigl.get_eta_xsi(name_comp_section, etaLE_ob, hingeXsi_ob)
 
                 # ADD WING CONTROL AND SET ATTRIBUTES
-                control = aircraft.wings[wing_uid].add_control(control_uid, return_control=True)
+                control = aircraft.wings[wing_uid].add_control(control_uid)
                 control.device_type = 'flap' if device_pos == 'trailing' else 'slat'
 
                 # Set DEFAULT deflection to 0

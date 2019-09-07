@@ -22,7 +22,7 @@
 # * Aaron Dettmann
 
 """
-Plot tools and commmon plot operations
+Plot tools and common plot operations
 
 Developed at Airinnova AB, Stockholm, Sweden.
 """

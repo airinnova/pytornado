@@ -107,9 +107,9 @@ class Aircraft:
         },
     }
 
-
     def __init__(self):
-        """ Aircraft model
+        """
+        Aircraft model
 
         The aircraft object is broken down into child objects:
 
@@ -257,7 +257,8 @@ class Aircraft:
                 wing.is_deformed = True
 
     def add_wing(self, wing_uid):
-        """ Add a new wing object
+        """
+        Add a new wing object
 
         Args:
             :wing_uid: (string) Unique identifier for the wing
@@ -279,6 +280,7 @@ class Aircraft:
 
         logger.debug(f"Generating aircraft '{self.uid}'...")
 
+        # ----- Reference values -----
         logger.info("Checking reference values...")
         self.refs['area'] = float(self.refs['area'])
         self.refs['chord'] = float(self.refs['chord'])
@@ -291,6 +293,7 @@ class Aircraft:
         self.refs['gcenter'] = np.array(self.refs['gcenter'], dtype=float, order='C')
         self.refs['rcenter'] = np.array(self.refs['rcenter'], dtype=float, order='C')
 
+        # ----- Child objects -----
         for wing_uid, wing in self.wings.items():
             logger.debug(f"Generating wing '{wing_uid}'...")
             # Check data and generate segment, control, area, span
@@ -299,46 +302,35 @@ class Aircraft:
         self._state = True
 
 
-class Wing(FixedNamespace):
-    """
-    Data structure for AIRCRAFT component: WING.
-
-        * WING is a component of AIRCRAFT.
-        * WING has WINGSEGMENT components, contained in WING.SEGMENT OrderedDict.
-        * WING has WINGCONTROL components, contained in WING.CONTROL OrderedDict.
-        * Components are accessed using their unique identifier, must be a STRING.
-        * WING represents a lifting surface.
-
-    Attributes:
-        :span: (float) total span of WINGSEGMENT components
-        :area: (float) total area of WINGSEGMENT components
-        :segment: (dict) WING components: WINGSEGMENT
-        :control: (dict) WING components: WINGCONTROL
-        :symmetry: (int) WING symmetry property (0: none; 1: yz; 2: xz; 3: xy)
-        :state: (bool) WING attribute definition state
-    """
+class Wing:
 
     def __init__(self, wing_uid):
         """
-        Initialise instance of WING.
+        Wing model (child of Aircraft)
 
-        WING inherits from FIXEDNAMESPACE.
-        Upon initialisation, attributes of WING are created and fixed.
-        Only existing attributes may be modified afterward.
+        Args:
+            :wing_uid: (str) Unique identifier
+
+        Attr:
+            :span: (float) Total span of WingSegment components
+            :area: (float) total area of WingSegment components
+            :segment: (dict) Wing child objects: WingSegment
+            :control: (dict) Wing child objects: WingControl
+            :symmetry: (int) Wing symmetry (0: none; 1: yz; 2: xz; 3: xy)
+            :state: (bool) Wing definition state
         """
 
-        super().__init__()
-
-        # PROPERTY -- user-provided symmetry flag
         self.uid = wing_uid
-        self.symmetry = None
+        self._symmetry = 0
 
         # DATA -- calculated total wing span and area
+        # TODO --> MAKE self._span
+        # TODO --> MAKE self._area
         self.span = None
         self.area = None
 
-        # COMPONENTS -- user-defined lifting surface segments
-        # COMPONENTS -- user-defined control surfaces
+        # TODO: --> MAKE self.segments
+        # TODO: --> MAKE self.segments
         self.segment = OrderedDict()
         self.control = OrderedDict()
 
@@ -347,10 +339,21 @@ class Wing(FixedNamespace):
         self.is_deformed = False
         self.was_deformed = False
 
-        # component definition state
-        self.state = False
+        self._state = False
 
-        self._freeze()
+    @property
+    def state(self):
+        return self._state
+
+    @property
+    def symmetry(self):
+        return self._symmetry
+
+    @symmetry.setter
+    def symmetry(self, symmetry):
+        if symmetry not in (0, 1, 2, 3):
+            raise ValueError("'symmetry' must be 0, 1, 2 or 3.")
+        self._symmetry = symmetry
 
     @property
     def is_deformed(self):
@@ -363,16 +366,15 @@ class Wing(FixedNamespace):
         if self.is_deformed is True:
             self.was_deformed = True
 
-    def add_segment(self, segment_uid, return_segment=False):
+    def add_segment(self, segment_uid):
         """
-        Update WING.SEGMENT with new SEGMENT component.
+        Add a new segment
 
         Args:
-            :segment_uid: (string) segment identifier
-            :return_segment: (bool) returns handle to new SEGMENT if TRUE (default: FALSE)
+            :segment_uid: (string) Segment identifier
 
         Returns:
-            (?) NONE or WING.SEGMENT[NAME_SEGMENT]
+            :segment: (obj) New segment object
         """
 
         if not segment_uid:
@@ -381,28 +383,26 @@ class Wing(FixedNamespace):
             raise ValueError(f"segment '{segment_uid}' already exists!")
 
         self.segment.update({segment_uid: WingSegment(self, segment_uid)})
-        return self.segment[segment_uid] if return_segment else None
+        return self.segment[segment_uid]
 
-    def add_control(self, control_uid, return_control=False):
+    def add_control(self, control_uid):
         """
-        Update WING.CONTROL with new CONTROL component.
+        Add a new control surface
 
         Args:
-            :control_uid: (string) control identifier
-            :return_control: (bool) returns handle to new CONTROL if TRUE (default: FALSE)
+            :control_uid: (string) Control identifier
 
         Returns:
-            (?) NONE or WING.CONTROL[NAME_CONTROL]
+            :control: (obj) New segment object
         """
 
         if not control_uid:
-            raise ComponentDefinitionError("empty name string!")
+            raise ComponentDefinitionError("Empty name string!")
         elif control_uid in self.control.keys():
             raise ValueError(f"Control '{control_uid}' already exists!")
 
         self.control.update({control_uid: WingControl(self, control_uid)})
-
-        return self.control[control_uid] if return_control else None
+        return self.control[control_uid]
 
     def generate(self):
         """
@@ -417,17 +417,9 @@ class Wing(FixedNamespace):
             * Generate WINGCONTROL VERTICES.
         """
 
-        # 1. CHECK WING PROPERTIES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-
-        if self.symmetry is None:
-            raise ComponentDefinitionError("'symmetry' is not defined.")
-        elif not isinstance(self.symmetry, int):
-            raise TypeError("'symmetry' must be an INTEGER.")
-        elif self.symmetry not in [0, 1, 2, 3]:
-            raise ValueError("'symmetry' must be 0, 1, 2 or 3.")
+        # TODO | improve continuity check, currently only collinearity
 
         # 2. GENERATE SEGMENTS, WING SPAN, WING AREA ~~~~~~~~~~~~~~~~~~~~~~ #
-
         self.area = 0.0
         self.span = 0.0
 
@@ -550,9 +542,7 @@ class Wing(FixedNamespace):
         if not wing_continuous:
             logger.warning("wing is discontinuous!")
 
-        # TODO | improve continuity check, currently only collinearity
-
-        self.state = True
+        self._state = True
 
     def check_deformation_continuity(self):
         """

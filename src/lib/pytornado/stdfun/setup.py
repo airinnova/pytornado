@@ -68,8 +68,8 @@ def setup_wkdir():
 
     aircraft.uid = 'template_aircraft'
     wing = aircraft.add_wing('template_wing')
-    segment = wing.add_segment('template_segment', return_segment=True)
-    control = wing.add_control('template_control', return_control=True)
+    segment = wing.add_segment('template_segment')
+    control = wing.add_control('template_control')
 
     # Generate file names and create project directory
     settings = Settings(settings_filename, project_dir, check_ac_file_type=False)

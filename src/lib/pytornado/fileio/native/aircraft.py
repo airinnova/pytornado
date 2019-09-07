@@ -76,7 +76,7 @@ def load(settings):
 
         # ====== Segments =====
         for segment_entry in wing_entry['segments']:
-            segment = wing.add_segment(segment_entry['uid'], return_segment=True)
+            segment = wing.add_segment(segment_entry['uid'])
 
             for key, value in segment_entry['vertices'].items():
                 segment.vertices[key] = value
@@ -94,7 +94,7 @@ def load(settings):
 
         # ====== Controls =====
         for control_entry in wing_entry.get('controls', []):
-            control = wing.add_control(control_entry['uid'], return_control=True)
+            control = wing.add_control(control_entry['uid'])
             control.device_type = control_entry['device_type']
             control.deflection = control_entry['deflection']
             control.deflection_mirror = control_entry.get('deflection_mirror', None)
