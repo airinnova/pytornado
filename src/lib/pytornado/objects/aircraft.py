@@ -106,8 +106,8 @@ class Aircraft:
             :state: (bool) Component definition state
         """
 
-        self.uid = 'aircraft'
-        self.version = '0.0.1'
+        self._uid = 'aircraft'
+        self._version = '0.0.1'
 
         self.refs = FixedOrderedDict()
         self.refs['area'] = None
@@ -124,7 +124,31 @@ class Aircraft:
         self.size = None
         self.area = None
 
-        self.state = False
+        self._state = False
+
+    @property
+    def uid(self):
+        return self._uid
+
+    @uid.setter
+    def uid(self, uid):
+        if not isinstance(uid, str):
+            raise TypeError("'uid' must be a string")
+        self._uid = uid
+
+    @property
+    def version(self):
+        return self._version
+
+    @version.setter
+    def version(self, version):
+        if not isinstance(version, str):
+            raise TypeError("'version' must be a string")
+        self._version = version
+
+    @property
+    def state(self):
+        return self._state
 
     @property
     def has_deformed_wings(self):
@@ -177,19 +201,74 @@ class Aircraft:
 
         logger.debug(f"Generating aircraft '{self.uid}'...")
 
-        # 1. CHECK PROPERTIES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-        if not self.uid:
-            raise ComponentDefinitionError("'name' is not defined.")
-        elif not isinstance(self.uid, str):
-            raise TypeError("name' must be valid STRING.")
-
-        if not self.version:
-            raise ComponentDefinitionError("'version' is not defined.")
-        elif not isinstance(self.uid, str):
-            raise TypeError("version' must be valid STRING.")
-
         if check:
-            self.check_refs()
+        #=========================================================================0
+        #=========================================================================0
+        #=========================================================================0
+            logger.info("Checking reference values...")
+
+            # 1. CHECK REFERENCE VALUES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+
+            if self.refs['gcenter'] is None:
+                raise ComponentDefinitionError("'refs.gcenter' is not defined.")
+            elif isinstance(self.refs['gcenter'], (list, np.ndarray)) and len(self.refs['gcenter']) == 3:
+
+                if not isinstance(self.refs['gcenter'][0], (float, int)):
+                    raise TypeError("x-coordinate of 'self.gcenter' must be FLOAT.")
+                if not isinstance(self.refs['gcenter'][1], (float, int)):
+                    raise TypeError("y-coordinate of 'self.gcenter' must be FLOAT.")
+                if not isinstance(self.refs['gcenter'][2], (float, int)):
+                    raise TypeError("z-coordinate of 'self.gcenter' must be FLOAT.")
+
+                # convert to NUMPY array
+                self.refs['gcenter'] = np.array(self.refs['gcenter'], dtype=float, order='C')
+
+            else:
+                raise TypeError("'self.gcenter' must be ARRAY of FLOAT [X, Y, Z].")
+
+            if self.refs['rcenter'] is None:
+                raise ComponentDefinitionError("'refs.rcenter' is not defined.")
+            elif isinstance(self.refs['rcenter'], (list, np.ndarray)) and len(self.refs['rcenter']) == 3:
+
+                if not isinstance(self.refs['rcenter'][0], (float, int)):
+                    raise TypeError("x-coordinate of 'self.rcenter' must be FLOAT.")
+                if not isinstance(self.refs['rcenter'][1], (float, int)):
+                    raise TypeError("y-coordinate of 'self.rcenter' must be FLOAT.")
+                if not isinstance(self.refs['rcenter'][2], (float, int)):
+                    raise TypeError("z-coordinate of 'self.rcenter' must be FLOAT.")
+
+                # convert to MUMPY array
+                self.refs['rcenter'] = np.array(self.refs['rcenter'], dtype=float, order='C')
+
+            else:
+                raise TypeError("'self.rcenter' must be ARRAY of FLOAT [X, Y, Z].")
+
+            if self.refs['area'] is None:
+                raise ComponentDefinitionError("'refs.area' is not defined.")
+            elif not isinstance(self.refs['area'], (float, int)):
+                raise TypeError("'refs.area' must be positive FLOAT.")
+            elif not self.refs['area'] >= 0.0:
+                raise ValueError("'refs.area' must be positive.")
+            self.refs['area'] = float(self.refs['area'])
+
+            if self.refs['span'] is None:
+                raise ComponentDefinitionError("'refs.span' is not defined.")
+            elif not isinstance(self.refs['span'], (float, int)):
+                raise TypeError("'refs.span' must be positive FLOAT.")
+            elif not self.refs['span'] >= 0.0:
+                raise ValueError("'refs.span' must be positive.")
+            self.refs['span'] = float(self.refs['span'])
+
+            if self.refs['chord'] is None:
+                raise ComponentDefinitionError("'refs.chord' is not defined.")
+            elif not isinstance(self.refs['chord'], (float, int)):
+                raise TypeError("'refs.chord' must be positive FLOAT.")
+            elif not self.refs['chord'] >= 0.0:
+                raise ValueError("'refs.chord' must be positive.")
+            self.refs['chord'] = float(self.refs['chord'])
+            #=========================================================================0
+            #=========================================================================0
+            #=========================================================================0
 
         # 2. GENERATE WING COMPONENTS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
         self.area = 0.0
@@ -257,72 +336,7 @@ class Aircraft:
 
         # approx. characteristic size of aircraft (diagonal of bbox)
         self.size = np.linalg.norm(bbox[1, :] - bbox[0, :])
-        self.state = True
-
-    def check_refs(self):
-        """Check type and value of properties in WING.REFS."""
-
-        logger.info("Checking reference values...")
-
-        # 1. CHECK REFERENCE VALUES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-
-        if self.refs['gcenter'] is None:
-            raise ComponentDefinitionError("'refs.gcenter' is not defined.")
-        elif isinstance(self.refs['gcenter'], (list, np.ndarray)) and len(self.refs['gcenter']) == 3:
-
-            if not isinstance(self.refs['gcenter'][0], (float, int)):
-                raise TypeError("x-coordinate of 'self.gcenter' must be FLOAT.")
-            if not isinstance(self.refs['gcenter'][1], (float, int)):
-                raise TypeError("y-coordinate of 'self.gcenter' must be FLOAT.")
-            if not isinstance(self.refs['gcenter'][2], (float, int)):
-                raise TypeError("z-coordinate of 'self.gcenter' must be FLOAT.")
-
-            # convert to NUMPY array
-            self.refs['gcenter'] = np.array(self.refs['gcenter'], dtype=float, order='C')
-
-        else:
-            raise TypeError("'self.gcenter' must be ARRAY of FLOAT [X, Y, Z].")
-
-        if self.refs['rcenter'] is None:
-            raise ComponentDefinitionError("'refs.rcenter' is not defined.")
-        elif isinstance(self.refs['rcenter'], (list, np.ndarray)) and len(self.refs['rcenter']) == 3:
-
-            if not isinstance(self.refs['rcenter'][0], (float, int)):
-                raise TypeError("x-coordinate of 'self.rcenter' must be FLOAT.")
-            if not isinstance(self.refs['rcenter'][1], (float, int)):
-                raise TypeError("y-coordinate of 'self.rcenter' must be FLOAT.")
-            if not isinstance(self.refs['rcenter'][2], (float, int)):
-                raise TypeError("z-coordinate of 'self.rcenter' must be FLOAT.")
-
-            # convert to MUMPY array
-            self.refs['rcenter'] = np.array(self.refs['rcenter'], dtype=float, order='C')
-
-        else:
-            raise TypeError("'self.rcenter' must be ARRAY of FLOAT [X, Y, Z].")
-
-        if self.refs['area'] is None:
-            raise ComponentDefinitionError("'refs.area' is not defined.")
-        elif not isinstance(self.refs['area'], (float, int)):
-            raise TypeError("'refs.area' must be positive FLOAT.")
-        elif not self.refs['area'] >= 0.0:
-            raise ValueError("'refs.area' must be positive.")
-        self.refs['area'] = float(self.refs['area'])
-
-        if self.refs['span'] is None:
-            raise ComponentDefinitionError("'refs.span' is not defined.")
-        elif not isinstance(self.refs['span'], (float, int)):
-            raise TypeError("'refs.span' must be positive FLOAT.")
-        elif not self.refs['span'] >= 0.0:
-            raise ValueError("'refs.span' must be positive.")
-        self.refs['span'] = float(self.refs['span'])
-
-        if self.refs['chord'] is None:
-            raise ComponentDefinitionError("'refs.chord' is not defined.")
-        elif not isinstance(self.refs['chord'], (float, int)):
-            raise TypeError("'refs.chord' must be positive FLOAT.")
-        elif not self.refs['chord'] >= 0.0:
-            raise ValueError("'refs.chord' must be positive.")
-        self.refs['chord'] = float(self.refs['chord'])
+        self._state = True
 
 
 class Wing(FixedNamespace):
