@@ -244,7 +244,7 @@ class SchemaError(Exception):
     pass
 
 
-def check_dict_against_schema(schema_dict, test_dict):
+def check_dict_against_schema(test_dict, schema_dict):
     """
     Check that a dictionary conforms to a schema dictionary
 
@@ -257,12 +257,19 @@ def check_dict_against_schema(schema_dict, test_dict):
 
     Raises:
         :ValueError: If test dictionary has value of wrong size
+        :KeyError: If test dictionary does not have a required key
         :TypeError: If test dictionary has values of wrong type
         :SchemaError: If the schema itself is ill-defined
     """
 
     for key, form in schema_dict.items():
-        # Basic type check
+
+        # ----- Check that dictionary has required keys -----
+        if key == '__REQUIRED_KEYS':
+            check_keys_in_dict(form, test_dict)
+            continue
+
+        # ----- Basic type check -----
         expected_type = form.get('type', None)
         if expected_type is None:
             raise SchemaError("Type not defined")
@@ -273,7 +280,7 @@ def check_dict_against_schema(schema_dict, test_dict):
             """
             raise TypeError(err_msg)
 
-        # Test float/int
+        # ----- Test float/int -----
         if expected_type in (float, int):
             for check_key in OPERATORS.keys():
                 check_value = form.get(check_key, None)
@@ -286,9 +293,54 @@ def check_dict_against_schema(schema_dict, test_dict):
                 if not OPERATORS[check_key](test_dict[key], expected_value):
                     err_msg = f"""
                     Test dictionary has wrong value for key '{key}'.
-                    Expected {check_key}{expected_value}, but test value is '{test_dict['key']}'.
+                    Expected {check_key}{expected_value}, but test value is '{test_dict[key]}'.
                     """
                     raise ValueError(err_msg)
+
+        # ----- Test str -----
+        if expected_type is str:
+            min_len = form.get('min_len', None)
+            if min_len is not None:
+                if len(test_dict[key]) < min_len:
+                    err_msg = f"""
+                    String is too short.
+                    """
+                    raise ValueError(err_msg)
+
+            max_len = form.get('max_len', None)
+            if max_len is not None:
+                if len(test_dict[key]) > max_len:
+                    err_msg = f"""
+                    String is too long.
+                    """
+                    raise ValueError(err_msg)
+
+
+        # TODO: Test required keys
+        # TODO: test nested dict
+
+
+def check_keys_in_dict(required_keys, test_dict):
+    """
+    Check that required keys are in a test dictionary
+
+    Args:
+        :required_keys: List of keys required in the test dictionary
+        :test_dict: Test dictionary
+
+    Raises:
+        :KeyError: If a required key is not found in the test dictionary
+    """
+
+    # TODO: check that required_keys is list of strings
+
+    test_dict_keys = list(test_dict.keys())
+    for required_key in required_keys:
+        if not required_key in test_dict_keys:
+            err_msg = f"""
+            Key '{required_key}' is required, but not found in test dictionary
+            """
+            raise KeyError(err_msg)
 
 # ============================================================================
 # ============================================================================
