@@ -67,7 +67,7 @@ def setup_wkdir():
     state = FlightState()
 
     aircraft.uid = 'template_aircraft'
-    wing = aircraft.add_wing('template_wing', return_wing=True)
+    wing = aircraft.add_wing('template_wing')
     segment = wing.add_segment('template_segment', return_segment=True)
     control = wing.add_control('template_control', return_control=True)
 

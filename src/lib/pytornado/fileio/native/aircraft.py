@@ -71,7 +71,7 @@ def load(settings):
 
     # ====== Wings =====
     for wing_entry in aircraft_dict['wings']:
-        wing = aircraft.add_wing(wing_entry['uid'], return_wing=True)
+        wing = aircraft.add_wing(wing_entry['uid'])
         wing.symmetry = wing_entry['symmetry']
 
         # ====== Segments =====

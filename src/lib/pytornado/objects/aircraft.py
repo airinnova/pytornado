@@ -77,52 +77,45 @@ class ComponentDefinitionError(Exception):
 
 
 class Aircraft:
-    """
-    Aircraft model
-
-    The aircraft object is broken down into child objects:
-
-        * The 'Aircraft' has 'Wing's
-        * A 'Wing' has 'WingSegment's
-        * A 'Wing' has 'WingControl's
-        * A 'WingSegment' has 'SegmentStrip's
-        * A 'SegmentStrip' has 'StripSubdivision's
-
-    The following objects have unique identifiers (uid):
-
-        * Aircraft
-        * Wing
-        * WingSegment
-        * WingControl
-
-    Attributes:
-        :uid: (string) Unique identifier
-        :version: (string) User defined version
-        :refs: (dict) Reference values for coefficients
-        :wing: (dict) Wing objects
-        :size: (float) Aircraft geometry size measure
-        :area: (float) Aircraft surface area
-        :state: (bool) Component definition state
-    """
 
     def __init__(self):
-        """
-        Initialise instance of AIRCRAFT.
+        """ Aircraft model
 
-        AIRCRAFT inherits from FIXEDNAMESPACE.
-        Upon initialisation, attributes of AIRCRAFT are created and fixed.
-        Only existing attributes may be modified afterward.
+        The aircraft object is broken down into child objects:
+
+            * The 'Aircraft' has 'Wing's
+            * A 'Wing' has 'WingSegment's
+            * A 'Wing' has 'WingControl's
+            * A 'WingSegment' has 'SegmentStrip's
+            * A 'SegmentStrip' has 'StripSubdivision's
+
+        The following objects have unique identifiers (uid):
+
+            * Aircraft
+            * Wing
+            * WingSegment
+            * WingControl
+
+        Attributes:
+            :uid: (string) Unique identifier
+            :version: (string) User defined version
+            :refs: (dict) Reference values for coefficients
+            :wing: (dict) Wing objects
+            :size: (float) Aircraft geometry size measure
+            :area: (float) Aircraft surface area
+            :state: (bool) Component definition state
         """
 
         self.uid = 'aircraft'
         self.version = '0.0.1'
-        self.refs = {
-            'area': None,
-            'span': None,
-            'chord': None,
-            'gcenter': None,
-            'rcenter': None,
-        }
+
+        self.refs = FixedOrderedDict()
+        self.refs['area'] = None
+        self.refs['span'] = None
+        self.refs['chord'] = None
+        self.refs['gcenter'] = None
+        self.refs['rcenter'] = None
+        self.refs._freeze()
 
         # Wing child objects
         self.wings = OrderedDict()
@@ -135,9 +128,7 @@ class Aircraft:
 
     @property
     def has_deformed_wings(self):
-        """
-        True if any wing are deformed
-        """
+        """True if any wing are deformed"""
 
         for wing in self.wings.values():
             if wing.is_deformed:
@@ -145,46 +136,38 @@ class Aircraft:
         return False
 
     def turn_off_all_deformation(self):
-        """
-        Master switch which turns off all deformation
-        """
+        """Master switch which turns off all deformation"""
 
         for wing in self.wings.values():
             wing.is_deformed = False
 
     def turn_on_all_deformation(self):
-        """
-        Master switch which turns on all deformation
-        """
+        """Master switch which turns on all deformation"""
 
         for wing in self.wings.values():
             if wing.was_deformed:
                 wing.is_deformed = True
 
-    def add_wing(self, wing_uid, return_wing=False):
-        """
-        Update AIRCRAFT.WING with new WING component.
+    def add_wing(self, wing_uid):
+        """ Add a new wing object
 
         Args:
-            :wing_uid: (string) identifier for wing
-            :return_wing: (bool) returns handle to new wing if TRUE (default: FALSE)
+            :wing_uid: (string) Unique identifier for the wing
 
         Returns:
-            (?) NONE or AIRCRAFT.WING[NAME_WING]
+            :wing: (obj) Created wing object
         """
 
         if not wing_uid:
-            raise ComponentDefinitionError("Empty uid string!")
+            raise ComponentDefinitionError("Empty UID string!")
         elif wing_uid in self.wings:
-            raise ValueError(f"wing '{wing_uid}' is already defined!")
+            raise ValueError(f"Wing '{wing_uid}' is already defined!")
 
         self.wings.update({wing_uid: Wing(wing_uid)})
-
-        return self.wings[wing_uid] if return_wing else None
+        return self.wings[wing_uid]
 
     def generate(self, check=True):
-        """
-        Generate AIRCRAFT model from provided data.
+        """ Generate AIRCRAFT model from provided data.
 
         Procedure is as follows:
             * check if AIRCRAFT properties are correctly defined.
@@ -323,8 +306,7 @@ class Aircraft:
             raise TypeError("'refs.area' must be positive FLOAT.")
         elif not self.refs['area'] >= 0.0:
             raise ValueError("'refs.area' must be positive.")
-        else:
-            self.refs['area'] = float(self.refs['area'])
+        self.refs['area'] = float(self.refs['area'])
 
         if self.refs['span'] is None:
             raise ComponentDefinitionError("'refs.span' is not defined.")
@@ -332,8 +314,7 @@ class Aircraft:
             raise TypeError("'refs.span' must be positive FLOAT.")
         elif not self.refs['span'] >= 0.0:
             raise ValueError("'refs.span' must be positive.")
-        else:
-            self.refs['span'] = float(self.refs['span'])
+        self.refs['span'] = float(self.refs['span'])
 
         if self.refs['chord'] is None:
             raise ComponentDefinitionError("'refs.chord' is not defined.")
@@ -341,8 +322,7 @@ class Aircraft:
             raise TypeError("'refs.chord' must be positive FLOAT.")
         elif not self.refs['chord'] >= 0.0:
             raise ValueError("'refs.chord' must be positive.")
-        else:
-            self.refs['chord'] = float(self.refs['chord'])
+        self.refs['chord'] = float(self.refs['chord'])
 
 
 class Wing(FixedNamespace):
