@@ -78,6 +78,39 @@ class ComponentDefinitionError(Exception):
 
 class Aircraft:
 
+    # Schema for reference values
+    REF_SCHEMA = {
+        'gcenter': {
+            'type': tuple,
+            'min_len': 3,
+            'max_len': 3,
+            'items': {
+                'type': float,
+            },
+        },
+        'rcenter': {
+            'type': tuple,
+            'min_len': 3,
+            'max_len': 3,
+            'items': {
+                'type': float,
+            },
+        },
+        'area': {
+            'type': float,
+            '>': 0,
+        },
+        'chord': {
+            'type': float,
+            '>': 0,
+        },
+        'span': {
+            'type': float,
+            '>': 0,
+        },
+    }
+
+
     def __init__(self):
         """ Aircraft model
 
@@ -561,7 +594,7 @@ class Wing(FixedNamespace):
                     #     #   B1C1 overlaps B2C2
 
                     segm_continuous = True
-                    logger.debug("edge {}-{} is continous (with discontinuous normal!).".format(i, i + 1))
+                    logger.debug("edge {}-{} is continuous (with discontinuous normal!).".format(i, i + 1))
 
             elif np.linalg.norm(a2d2 - a1d1) < TOL:
                 # A1D1 and A2D2 have same orientation
@@ -572,7 +605,7 @@ class Wing(FixedNamespace):
                     #     #   A1D1 overlaps A2D2
 
                     segm_continuous = True
-                    logger.debug("edge {}-{} is continous (with discontinuous normal!).".format(i, i + 1))
+                    logger.debug("edge {}-{} is continuous (with discontinuous normal!).".format(i, i + 1))
 
             if not segm_continuous:
                 logger.warning("edge {}-{} is discontinuous.".format(i, i + 1))

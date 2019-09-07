@@ -130,7 +130,7 @@ class FixedOrderedDict(MutableMapping):
 
 def check_dict(template_dict, test_dict):
     """
-    Check that a test dictionary looks like a test dictionary
+    Check that a test dictionary looks like a template dictionary
 
     Args:
         :template_dict: Template dictionary
@@ -222,3 +222,74 @@ def get_default_dict(template_dict):
             value = get_default_dict(template_dict=value)
         default_dict[key] = value
     return default_dict
+
+# ============================================================================
+# ============================================================================
+# ============================================================================
+
+import operator
+
+
+OPERATORS = {
+    '>': operator.gt,
+    '<': operator.lt,
+    '<=': operator.le,
+    '>=': operator.ge,
+}
+
+
+class SchemaError(Exception):
+    """Raised if the schema dictionary is ill-defined"""
+
+    pass
+
+
+def check_dict_against_schema(schema_dict, test_dict):
+    """
+    Check that a dictionary conforms to a schema dictionary
+
+    This function will raise an error if the 'test_dict' is not in alignment
+    with the 'schema_dict'
+
+    Args:
+        :schema_dict: Schema dictionary
+        :test_dict: Dictionary to test against schema dictionary
+
+    Raises:
+        :ValueError: If test dictionary has value of wrong size
+        :TypeError: If test dictionary has values of wrong type
+        :SchemaError: If the schema itself is ill-defined
+    """
+
+    for key, form in schema_dict.items():
+        # Basic type check
+        expected_type = form.get('type', None)
+        if expected_type is None:
+            raise SchemaError("Type not defined")
+        if not isinstance(test_dict[key], expected_type):
+            err_msg = f"""
+            Unexpected data type for key '{key}'.
+            Expected {expected_type}, got {type(test_dict[key])}.
+            """
+            raise TypeError(err_msg)
+
+        # Test float/int
+        if expected_type in (float, int):
+            for check_key in OPERATORS.keys():
+                check_value = form.get(check_key, None)
+                if check_value is None:
+                    continue
+                expected_value = form.get(check_key, None)
+                if expected_value is None:
+                    raise SchemaError("Value not defined")
+
+                if not OPERATORS[check_key](test_dict[key], expected_value):
+                    err_msg = f"""
+                    Test dictionary has wrong value for key '{key}'.
+                    Expected {check_key}{expected_value}, but test value is '{test_dict['key']}'.
+                    """
+                    raise ValueError(err_msg)
+
+# ============================================================================
+# ============================================================================
+# ============================================================================
