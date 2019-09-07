@@ -19,6 +19,7 @@ SCHEMA_1 = {
     }
 }
 
+# Simple nested schema
 SCHEMA_2 = {
     '__REQUIRED_KEYS': ['name', 'age'],
     'name': {
@@ -35,6 +36,21 @@ SCHEMA_2 = {
         'type': dict,
         'schema': SCHEMA_1,
     }
+}
+
+
+SCHEMA_3 = {
+    'fruits': {
+        'type': list,
+        'min_len': 3,
+        'max_len': 3,
+        'item_types': str,
+        },
+    'numbers': {
+        'type': tuple,
+        'min_len': 3,
+        'item_types': (int, float),
+    },
 }
 
 
@@ -102,6 +118,7 @@ def test_nested_dict():
         }
     }
 
+    check_dict_against_schema(test, SCHEMA_1)  # Validation against schema 1 must still work
     check_dict_against_schema(test, SCHEMA_2)
 
     test = {
@@ -115,3 +132,24 @@ def test_nested_dict():
 
     with raises(ValueError):
         check_dict_against_schema(test, SCHEMA_2)
+
+
+def test_arrays():
+    """
+    TODO
+    """
+
+    test = {
+        'fruits': ['apple', 'pear', 'strawberry'],
+        'numbers': (3.14159, 42, 1792, 5050),
+    }
+
+    check_dict_against_schema(test, SCHEMA_3)
+
+    test = {
+        'fruits': ['apple', 'pear', 'strawberry'],
+        'numbers': (3.14159, 42, 1792, 5050, 'string_not_allowed'),
+    }
+
+    with raises(TypeError):
+        check_dict_against_schema(test, SCHEMA_3)

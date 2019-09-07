@@ -286,7 +286,6 @@ def check_dict_against_schema(test_dict, schema_dict):
             sub_schema_dict = form.get('schema', None)
             if sub_schema_dict is not None:
                 check_dict_against_schema(test_dict[key], sub_schema_dict)
-                print("test")
 
         # ----- Test float/int -----
         elif expected_type in (float, int):
@@ -325,8 +324,21 @@ def check_dict_against_schema(test_dict, schema_dict):
 
             # TODO: test REGEX patterns
 
+        # ----- Test tuple/list -----
+        elif expected_type in (tuple, list):
+            min_len = form.get('min_len', None)
+            if min_len is not None:
+                if len(test_dict[key]) < min_len:
+                    raise ValueError("TODO")
+            max_len = form.get('max_len', None)
+            if max_len is not None:
+                if len(test_dict[key]) > max_len:
+                    raise ValueError("TODO")
 
-        # TODO: test nested dict
+            item_types = form.get('item_types', None)
+            if item_types is not None:
+                if not all(isinstance(item, item_types) for item in test_dict[key]):
+                    raise TypeError("List has wrong item type")
 
 
 def check_keys_in_dict(required_keys, test_dict):
