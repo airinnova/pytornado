@@ -120,10 +120,6 @@ class Aircraft:
         # Wing child objects
         self.wings = OrderedDict()
 
-        # Calculated total wing span and area
-        self.size = None
-        self.area = None
-
         self._state = False
 
     @property
@@ -145,6 +141,64 @@ class Aircraft:
         if not isinstance(version, str):
             raise TypeError("'version' must be a string")
         self._version = version
+
+    @property
+    def area(self):
+        """Aircraft area as sum of wing areas"""
+
+        area = 0
+        for wing_uid, wing in self.wings.items():
+            area += wing.area
+        return area
+
+    @property
+    def size(self):
+        """
+        Approximate characteristic size of aircraft (diagonal of a bounding box)
+        """
+
+        bbox = np.zeros((2, 3))
+        for wing_uid, wing in self.wings.items():
+            for segment_uid, segment in wing.segment.items():
+                # Segment vertices
+                points = np.array(list(segment.vertices.values()))
+                points_min = points.min(axis=0)
+                points_max = points.max(axis=0)
+
+                indices_min = points_min < bbox[0, :]
+                indices_max = points_max > bbox[1, :]
+
+                # Update bounding box
+                bbox[0, indices_min] = points_min[indices_min]
+                bbox[1, indices_max] = points_max[indices_max]
+
+                # Segment centre weighted by area
+                center = 0.25*sum(points)
+
+                # Account for symmetry
+                if wing.symmetry == 1:
+                    if -points_max[2] < bbox[0, 2]:
+                        bbox[0, 2] = -points_max[2]
+                    if -points_min[2] > bbox[1, 2]:
+                        bbox[1, 2] = -points_min[2]
+                    center[2] = 0.0
+
+                if wing.symmetry == 2:
+                    if -points_max[1] < bbox[0, 1]:
+                        bbox[0, 1] = -points_max[1]
+                    if -points_min[1] > bbox[1, 1]:
+                        bbox[1, 1] = -points_min[1]
+                    center[1] = 0.0
+
+                if wing.symmetry == 3:
+                    if -points_max[0] < bbox[0, 0]:
+                        bbox[0, 0] = -points_max[0]
+                    if -points_min[0] > bbox[1, 0]:
+                        bbox[1, 0] = -points_min[0]
+                    center[0] = 0.0
+
+        size = np.linalg.norm(bbox[1, :] - bbox[0, :])
+        return size
 
     @property
     def state(self):
@@ -202,13 +256,12 @@ class Aircraft:
         logger.debug(f"Generating aircraft '{self.uid}'...")
 
         if check:
-        #=========================================================================0
-        #=========================================================================0
-        #=========================================================================0
+        # =========================================================================
+        # =========================================================================
+        # =========================================================================
             logger.info("Checking reference values...")
 
             # 1. CHECK REFERENCE VALUES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-
             if self.refs['gcenter'] is None:
                 raise ComponentDefinitionError("'refs.gcenter' is not defined.")
             elif isinstance(self.refs['gcenter'], (list, np.ndarray)) and len(self.refs['gcenter']) == 3:
@@ -266,76 +319,15 @@ class Aircraft:
             elif not self.refs['chord'] >= 0.0:
                 raise ValueError("'refs.chord' must be positive.")
             self.refs['chord'] = float(self.refs['chord'])
-            #=========================================================================0
-            #=========================================================================0
-            #=========================================================================0
-
-        # 2. GENERATE WING COMPONENTS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-        self.area = 0.0
-        bbox = np.zeros((2, 3))
-        uids = list()
+            # =========================================================================
+            # =========================================================================
+            # =========================================================================
 
         for wing_uid, wing in self.wings.items():
             logger.debug(f"Generating wing '{wing_uid}'...")
-
-            # CHECK DATA and generate SEGMENT, CONTROL, AREA, SPAN
+            # Check data and generate segment, control, area, span
             wing.generate()
 
-            # aircraft area as sum of wing areas
-            self.area += wing.area
-            uids.append(wing_uid)
-
-            for segment_uid, segment in wing.segment.items():
-                # segment vertices
-                points = np.array(list(segment.vertices.values()))
-                points_min = points.min(axis=0)
-                points_max = points.max(axis=0)
-
-                indices_min = points_min < bbox[0, :]
-                indices_max = points_max > bbox[1, :]
-
-                # update bounding box
-                bbox[0, indices_min] = points_min[indices_min]
-                bbox[1, indices_max] = points_max[indices_max]
-
-                # segment center weighted by area
-                center = 0.25*sum(points)
-
-                # account for symmetry
-                if wing.symmetry == 1:
-                    if -points_max[2] < bbox[0, 2]:
-                        bbox[0, 2] = -points_max[2]
-
-                    if -points_min[2] > bbox[1, 2]:
-                        bbox[1, 2] = -points_min[2]
-
-                    center[2] = 0.0
-
-                if wing.symmetry == 2:
-                    if -points_max[1] < bbox[0, 1]:
-                        bbox[0, 1] = -points_max[1]
-
-                    if -points_min[1] > bbox[1, 1]:
-                        bbox[1, 1] = -points_min[1]
-
-                    center[1] = 0.0
-
-                if wing.symmetry == 3:
-                    if -points_max[0] < bbox[0, 0]:
-                        bbox[0, 0] = -points_max[0]
-
-                    if -points_min[0] > bbox[1, 0]:
-                        bbox[1, 0] = -points_min[0]
-
-                    center[0] = 0.0
-
-                if segment_uid in uids:
-                    raise ComponentDefinitionError("duplicate component name '{}'!".format(segment_uid))
-
-                uids.append(wing_uid)
-
-        # approx. characteristic size of aircraft (diagonal of bbox)
-        self.size = np.linalg.norm(bbox[1, :] - bbox[0, :])
         self._state = True
 
 
