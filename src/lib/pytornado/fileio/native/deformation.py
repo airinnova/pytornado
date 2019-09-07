@@ -62,8 +62,8 @@ def load(aircraft, settings):
         segment_uid = entry['segment']
         mirror = entry['mirror']
 
-        aircraft.wing[wing_uid].is_deformed = True
-        segment = aircraft.wing[wing_uid].segment[segment_uid]
+        aircraft.wings[wing_uid].is_deformed = True
+        segment = aircraft.wings[wing_uid].segment[segment_uid]
 
         if mirror:
             deformation = segment.deformation_mirror = {}

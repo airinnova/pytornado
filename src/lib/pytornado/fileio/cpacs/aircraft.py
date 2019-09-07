@@ -107,7 +107,7 @@ def get_aircraft_wings(aircraft, settings, tixi, tigl):
         logger.debug(f"Wing name: '{wing_uid}'")
 
         aircraft.add_wing(wing_uid)
-        aircraft.wing[wing_uid].symmetry = tigl.wingGetSymmetry(idx_wing)
+        aircraft.wings[wing_uid].symmetry = tigl.wingGetSymmetry(idx_wing)
 
         # For each wing we set segment and control data
         get_aircraft_wing_segments(aircraft, settings, xpath_wing, wing_uid, idx_wing, tixi, tigl)
@@ -146,7 +146,7 @@ def get_aircraft_wing_segments(aircraft, settings, xpath_wing, wing_uid, idx_win
 
         logger.debug(f"Loading segment '{segment_uid}'...")
 
-        aircraft.wing[wing_uid].add_segment(segment_uid)
+        aircraft.wings[wing_uid].add_segment(segment_uid)
 
         # Get the absolute segment vertices
         a = get_segment_mid_point(tigl, idx_wing, idx_segment, eta=0, xsi=0)
@@ -172,10 +172,10 @@ def get_aircraft_wing_segments(aircraft, settings, xpath_wing, wing_uid, idx_win
         #########################################################################
         #########################################################################
 
-        aircraft.wing[wing_uid].segment[segment_uid].vertices['a'] = a
-        aircraft.wing[wing_uid].segment[segment_uid].vertices['b'] = b
-        aircraft.wing[wing_uid].segment[segment_uid].vertices['c'] = c
-        aircraft.wing[wing_uid].segment[segment_uid].vertices['d'] = d
+        aircraft.wings[wing_uid].segment[segment_uid].vertices['a'] = a
+        aircraft.wings[wing_uid].segment[segment_uid].vertices['b'] = b
+        aircraft.wings[wing_uid].segment[segment_uid].vertices['c'] = c
+        aircraft.wings[wing_uid].segment[segment_uid].vertices['d'] = d
 
         # ----- Set airfoils -----
         get_aircraft_airfoils(aircraft, settings, tigl, wing_uid, segment_uid, idx_wing, idx_segment)
@@ -267,7 +267,7 @@ def get_aircraft_controls(aircraft, wing_uid, idx_wing, tixi, tigl):
                     _, _, _, xsi_h2 = tigl.get_eta_xsi(name_comp_section, etaLE_ob, hingeXsi_ob)
 
                 # ADD WING CONTROL AND SET ATTRIBUTES
-                control = aircraft.wing[wing_uid].add_control(control_uid, return_control=True)
+                control = aircraft.wings[wing_uid].add_control(control_uid, return_control=True)
                 control.device_type = 'flap' if device_pos == 'trailing' else 'slat'
 
                 # Set DEFAULT deflection to 0
@@ -357,7 +357,7 @@ def get_aircraft_airfoils(aircraft, settings, tigl, wing_uid, segment_uid, idx_w
             raise ValueError(err_msg)
 
         file_airfoil = join_paths(settings.paths('root'), PATHS.FILES.AIRFOIL(name_airfoil))
-        aircraft.wing[wing_uid].segment[segment_uid].airfoils[position] = str(file_airfoil)
+        aircraft.wings[wing_uid].segment[segment_uid].airfoils[position] = str(file_airfoil)
 
 
 def write_airfoil_files(settings, tixi):

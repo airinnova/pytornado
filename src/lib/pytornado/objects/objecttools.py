@@ -21,24 +21,7 @@
 # * Aaron Dettmann
 
 """
-Generators to facilitate looping over aircraft objects.
-
-The aircraft hierarchy is defined as follows::
-
-
-    |         AIRCRAFT
-    |            |
-    |           WING
-    |            |
-    |           / \\
-    |          /   \\
-    |         /     \\
-    |     SEGMENT   CONTROL
-    |        |
-    |    SUBDIVISION
-    |        |
-    |     SUBAREA
-
+Generators to facilitate looping over aircraft objects
 
 Developed for Airinnova AB, Stockholm, Sweden.
 """
@@ -55,7 +38,7 @@ def all_wings(aircraft):
         :this_wing: tuple containing the wing number, name and object
     """
 
-    for wing_no, wing_data in enumerate(aircraft.wing.items()):
+    for wing_no, wing_data in enumerate(aircraft.wings.items()):
         wing_uid, wing_obj = wing_data
         yield (wing_no, wing_uid, wing_obj)
 

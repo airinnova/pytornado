@@ -137,7 +137,7 @@ def save(aircraft, settings):
 
     # ====== Wings =====
     output['wings'] = []
-    for wing in aircraft.wing.values():
+    for wing in aircraft.wings.values():
         wing_entry = {}
         wing_entry['uid'] = wing.uid
         wing_entry['symmetry'] = wing.symmetry

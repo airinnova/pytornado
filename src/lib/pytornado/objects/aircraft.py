@@ -22,7 +22,22 @@
 # * Aaron Dettmann
 
 """
-Data structures for aircraft model and aircraft components.
+Aircraft data model. The aircraft hierarchy is defined as follows::
+
+
+    |         AIRCRAFT
+    |            |
+    |           WING
+    |            |
+    |           / \\
+    |          /   \\
+    |         /     \\
+    |     SEGMENT   CONTROL
+    |        |
+    |      STRIP
+    |        |
+    |    SUBDIVISION
+
 
 Developed for Airinnova AB, Stockholm, Sweden.
 """
@@ -56,28 +71,38 @@ logger = logging.getLogger(__name__)
 
 
 class ComponentDefinitionError(Exception):
-    """Raised during AIRCRAFT generation when COMPONENT is ill-defined."""
+    """Raised if when a component is ill-defined"""
 
     pass
 
 
-class Aircraft(FixedNamespace):
+class Aircraft:
     """
-    Data structure for the PyTornado aircraft model.
+    Aircraft model
 
-        * AIRCRAFT has a hierarchical structure of components.
-        * AIRCRAFT has WING components, contained in AIRCRAFT.WING OrderedDict.
-        * Components are accessed using their unique identifier, must be a STRING.
-        * AIRCRAFT represents the entire aircraft.
+    The aircraft object is broken down into child objects:
+
+        * The 'Aircraft' has 'Wing's
+        * A 'Wing' has 'WingSegment's
+        * A 'Wing' has 'WingControl's
+        * A 'WingSegment' has 'SegmentStrip's
+        * A 'SegmentStrip' has 'StripSubdivision's
+
+    The following objects have unique identifiers (uid):
+
+        * Aircraft
+        * Wing
+        * WingSegment
+        * WingControl
 
     Attributes:
-        :name: (string) AIRCRAFT model identifier
-        :version: (string) AIRCRAFT model iteration identifier
-        :aircraft: (dict) AIRCRAFT reference values
-        :wing: (dict) AIRCRAFT components: WING
-        :size: (float) AIRCRAFT geometry size measure
-        :area: (float) AIRCRAFT surface area
-        :state: (bool) AIRCRAFT component definition state
+        :uid: (string) Unique identifier
+        :version: (string) User defined version
+        :refs: (dict) Reference values for coefficients
+        :wing: (dict) Wing objects
+        :size: (float) Aircraft geometry size measure
+        :area: (float) Aircraft surface area
+        :state: (bool) Component definition state
     """
 
     def __init__(self):
@@ -89,12 +114,24 @@ class Aircraft(FixedNamespace):
         Only existing attributes may be modified afterward.
         """
 
-        super().__init__()
+        self.uid = 'aircraft'
+        self.version = '0.0.1'
+        self.refs = {
+            'area': None,
+            'span': None,
+            'chord': None,
+            'gcenter': None,
+            'rcenter': None,
+        }
 
-        self.uid = None
+        # Wing child objects
+        self.wings = OrderedDict()
 
-        self.reset()
-        self._freeze()
+        # Calculated total wing span and area
+        self.size = None
+        self.area = None
+
+        self.state = False
 
     @property
     def has_deformed_wings(self):
@@ -102,7 +139,7 @@ class Aircraft(FixedNamespace):
         True if any wing are deformed
         """
 
-        for wing in self.wing.values():
+        for wing in self.wings.values():
             if wing.is_deformed:
                 return True
         return False
@@ -112,7 +149,7 @@ class Aircraft(FixedNamespace):
         Master switch which turns off all deformation
         """
 
-        for wing in self.wing.values():
+        for wing in self.wings.values():
             wing.is_deformed = False
 
     def turn_on_all_deformation(self):
@@ -120,7 +157,7 @@ class Aircraft(FixedNamespace):
         Master switch which turns on all deformation
         """
 
-        for wing in self.wing.values():
+        for wing in self.wings.values():
             if wing.was_deformed:
                 wing.is_deformed = True
 
@@ -138,12 +175,12 @@ class Aircraft(FixedNamespace):
 
         if not wing_uid:
             raise ComponentDefinitionError("Empty uid string!")
-        elif wing_uid in self.wing:
+        elif wing_uid in self.wings:
             raise ValueError(f"wing '{wing_uid}' is already defined!")
 
-        self.wing.update({wing_uid: Wing(wing_uid)})
+        self.wings.update({wing_uid: Wing(wing_uid)})
 
-        return self.wing[wing_uid] if return_wing else None
+        return self.wings[wing_uid] if return_wing else None
 
     def generate(self, check=True):
         """
@@ -176,7 +213,7 @@ class Aircraft(FixedNamespace):
         bbox = np.zeros((2, 3))
         uids = list()
 
-        for wing_uid, wing in self.wing.items():
+        for wing_uid, wing in self.wings.items():
             logger.debug(f"Generating wing '{wing_uid}'...")
 
             # CHECK DATA and generate SEGMENT, CONTROL, AREA, SPAN
@@ -306,37 +343,6 @@ class Aircraft(FixedNamespace):
             raise ValueError("'refs.chord' must be positive.")
         else:
             self.refs['chord'] = float(self.refs['chord'])
-
-    def reset(self):
-        """
-        Re-initialise AIRCRAFT properties and data.
-
-        This deletes all components of AIRCRAFT.
-        """
-
-        # PROPERTY -- user-provided model identifier
-        self.uid = "AIRCRAFT"
-        # PROPERTY -- user-provided version identifier
-        self.version = "VERSION0"
-
-        # DATA -- calculated total wing span and area
-        self.size = None
-        self.area = None
-
-        # COMPONENTS -- user-defined lifting surfaces
-        self.wing = OrderedDict()
-
-        # PROPERTIES -- user-provided reference values
-        self.refs = FixedOrderedDict()
-        self.refs['area'] = None
-        self.refs['span'] = None
-        self.refs['chord'] = None
-        self.refs['gcenter'] = None
-        self.refs['rcenter'] = None
-        self.refs._freeze()
-
-        # component definition state
-        self.state = False
 
 
 class Wing(FixedNamespace):
