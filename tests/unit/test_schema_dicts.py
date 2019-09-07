@@ -19,6 +19,24 @@ SCHEMA_1 = {
     }
 }
 
+SCHEMA_2 = {
+    '__REQUIRED_KEYS': ['name', 'age'],
+    'name': {
+        'type': str,
+        'min_len': 3,
+        'max_len': 12,
+    },
+    'age': {
+        'type': int,
+        '>=': 0,
+        '<': 120,
+    },
+    'child': {
+        'type': dict,
+        'schema': SCHEMA_1,
+    }
+}
+
 
 def test_schema_dict():
     """
@@ -70,3 +88,30 @@ def test_schema_dict():
 
     with raises(ValueError):
         check_dict_against_schema(test, SCHEMA_1)
+
+
+def test_nested_dict():
+    # ----- Test nested schema -----
+
+    test = {
+        'name': 'Aaron',
+        'age': 22,
+        'child': {
+            'name': 'Test',
+            'age': 3,
+        }
+    }
+
+    check_dict_against_schema(test, SCHEMA_2)
+
+    test = {
+        'name': 'Aaron',
+        'age': 22,
+        'child': {
+            'name': 'Test',
+            'age': -3,  # Wrong age
+        }
+    }
+
+    with raises(ValueError):
+        check_dict_against_schema(test, SCHEMA_2)

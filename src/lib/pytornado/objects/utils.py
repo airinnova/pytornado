@@ -273,6 +273,7 @@ def check_dict_against_schema(test_dict, schema_dict):
         expected_type = form.get('type', None)
         if expected_type is None:
             raise SchemaError("Type not defined")
+
         if not isinstance(test_dict[key], expected_type):
             err_msg = f"""
             Unexpected data type for key '{key}'.
@@ -280,8 +281,15 @@ def check_dict_against_schema(test_dict, schema_dict):
             """
             raise TypeError(err_msg)
 
+        # ----- Test dict -----
+        if expected_type is dict:
+            sub_schema_dict = form.get('schema', None)
+            if sub_schema_dict is not None:
+                check_dict_against_schema(test_dict[key], sub_schema_dict)
+                print("test")
+
         # ----- Test float/int -----
-        if expected_type in (float, int):
+        elif expected_type in (float, int):
             for check_key in OPERATORS.keys():
                 check_value = form.get(check_key, None)
                 if check_value is None:
@@ -298,7 +306,7 @@ def check_dict_against_schema(test_dict, schema_dict):
                     raise ValueError(err_msg)
 
         # ----- Test str -----
-        if expected_type is str:
+        elif expected_type is str:
             min_len = form.get('min_len', None)
             if min_len is not None:
                 if len(test_dict[key]) < min_len:
@@ -315,8 +323,9 @@ def check_dict_against_schema(test_dict, schema_dict):
                     """
                     raise ValueError(err_msg)
 
+            # TODO: test REGEX patterns
 
-        # TODO: Test required keys
+
         # TODO: test nested dict
 
 
