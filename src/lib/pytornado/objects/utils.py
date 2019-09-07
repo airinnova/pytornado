@@ -237,6 +237,8 @@ OPERATORS = {
     '>=': operator.ge,
 }
 
+SPECIAL_KEY_CHECK_REQ_KEYS = '__REQUIRED_KEYS'
+
 
 class SchemaError(Exception):
     """Raised if the schema dictionary is ill-defined"""
@@ -256,89 +258,128 @@ def check_dict_against_schema(test_dict, schema_dict):
         :test_dict: Dictionary to test against schema dictionary
 
     Raises:
-        :ValueError: If test dictionary has value of wrong size
         :KeyError: If test dictionary does not have a required key
-        :TypeError: If test dictionary has values of wrong type
         :SchemaError: If the schema itself is ill-defined
+        :TypeError: If test dictionary has a value of wrong type
+        :ValueError: If test dictionary has a value of wrong 'size'
+
+    Note:
+        * Schema validation inspired by JSON schema, see
+
+        https://json-schema.org/understanding-json-schema/reference/index.html
     """
+
+    # TODO
+    # LIST check
+    # -- check numerical items in range...
+
+    # STRING check
+    # -- check REGEX patterns
 
     for key, form in schema_dict.items():
 
         # ----- Check that dictionary has required keys -----
-        if key == '__REQUIRED_KEYS':
+        if key == SPECIAL_KEY_CHECK_REQ_KEYS:
             check_keys_in_dict(form, test_dict)
             continue
 
+        # Note: Required keys are checked separately
+        test_dict_value = test_dict.get(key, None)
+        if test_dict_value is None:
+            continue
+
         # ----- Basic type check -----
-        expected_type = form.get('type', None)
-        if expected_type is None:
-            raise SchemaError("Type not defined")
+        schema_dict_type = form.get('type', None)
+        if schema_dict_type is None:
+            raise SchemaError("Expected type is not defined in schema")
 
-        if not isinstance(test_dict[key], expected_type):
-            err_msg = f"""
+        if not isinstance(test_dict_value, schema_dict_type):
+            raise TypeError(
+            f"""
             Unexpected data type for key '{key}'.
-            Expected {expected_type}, got {type(test_dict[key])}.
+            Expected {schema_dict_type}, got {type(test_dict_value)}.
             """
-            raise TypeError(err_msg)
+            )
 
-        # ----- Test dict -----
-        if expected_type is dict:
+        # ----- TYPE dict -----
+        if schema_dict_type is dict:
             sub_schema_dict = form.get('schema', None)
             if sub_schema_dict is not None:
-                check_dict_against_schema(test_dict[key], sub_schema_dict)
+                check_dict_against_schema(test_dict_value, sub_schema_dict)
 
-        # ----- Test float/int -----
-        elif expected_type in (float, int):
+        # ----- TYPE bool -----
+        # No further checks required
+
+        # ----- TYPE float/int -----
+        elif schema_dict_type in (float, int):
             for check_key in OPERATORS.keys():
                 check_value = form.get(check_key, None)
                 if check_value is None:
                     continue
-                expected_value = form.get(check_key, None)
-                if expected_value is None:
-                    raise SchemaError("Value not defined")
+                schema_dict_value = form.get(check_key, None)
+                if not isinstance(schema_dict_value, (int, float)):
+                    raise SchemaError("Comparison value is not of type 'int' or 'float'")
 
-                if not OPERATORS[check_key](test_dict[key], expected_value):
-                    err_msg = f"""
+                if not OPERATORS[check_key](test_dict_value, schema_dict_value):
+                    raise ValueError(
+                    f"""
                     Test dictionary has wrong value for key '{key}'.
-                    Expected {check_key}{expected_value}, but test value is '{test_dict[key]}'.
+                    Expected {check_key}{schema_dict_value}, but test value is '{test_dict_value}'.
                     """
-                    raise ValueError(err_msg)
+                    )
 
-        # ----- Test str -----
-        elif expected_type is str:
+        # ----- TYPE str -----
+        elif schema_dict_type is str:
             min_len = form.get('min_len', None)
             if min_len is not None:
-                if len(test_dict[key]) < min_len:
-                    err_msg = f"""
-                    String is too short.
+                if len(test_dict_value) < min_len:
+                    raise ValueError(
+                    f"""
+                    String is too short for key '{key}'.
+                    Minimum length is '{min_len}', got length '{len(test_dict_value)}'
                     """
-                    raise ValueError(err_msg)
+                    )
 
             max_len = form.get('max_len', None)
             if max_len is not None:
-                if len(test_dict[key]) > max_len:
-                    err_msg = f"""
-                    String is too long.
+                if len(test_dict_value) > max_len:
+                    raise ValueError(
+                    f"""
+                    String is too long for key '{key}'.
+                    Maximum length is '{max_len}', got length '{len(test_dict_value)}'
                     """
-                    raise ValueError(err_msg)
+                    )
 
-            # TODO: test REGEX patterns
-
-        # ----- Test tuple/list -----
-        elif expected_type in (tuple, list):
+        # ----- TYPE tuple/list -----
+        elif schema_dict_type in (tuple, list):
             min_len = form.get('min_len', None)
             if min_len is not None:
-                if len(test_dict[key]) < min_len:
-                    raise ValueError("TODO")
+                if len(test_dict_value) < min_len:
+                    raise ValueError(
+                    f"""
+                    Array is too short for key '{key}'.
+                    Minimum length is '{min_len}', got length '{len(test_dict_value)}'
+                    """
+                    )
             max_len = form.get('max_len', None)
             if max_len is not None:
-                if len(test_dict[key]) > max_len:
-                    raise ValueError("TODO")
+                if len(test_dict_value) > max_len:
+                    raise ValueError(
+                    f"""
+                    Array is too long for key '{key}'.
+                    Maximum length is '{max_len}', got length '{len(test_dict_value)}'
+                    """
+                    )
 
+            # Check type of the items
             item_types = form.get('item_types', None)
             if item_types is not None:
-                if not all(isinstance(item, item_types) for item in test_dict[key]):
-                    raise TypeError("List has wrong item type")
+                if not all(isinstance(item, item_types) for item in test_dict_value):
+                    raise TypeError(
+                    f"""
+                    Array for key '{key}' has item(s) with wrong type.
+                    """
+                    )
 
 
 def check_keys_in_dict(required_keys, test_dict):

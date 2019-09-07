@@ -16,6 +16,9 @@ SCHEMA_1 = {
         'type': int,
         '>=': 0,
         '<': 120,
+    },
+    'is_working': {
+        'type': bool
     }
 }
 
@@ -62,6 +65,7 @@ def test_schema_dict():
     test = {
         'name': 'Aaron',
         'age': 22,
+        'is_working': True,
     }
 
     check_dict_against_schema(test, SCHEMA_1)
