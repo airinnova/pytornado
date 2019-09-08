@@ -172,10 +172,10 @@ def get_aircraft_wing_segments(aircraft, settings, xpath_wing, wing_uid, idx_win
         #########################################################################
         #########################################################################
 
-        aircraft.wings[wing_uid].segment[segment_uid].vertices['a'] = a
-        aircraft.wings[wing_uid].segment[segment_uid].vertices['b'] = b
-        aircraft.wings[wing_uid].segment[segment_uid].vertices['c'] = c
-        aircraft.wings[wing_uid].segment[segment_uid].vertices['d'] = d
+        aircraft.wings[wing_uid].segments[segment_uid].vertices['a'] = a
+        aircraft.wings[wing_uid].segments[segment_uid].vertices['b'] = b
+        aircraft.wings[wing_uid].segments[segment_uid].vertices['c'] = c
+        aircraft.wings[wing_uid].segments[segment_uid].vertices['d'] = d
 
         # ----- Set airfoils -----
         get_aircraft_airfoils(aircraft, settings, tigl, wing_uid, segment_uid, idx_wing, idx_segment)
@@ -311,9 +311,9 @@ def get_aircraft_controls(aircraft, wing_uid, idx_wing, tixi, tigl):
         for this_wing in all_wings(aircraft):
             wing = this_wing[2]
 
-            if control_uid in wing.control.keys():
-                wing.control[control_uid].deflection = deflection
-                wing.control[control_uid].deflection_mirror = deflection_mirror
+            if control_uid in wing.controls.keys():
+                wing.controls[control_uid].deflection = deflection
+                wing.controls[control_uid].deflection_mirror = deflection_mirror
                 deflection_is_set = True
                 break
 
@@ -357,7 +357,7 @@ def get_aircraft_airfoils(aircraft, settings, tigl, wing_uid, segment_uid, idx_w
             raise ValueError(err_msg)
 
         file_airfoil = join_paths(settings.paths('root'), PATHS.FILES.AIRFOIL(name_airfoil))
-        aircraft.wings[wing_uid].segment[segment_uid].airfoils[position] = str(file_airfoil)
+        aircraft.wings[wing_uid].segments[segment_uid].airfoils[position] = str(file_airfoil)
 
 
 def write_airfoil_files(settings, tixi):

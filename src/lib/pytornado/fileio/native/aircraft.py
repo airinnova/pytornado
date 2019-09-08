@@ -144,7 +144,7 @@ def save(aircraft, settings):
 
         # ====== Segments =====
         wing_entry['segments'] = []
-        for segment in wing.segment.values():
+        for segment in wing.segments.values():
             segment_entry = {}
             segment_entry['uid'] = segment.uid
             segment_entry['vertices'] = dict(segment.vertices)
@@ -170,7 +170,7 @@ def save(aircraft, settings):
 
         # ====== Controls =====
         wing_entry['controls'] = []
-        for control in wing.control.values():
+        for control in wing.controls.values():
             control_entry = {}
 
             control_entry['uid'] = control.uid

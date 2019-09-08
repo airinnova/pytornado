@@ -189,7 +189,7 @@ class Aircraft:
 
         bbox = np.zeros((2, 3))
         for wing_uid, wing in self.wings.items():
-            for segment_uid, segment in wing.segment.items():
+            for segment_uid, segment in wing.segments.items():
                 # Segment vertices
                 points = np.array(list(segment.vertices.values()))
                 points_min = points.min(axis=0)
@@ -323,16 +323,9 @@ class Wing:
         self.uid = wing_uid
         self._symmetry = 0
 
-        # DATA -- calculated total wing span and area
-        # TODO --> MAKE self._span
-        # TODO --> MAKE self._area
-        self.span = None
-        self.area = None
-
-        # TODO: --> MAKE self.segments
-        # TODO: --> MAKE self.segments
-        self.segment = OrderedDict()
-        self.control = OrderedDict()
+        # Child objects (segment and control surfaces)
+        self.segments = OrderedDict()
+        self.controls = OrderedDict()
 
         # By default wings are not deformed
         # Flag used to toggle between deformed/undeformed state
@@ -340,6 +333,16 @@ class Wing:
         self.was_deformed = False
 
         self._state = False
+
+    @property
+    def uid(self):
+        return self._uid
+
+    @uid.setter
+    def uid(self, uid):
+        if not isinstance(uid, str):
+            raise TypeError("'uid' must be a string")
+        self._uid = uid
 
     @property
     def state(self):
@@ -366,6 +369,24 @@ class Wing:
         if self.is_deformed is True:
             self.was_deformed = True
 
+    @property
+    def area(self):
+        """Return the wing area"""
+
+        area = 0.0
+        for segment in self.segments.values():
+            area += segment.area
+        return area
+
+    @property
+    def span(self):
+        """Return the wing span"""
+
+        span = 0.0
+        for segment in self.segments.values():
+            span += abs(segment.geometry['span'])
+        return span
+
     def add_segment(self, segment_uid):
         """
         Add a new segment
@@ -379,11 +400,11 @@ class Wing:
 
         if not segment_uid:
             raise ComponentDefinitionError("Empty name string!")
-        elif segment_uid in self.segment.keys():
+        elif segment_uid in self.segments.keys():
             raise ValueError(f"segment '{segment_uid}' already exists!")
 
-        self.segment.update({segment_uid: WingSegment(self, segment_uid)})
-        return self.segment[segment_uid]
+        self.segments.update({segment_uid: WingSegment(self, segment_uid)})
+        return self.segments[segment_uid]
 
     def add_control(self, control_uid):
         """
@@ -398,56 +419,37 @@ class Wing:
 
         if not control_uid:
             raise ComponentDefinitionError("Empty name string!")
-        elif control_uid in self.control.keys():
+        elif control_uid in self.controls.keys():
             raise ValueError(f"Control '{control_uid}' already exists!")
 
-        self.control.update({control_uid: WingControl(self, control_uid)})
-        return self.control[control_uid]
+        self.controls.update({control_uid: WingControl(self, control_uid)})
+        return self.controls[control_uid]
 
     def generate(self):
         """
-        Generate WING data and components.
-
-        Procedure is as follows:
-            * Check if WING properties are correctly defined.
-            * Generate WINGSEGMENT VERTICES, GEOMETRY, AREA and WING SPAN, AREA.
-            * Generate WINGSEGMENT POSITION.
-            * Check if WINGSEGMENT components form continuous WING.
-            * Check if WINGCONTROL components or nearly coincide.
-            * Generate WINGCONTROL VERTICES.
+        Generate a wing and components
         """
 
-        # TODO | improve continuity check, currently only collinearity
+        # TODO: Improve continuity check, currently only collinearity
 
-        # 2. GENERATE SEGMENTS, WING SPAN, WING AREA ~~~~~~~~~~~~~~~~~~~~~~ #
-        self.area = 0.0
-        self.span = 0.0
+        segments = list(self.segments.values())
 
-        for segment_uid, segment in self.segment.items():
-            logger.debug(f"Generating segment '{segment_uid}'...")
-
-            # CHECK DATA and generate VERTICES, GEOMETRY, AREA
+        # Generate wing segments
+        for segment in segments:
             segment.generate()
 
-            self.span += abs(segment.geometry['span'])
-            self.area += segment.area
-
-        # 2. CALCULATE SEGMENT POSITIONS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-
-        segments = list(self.segment.values())
+        # ----- Calculate segment positions -----
         pos = 0.0
-
         for segment in segments:
             segment.position['inner'] = pos/self.span
             pos += segment.geometry['span']
             segment.position['outer'] = pos/self.span
 
-        # 3. CHECK WING CONTINUITY ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-
+        # ----- Check wing continuity -----
+        # TODO: iterate pairwise!!!
         wing_continuous = True
-
         for i in range(len(segments) - 1):
-            # segment edge directions
+            # Segment edge directions
             segm_1 = segments[i]
             segm_2 = segments[i + 1]
 
@@ -463,7 +465,7 @@ class Wing:
             b2c2 = abs(segm_2.vertices['c'] - segm_2.vertices['b'])
             b2c2 = b2c2/np.linalg.norm(b2c2)
 
-            # cross-segment vertex-to-vertex directions
+            # Cross-segment vertex-to-vertex directions
             a1c2 = abs(segm_2.vertices['c'] - segm_1.vertices['a'])
             a1c2 = a1c2/np.linalg.norm(a1c2) if np.linalg.norm(a1c2) else np.zeros(3)
 
@@ -488,65 +490,57 @@ class Wing:
             d1d2 = abs(segm_2.vertices['d'] - segm_1.vertices['d'])
             d1d2 = d1d2/np.linalg.norm(d1d2) if np.linalg.norm(d1d2) else np.zeros(3)
 
-            segm_continuous = False
-
+            segment_continuous = False
+            # B1C1 and A2D2 have same orientation
             if np.linalg.norm(a2d2 - b1c1) < TOL:
-                # B1C1 and A2D2 have same orientation
+                # B1C1 and A2D2 collinear
                 if np.linalg.norm(a2d2 - b1d2) < TOL or np.linalg.norm(a2d2 - c1d2) < TOL:
-                    # B1C1 and A2D2 collinear
-
                     # if not np.linalg.norm(b1d2) + np.linalg.norm(c1d2) > np.linalg.norm(b1c1):
                     #     #   B1C1 overlaps A2D2
+                    segment_continuous = True
+                    logger.debug(f"Edge {i}-{i+1} is continuous (root-to-tip)")
 
-                    segm_continuous = True
-                    logger.debug("edge {}-{} is continous (root-to-tip).".format(i, i + 1))
-
+            # A1D1 and B2C2 have same orientation
             elif np.linalg.norm(b2c2 - a1d1) < TOL:
-                # A1D1 and B2C2 have same orientation
+                # A1D1 and B2C2 collinear
                 if np.linalg.norm(b2c2 - a1c2) < TOL or np.linalg.norm(b2c2 - d1c2) < TOL:
-                    # A1D1 and B2C2 collinear
-
                     # if not np.linalg.norm(a1c2) + np.linalg.norm(d1c2) > np.linalg.norm(a1d1):
                     #     #   A1D1 overlaps B2C2
+                    segment_continuous = True
+                    logger.debug(f"Edge {i}-{i+1} is continuous (tip-to-root)")
 
-                    segm_continuous = True
-                    logger.debug("edge {}-{} is continous (tip-to-root).".format(i, i + 1))
-
+            # B1C1 and B2C2 have same orientation
             elif np.linalg.norm(b2c2 - b1c1) < TOL:
-                # B1C1 and B2C2 have same orientation
+                # B1C1 and B2C2 collinear
                 if np.linalg.norm(b2c2 - b1c2) < TOL or np.linalg.norm(b2c2 - c1c2) < TOL:
-                    # B1C1 and B2C2 collinear
-
                     # if not np.linalg.norm(b1c2) + linalg.norm(c1c2) > np.linalg.norm(b1c1):
                     #     #   B1C1 overlaps B2C2
+                    segment_continuous = True
+                    logger.debug("Edge {i}-{i+1} is continuous (with discontinuous normal!)")
 
-                    segm_continuous = True
-                    logger.debug("edge {}-{} is continuous (with discontinuous normal!).".format(i, i + 1))
-
+            # A1D1 and A2D2 have same orientation
             elif np.linalg.norm(a2d2 - a1d1) < TOL:
-                # A1D1 and A2D2 have same orientation
+                # A1D1 and A2D2 collinear
                 if np.linalg.norm(a2d2 - a1d2) < TOL or np.linalg.norm(a2d2 - d1d2) < TOL:
-                    # A1D1 and A2D2 collinear
-
                     # if np.linalg.norm(a1d2) + np.linalg.norm(d1d2) > np.rm(d1d2) <= max_dist:
                     #     #   A1D1 overlaps A2D2
+                    segment_continuous = True
+                    logger.debug("Edge {i}-{i+1} is continuous (with discontinuous normal!)")
 
-                    segm_continuous = True
-                    logger.debug("edge {}-{} is continuous (with discontinuous normal!).".format(i, i + 1))
+            if not segment_continuous:
+                logger.warning("Edge {i}-{i+1} is discontinuous")
 
-            if not segm_continuous:
-                logger.warning("edge {}-{} is discontinuous.".format(i, i + 1))
-
-            wing_continuous &= segm_continuous
+            wing_continuous &= segment_continuous
 
         if not wing_continuous:
-            logger.warning("wing is discontinuous!")
+            logger.warning("Wing is discontinuous!")
 
+        # ----- Wing has been checked -----
         self._state = True
 
     def check_deformation_continuity(self):
         """
-        Check the continuity of the wing deformation.
+        Check the continuity of the wing deformation
 
         The deformation at the border of two neighbouring segments must be
         the same. Otherwise, there will be "gaps" in the wing which we will
@@ -555,9 +549,11 @@ class Wing:
 
         logger.info("Checking continuity of wing deformation...")
 
+        # TODO: better iterate pairwise!
+
         # Make a list of neighbouring segments of the wing
         segment_list = []
-        for segment_uid, segment in self.segment.items():
+        for segment_uid, segment in self.segments.items():
             segment_list.append([segment_uid, segment])
 
         # Check that deformations at neighbouring segments are the same
@@ -572,8 +568,10 @@ class Wing:
 
                 if def_value_inner != def_value_outer:
                     raise ComponentDefinitionError(
-                        "Deformation ('{}') on non-mirrored wing is not continuous between segments ('{}', '{}')"
-                        .format(def_prop, segment_uid_inner, segment_uid_outer)
+                        f"""
+                        Deformation ('{def_prop}') on non-mirrored wing is not continuous
+                        between segments ('{segment_uid_inner}', '{segment_uid_outer}')
+                        """
                     )
 
                 # MIRRORED SIDE
@@ -582,8 +580,10 @@ class Wing:
 
                 if def_value_inner != def_value_outer:
                     raise ComponentDefinitionError(
-                        "Deformation ('{}') on mirrored wing is not continuous between segments ('{}', '{}')"
-                        .format(def_prop, segment_uid_inner, segment_uid_outer)
+                        f"""
+                        Deformation ('{def_prop}') on mirrored wing is not continuous
+                        between segments ('{segment_uid_inner}', '{segment_uid_outer}')
+                        """
                     )
 
 
@@ -1679,8 +1679,8 @@ class WingControl(FixedNamespace):
 
         inner_seg_name = self.segment_uid['inner']
         outer_seg_name = self.segment_uid['outer']
-        inner_seg_vertices = self.parent_wing.segment[inner_seg_name].vertices
-        outer_seg_vertices = self.parent_wing.segment[outer_seg_name].vertices
+        inner_seg_vertices = self.parent_wing.segments[inner_seg_name].vertices
+        outer_seg_vertices = self.parent_wing.segments[outer_seg_name].vertices
 
         eta_inner = self.rel_vertices['eta_inner']
         xsi_inner = self.rel_vertices['xsi_inner']
@@ -1707,8 +1707,8 @@ class WingControl(FixedNamespace):
 
         inner_seg_name = self.segment_uid['inner']
         outer_seg_name = self.segment_uid['outer']
-        inner_seg_vertices = self.parent_wing.segment[inner_seg_name].vertices
-        outer_seg_vertices = self.parent_wing.segment[outer_seg_name].vertices
+        inner_seg_vertices = self.parent_wing.segments[inner_seg_name].vertices
+        outer_seg_vertices = self.parent_wing.segments[outer_seg_name].vertices
 
         eta_inner = self.rel_vertices['eta_inner']
         eta_outer = self.rel_vertices['eta_outer']

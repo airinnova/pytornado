@@ -122,7 +122,7 @@ def pre_panelling(aircraft):
         # ----- CASE (A) -----
         # The left and right edge of the control are located on SAME segment
         if segment_inner_name == segment_outer_name:
-            wing.segment[segment_inner_name].add_subdivision_for_control(
+            wing.segments[segment_inner_name].add_subdivision_for_control(
                     eta_inner, eta_outer, control,
                     xsi_inner, xsi_outer, xsi_h1, xsi_h2)
 
@@ -150,7 +150,7 @@ def pre_panelling(aircraft):
             xsi_avg = (xsi_inner + xsi_outer)/2
             xsi_h_avg = (xsi_h1 + xsi_h2)/2
 
-            for segment_uid in wing.segment.keys():
+            for segment_uid in wing.segments.keys():
                 if segment_uid == segment_inner_name:
                     inner_set = True
                     # Note: eta_outer = 1
@@ -178,7 +178,7 @@ def pre_panelling(aircraft):
                 for row in list_of_segments:
                     segment_uid, eta_i, eta_o, xsi_i, xsi_o, xsi_hi, xsi_ho = row
 
-                    segment = wing.segment[segment_uid]
+                    segment = wing.segments[segment_uid]
                     segment_vertices = segment.vertices
 
                     a = get_abs_segment_point_coords(segment_vertices, eta_i, xsi_i)
@@ -210,7 +210,7 @@ def pre_panelling(aircraft):
             for row in list_of_segments:
                 segment_uid, eta_i, eta_o, xsi_i, xsi_o, xsi_h1, xsi_h2 = row
 
-                wing.segment[segment_uid].add_subdivision_for_control(
+                wing.segments[segment_uid].add_subdivision_for_control(
                         eta_i, eta_o, control, xsi_i, xsi_o, xsi_h1, xsi_h2)
 
     # ===== PART TWO (ADDITIONAL SPANWISE SUBDIVISIONS) =====

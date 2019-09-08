@@ -56,7 +56,7 @@ def all_segments(aircraft):
     """
 
     for this_wing in all_wings(aircraft):
-        for segment_no, segment_data in enumerate(this_wing[2].segment.items()):
+        for segment_no, segment_data in enumerate(this_wing[2].segments.items()):
             segment_uid, segment_obj = segment_data
             yield (segment_no, segment_uid, segment_obj), this_wing
 
@@ -74,7 +74,7 @@ def all_controls(aircraft):
     """
 
     for this_wing in all_wings(aircraft):
-        for control_no, control_data in enumerate(this_wing[2].control.items()):
+        for control_no, control_data in enumerate(this_wing[2].controls.items()):
             control_uid, control_obj = control_data
             yield (control_no, control_uid, control_obj), this_wing
 
