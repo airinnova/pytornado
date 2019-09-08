@@ -589,6 +589,47 @@ class Wing:
 
 class WingSegment:
 
+# ==========
+    # Schema for vertices
+    VERTICES_SCHEMA = {
+        '__REQUIRED_KEYS': ['a', 'b', 'c', 'd'],
+        'a': {'type': list, 'min_len': 3, 'max_len': 3, 'item_types': (int, float)},
+        'b': {'type': list, 'min_len': 3, 'max_len': 3, 'item_types': (int, float)},
+        'c': {'type': list, 'min_len': 3, 'max_len': 3, 'item_types': (int, float)},
+        'd': {'type': list, 'min_len': 3, 'max_len': 3, 'item_types': (int, float)},
+    }
+
+    # Schema for geometry
+    GEOMETRY_SCHEMA = {
+        '__REQUIRED_KEYS': [
+            'inner_axis',
+            'outer_axis',
+        ],
+        'inner_chord': {'type': float},
+        'outer_chord': {'type': float},
+        'inner_alpha': {'type': float, '>=': -90, '<=': +90},
+        'outer_alpha': {'type': float, '>=': -90, '<=': +90},
+        'inner_beta': {'type': float, '>=': -90, '<=': +90},
+        'outer_beta': {'type': float, '>=': -90, '<=': +90},
+        'inner_axis': {'type': float, '>=': 0.0, '<=': 1.0},
+        'outer_axis': {'type': float, '>=': 0.0, '<=': 1.0},
+        'span': {'type': float},
+        'sweep': {'type': float, '>=': -90, '<=': +90},
+        'dihedral': {'type': float, '>=': -180, '<=': +180},
+    }
+
+    AIRFOIL_SCHEMA = {
+        '__REQUIRED_KEYS': ['inner', 'outer'],
+        'inner': {'type': str},
+        'outer': {'type': str},
+    }
+
+    PANELS_SCHEMA = {
+        # Entries can be None (i.e. no required keys)
+        'num_c': {'type': int, '>': 0},
+        'num_s': {'type': int, '<': 0},
+    }
+
     def __init__(self, wing, uid):
         """
         Wing segment (child of Wing class)
@@ -1416,167 +1457,34 @@ class WingSegment:
         """Check type and value of properties in WINGSEGMENT.VERTICES."""
 
         logger.info("Checking vertex coordinates...")
+        check_dict_against_schema(self.vertices, self.VERTICES_SCHEMA)
 
-        # 1. CHECK DEFINITION OF VERTICES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-        for key, val in self.vertices.items():
-
-            if val is None:
-                logger.info(f"Vertex '{key}' is NONE (not defined)")
-
-            elif isinstance(val, (list, np.ndarray)) and len(val) == 3:
-
-                if not isinstance(val[0], (float, int)):
-                    raise TypeError(f"x-coordinate of vertex '{key}' must be FLOAT")
-                if not isinstance(val[1], (float, int)):
-                    raise TypeError(f"y-coordinate of vertex '{key}' must be FLOAT")
-                if not isinstance(val[2], (float, int)):
-                    raise TypeError(f"z-coordinate of vertex '{key}' must be FLOAT")
-
-                # convert to NUMPY array
-                self.vertices[key] = np.array(val, dtype=float, order='C')
-
-            else:
-                raise TypeError("Vertex '{key}' must be ARRAY of FLOAT [X, Y, Z]")
+        # Convert to NUMPY array
+        for key in ['a', 'b', 'c', 'd']:
+            self.vertices[key] = np.array(self.vertices[key], dtype=float, order='C')
 
     def check_geometry(self):
-        """Check type and value of properties in WINGSEGMENT.GEOMETRY."""
+        """Check type and value of geometry dictionary"""
 
         logger.info("Checking geometric properties...")
 
-        # 1. CHECK DEFINITION OF GEOMETRIC PROPERTIES ~~~~~~~~~~~~~~~~~~~~~ #
-        # inner chord
-        if self.geometry['inner_chord'] is None:
-            logger.info("'inner_chord' is NONE (not defined).")
-        elif not isinstance(self.geometry['inner_chord'], (float, int)):
-            raise TypeError("'inner_chord' must be FLOAT.")
-        else:
-            self.geometry['inner_chord'] = float(self.geometry['inner_chord'])
+        for axis in ['inner_axis', 'outer_axis']:
+            if self.geometry[axis] is None:
+                self.geometry[axis] = 0.25
 
-        # outer chord
-        if self.geometry['outer_chord'] is None:
-            logger.info("'outer_chord is NONE (not defined).")
-        elif not isinstance(self.geometry['outer_chord'], (float, int)):
-            raise TypeError("'outer_chord' must be FLOAT.")
-        else:
-            self.geometry['outer_chord'] = float(self.geometry['outer_chord'])
-
-        # inner alpha
-        if self.geometry['inner_alpha'] is None:
-            logger.info("'inner_alpha' is NONE (not defined).")
-        elif not isinstance(self.geometry['inner_alpha'], (float, int)):
-            raise TypeError("'inner_alpha' must be FLOAT.")
-        elif not -90.0 <= self.geometry['inner_alpha'] <= +90.0:
-            raise ValueError("'inner_alpha' must be between -90.0 and +90.0 [deg].")
-        else:
-            self.geometry['inner_alpha'] = float(self.geometry['inner_alpha'])
-
-        # outer alpha
-        if self.geometry['outer_alpha'] is None:
-            logger.info("'outer_alpha' is NONE (not defined).")
-        elif not isinstance(self.geometry['outer_alpha'], (float, int)):
-            raise TypeError("'outer_alpha' must be FLOAT.")
-        elif not -90.0 <= self.geometry['outer_alpha'] <= +90.0:
-            raise ValueError("'outer_alpha' must be between -90.0 and +90.0 [deg].")
-        else:
-            self.geometry['outer_alpha'] = float(self.geometry['outer_alpha'])
-
-        # inner beta
-        if self.geometry['inner_beta'] is None:
-            logger.info("'inner_beta' is NONE (not defined).")
-        elif not isinstance(self.geometry['inner_beta'], (float, int)):
-            raise TypeError("'inner_beta' must be FLOAT.")
-        elif not -90.0 <= self.geometry['inner_beta'] <= +90.0:
-            raise ValueError("'inner_beta' must be between -90.0 and +90.0 [deg].")
-        else:
-            self.geometry['inner_beta'] = float(self.geometry['inner_beta'])
-
-        # outer beta
-        if self.geometry['outer_beta'] is None:
-            logger.info("'outer_beta' is NONE (not defined).")
-        elif not isinstance(self.geometry['outer_beta'], (float, int)):
-            raise TypeError("'outer_beta' must be FLOAT.")
-        elif not -90.0 <= self.geometry['outer_beta'] <= +90.0:
-            raise ValueError("'outer_beta' must be between -90.0 and +90.0 [deg].")
-        else:
-            self.geometry['outer_beta'] = float(self.geometry['outer_beta'])
-
-        # inner axis
-        if self.geometry['inner_axis'] is None:
-            self.geometry['inner_axis'] = 0.25
-        elif not isinstance(self.geometry['inner_axis'], (float, int)):
-            raise TypeError("'inner_axis' must be FLOAT.")
-        elif not +0.0 <= self.geometry['inner_axis'] <= +1.0:
-            raise ValueError("'inner_axis' must be between +0.0 and +1.0 [chord fraction].")
-        else:
-            self.geometry['inner_axis'] = float(self.geometry['inner_axis'])
-
-        # outer axis
-        if self.geometry['outer_axis'] is None:
-            self.geometry['outer_axis'] = 0.25
-        elif not isinstance(self.geometry['outer_axis'], (float, int)):
-            raise TypeError("'outer_axis' must be FLOAT.")
-        elif not +0.0 <= self.geometry['outer_axis'] <= +1.0:
-            raise ValueError("'outer_axis' must be between +0.0 and +1.0 [chord fraction].")
-        else:
-            self.geometry['outer_axis'] = float(self.geometry['outer_axis'])
-
-        # span
-        if self.geometry['span'] is None:
-            logger.info("'span' is NONE (not defined).")
-        elif not isinstance(self.geometry['span'], (float, int)):
-            raise TypeError("'span' must be FLOAT.")
-        else:
-            self.geometry['span'] = float(self.geometry['span'])
-
-        # sweep
-        if self.geometry['sweep'] is None:
-            logger.info("'sweep' is NONE (not defined).")
-        elif not isinstance(self.geometry['sweep'], (float, int)):
-            raise TypeError("'sweep' must be FLOAT.")
-        elif not -90.0 < self.geometry['sweep'] < +90.0:
-            raise ValueError("'sweep' must be between -90.0 and +90.0 [deg].")
-        else:
-            self.geometry['sweep'] = float(self.geometry['sweep'])
-
-        # dihedral
-        if self.geometry['dihedral'] is None:
-            logger.info("'dihedral' is NONE (not defined).")
-        elif not isinstance(self.geometry['dihedral'], (float, int)):
-            raise TypeError("'dihedral' must be FLOAT.")
-        elif not -180.0 < self.geometry['dihedral'] <= +180.0:
-            raise ValueError("'dihedral' must be between -180.0 and +180.0 [deg].")
-        else:
-            self.geometry['dihedral'] = float(self.geometry['dihedral'])
+        check_dict_against_schema(self.geometry, self.GEOMETRY_SCHEMA)
 
     def check_airfoils(self):
-        """Check type and value of properties in WINGSEGMENT.AIRFOILS."""
+        """Check type and value of airfoil"""
 
         logger.info("Checking airfoil properties...")
-
-        # inner foil
-        if self.airfoils['inner'] is None:
-            raise ComponentDefinitionError("inner wing profile is not defined.")
-        elif not isinstance(self.airfoils['inner'], str):
-            raise TypeError("'airfoil.inner' must be FILENAME.")
-
-        # outer foil
-        if self.airfoils['outer'] is None:
-            raise ComponentDefinitionError("outer wing profile is not defined.")
-        elif not isinstance(self.airfoils['outer'], str):
-            raise TypeError("'airfoil.outer' must be FILENAME.")
+        check_dict_against_schema(self.airfoils, self.AIRFOIL_SCHEMA)
 
     def check_panels(self):
         """Check type and value of properties in WINGSEGMENT.PANELS."""
 
         logger.info("Checking discretisation properties...")
-
-        for panel_number in ['num_c', 'num_s']:
-            if self.panels[panel_number] is None:
-                logger.debug(f"'{panel_number}' is None (not defined)")
-            elif not isinstance(self.panels[panel_number], int):
-                raise TypeError(f"'{panel_number}' must be positive integer")
-            elif not self.panels[panel_number] > 0:
-                raise ValueError(f"{panel_number} must be positive")
+        check_dict_against_schema(self.panels, self.PANELS_SCHEMA)
 
 
 class WingControl:

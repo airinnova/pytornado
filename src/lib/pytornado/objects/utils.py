@@ -285,7 +285,7 @@ def check_dict_against_schema(test_dict, schema_dict):
 
         # Note: Required keys are checked separately
         test_dict_value = test_dict.get(key, None)
-        if test_dict_value is None:
+        if test_dict_value is None and key not in schema_dict.get(SPECIAL_KEY_CHECK_REQ_KEYS, []):
             continue
 
         # ----- Basic type check -----
@@ -295,10 +295,10 @@ def check_dict_against_schema(test_dict, schema_dict):
 
         if not isinstance(test_dict_value, schema_dict_type):
             raise TypeError(
-            f"""
-            Unexpected data type for key '{key}'.
-            Expected {schema_dict_type}, got {type(test_dict_value)}.
-            """
+                f"""
+                Unexpected data type for key '{key}'.
+                Expected {schema_dict_type}, got {type(test_dict_value)}.
+                """
             )
 
         # ----- TYPE dict -----
@@ -322,10 +322,10 @@ def check_dict_against_schema(test_dict, schema_dict):
 
                 if not OPERATORS[check_key](test_dict_value, schema_dict_value):
                     raise ValueError(
-                    f"""
-                    Test dictionary has wrong value for key '{key}'.
-                    Expected {check_key}{schema_dict_value}, but test value is '{test_dict_value}'.
-                    """
+                        f"""
+                        Test dictionary has wrong value for key '{key}'.
+                        Expected {check_key}{schema_dict_value}, but test value is '{test_dict_value}'.
+                        """
                     )
 
         # ----- TYPE str -----
@@ -334,20 +334,20 @@ def check_dict_against_schema(test_dict, schema_dict):
             if min_len is not None:
                 if len(test_dict_value) < min_len:
                     raise ValueError(
-                    f"""
-                    String is too short for key '{key}'.
-                    Minimum length is '{min_len}', got length '{len(test_dict_value)}'
-                    """
+                        f"""
+                        String is too short for key '{key}'.
+                        Minimum length is '{min_len}', got length '{len(test_dict_value)}'
+                        """
                     )
 
             max_len = form.get('max_len', None)
             if max_len is not None:
                 if len(test_dict_value) > max_len:
                     raise ValueError(
-                    f"""
-                    String is too long for key '{key}'.
-                    Maximum length is '{max_len}', got length '{len(test_dict_value)}'
-                    """
+                        f"""
+                        String is too long for key '{key}'.
+                        Maximum length is '{max_len}', got length '{len(test_dict_value)}'
+                        """
                     )
 
         # ----- TYPE tuple/list -----
@@ -356,19 +356,19 @@ def check_dict_against_schema(test_dict, schema_dict):
             if min_len is not None:
                 if len(test_dict_value) < min_len:
                     raise ValueError(
-                    f"""
-                    Array is too short for key '{key}'.
-                    Minimum length is '{min_len}', got length '{len(test_dict_value)}'
-                    """
+                        f"""
+                        Array is too short for key '{key}'.
+                        Minimum length is '{min_len}', got length '{len(test_dict_value)}'
+                        """
                     )
             max_len = form.get('max_len', None)
             if max_len is not None:
                 if len(test_dict_value) > max_len:
                     raise ValueError(
-                    f"""
-                    Array is too long for key '{key}'.
-                    Maximum length is '{max_len}', got length '{len(test_dict_value)}'
-                    """
+                        f"""
+                        Array is too long for key '{key}'.
+                        Maximum length is '{max_len}', got length '{len(test_dict_value)}'
+                        """
                     )
 
             # Check type of the items
@@ -376,9 +376,9 @@ def check_dict_against_schema(test_dict, schema_dict):
             if item_types is not None:
                 if not all(isinstance(item, item_types) for item in test_dict_value):
                     raise TypeError(
-                    f"""
-                    Array for key '{key}' has item(s) with wrong type.
-                    """
+                        f"""
+                        Array for key '{key}' has item(s) with wrong type.
+                        """
                     )
 
 
