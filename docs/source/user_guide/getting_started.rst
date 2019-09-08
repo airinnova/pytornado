@@ -5,7 +5,7 @@ Getting started
 
 This page briefly explains how to get started with a very simple example using |name|'s command line interface. Notice that a more detailed user guide can be found here: :ref:`detailed_user_guide`
 
-First, open a terminal and try to simply run the command ``pytornado`` (without any arguments). A brief help page should show up. One of the available arguments is ``--make-example`` which we will use in this tutorial to create a minimal working example.
+First, open a terminal and try to simply run the command ``pytornado`` (without any arguments). A short help page should show up. One of the available arguments is ``--make-example`` which we will use in this tutorial to create a minimal working example. Now, in your terminal run:
 
 .. code::
 
@@ -23,6 +23,8 @@ The flag ``-v`` tells |name| to go into *verbose* mode. You should see some text
    :width: 500
    :alt: Template
    :align: center
+
+   Pressure plot for a simple rectangular wing with deflected control surfaces
 
 While creating this minimalistic example, several directories and files were created. Feel free to explore the different files. However, don't be worried if you don't understand everything yet. We will give more detailed instructions on the following pages.
 

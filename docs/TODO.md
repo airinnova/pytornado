@@ -1,6 +1,8 @@
 # TODO
 
 ## Important
+* Save plots in '_results'?
+* Aircraft.version used??
 * Better autopanneling
 =========================================
 * 'save_results' --> lattice --> `*.dat`

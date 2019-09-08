@@ -17,27 +17,77 @@ The aircraft definition file closely resembles the this hierarchical structure. 
 .. include:: pytornado/aircraft/template_aircraft.json
     :code: json
 
-uid (unique identifier)
------------------------
+Aircraft: uid (unique identifier)
+---------------------------------
 
 The ``uid`` keyword defines the *name* of the aircraft. You may choose any string here. The name will for instance be shown as titles on plots.
 
-refs (reference values for aerodynamic coefficients)
-----------------------------------------------------
+Aircraft: refs (reference values for aerodynamic coefficients)
+--------------------------------------------------------------
 
-Aerodynamic coefficients like drag or lift coefficients only have a meaning if the corresponding reference value are known. In |name| you have to explicitly state your reference values. There are five reference values in |name|:
+Aerodynamic coefficients like drag or lift coefficients only have a meaning if the corresponding reference value are known. In |name|, reference values have to explicitly defined. There are five reference values in |name|:
 
-* ``area`` Wing surface area in *meter²*
-* ``span`` Wing span in *meter*
-* ``chord`` Wing mean aerodynamic chord in *meter*
-* ``gcenter`` Centre of gravity in form [:math:`X`, :math:`Y`, :math:`Z`] where :math:`X`, :math:`Y`, :math:`Z` are coordinates (*meter*)
-* ``rcenter`` Centre of rotation in form [:math:`X`, :math:`Y`, :math:`Z`] where :math:`X`, :math:`Y`, :math:`Z` are coordinates (*meter*)
+* ``area`` Wing surface area in [:math:`m^2`]
+* ``span`` Wing span in [:math:`m`]
+* ``chord`` Wing mean aerodynamic chord in [:math:`m`]
+* ``gcenter`` Centre of gravity in form [:math:`X`, :math:`Y`, :math:`Z`] where :math:`X`, :math:`Y`, :math:`Z` are coordinates [:math:`m`]
+* ``rcenter`` Centre of rotation in form [:math:`X`, :math:`Y`, :math:`Z`] where :math:`X`, :math:`Y`, :math:`Z` are coordinates [:math:`m`]
 
 How these reference values are used is described in section :ref:`coeffs`.
 
+Aircraft: wings (wing object)
+-----------------------------
 
-Symmetry flag
--------------
+Wing: uid (unique identifier)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Wing: symmetry (symmetry flag)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Wing: segments (symmetry objects)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Segments: uid (unique identifier)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Segments: vertices
+^^^^^^^^^^^^^^^^^^
+
+Segments: geometry
+^^^^^^^^^^^^^^^^^^
+
+Segments: airfoils
+^^^^^^^^^^^^^^^^^^
+
+Segments: panels
+^^^^^^^^^^^^^^^^
+
+Wing: controls
+~~~~~~~~~~~~~~
+
+Control: uid (unique identifier)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Control: device_type
+^^^^^^^^^^^^^^^^^^^^
+
+Control: deflection
+^^^^^^^^^^^^^^^^^^^
+
+Control: deflection_mirror
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Control: segment_uid
+^^^^^^^^^^^^^^^^^^^^
+
+Control: rel_vertices
+^^^^^^^^^^^^^^^^^^^^^
+
+Control: rel_hinge_vertices
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Control: panels
+^^^^^^^^^^^^^^^
 
 **TODO** Explain
 
