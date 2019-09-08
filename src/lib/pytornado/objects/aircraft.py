@@ -55,7 +55,7 @@ from commonlibs.math.vectors import get_plane_line_intersect, rotate_vector_arou
 from airfoils import Airfoil, MorphAirfoil
 from airfoils.fileio import import_airfoil_data
 
-from pytornado.objects.utils import FixedNamespace, FixedOrderedDict, check_dict_against_schema
+from pytornado.objects.utils import FixedOrderedDict, check_dict_against_schema
 
 # Global unit vectors
 X_axis = np.array([1, 0, 0])
@@ -587,35 +587,23 @@ class Wing:
                     )
 
 
-class WingSegment(FixedNamespace):
-    """
-    Data structure for WING component: WINGSEGMENT.
-
-    WINGSEGMENT is a component of WING.
-    Components are accessed using their unique identifier, must be a STRING.
-
-    WINGSEGMENT represents a quadrilateral segment of lifting surface.
-
-    Attributes:
-        :area: (float) WINGSEGMENT surface area
-        :position: (dict) WINGSEGMENT span-wise position in WING
-        :vertices: (dict) WINGSEGMENT corner point coordinates
-        :geometry: (dict) WINGSEGMENT geometric properties
-        :airfoil: (dict) WINGSEGMENT wing section coordinates
-        :panels: (dict) WINGSEGMENT discretization properties
-        :state: (bool) WINGSEGMENT definition state
-    """
+class WingSegment:
 
     def __init__(self, wing, uid):
         """
-        Initialise instance of WINGSEGMENT.
+        Wing segment (child of Wing class)
 
-        WINGSEGMENT inherits from FIXEDNAMESPACE.
-        Upon initialisation, attributes of WINGSEGMENT are created and fixed.
-        Only existing attributes may be modified afterward.
+        A wing segment represents a quadrilateral segment of lifting surface
+
+        Attributes:
+            :area: (float) Surface area
+            :position: (dict) Span-wise position in WING
+            :vertices: (dict) Corner point coordinates
+            :geometry: (dict) Geometric properties
+            :airfoil: (dict) Wing section coordinates
+            :panels: (dict) Discretization properties
+            :state: (bool) Definition state
         """
-
-        super().__init__()
 
         self.parent_wing = wing
         self.uid = uid
@@ -683,8 +671,6 @@ class WingSegment(FixedNamespace):
 
         # state of component definition (see CHECK)
         self.state = False
-
-        self._freeze()
 
     @property
     def normal_vector(self):
@@ -759,11 +745,11 @@ class WingSegment(FixedNamespace):
             import_from_NACA = False
 
             if os.path.isfile(airfoil_definition):
-                logger.info("Importing airfoil from file: '{:s}'".format(airfoil_definition))
+                logger.info(f"Importing airfoil from file: '{airfoil_definition}'")
                 import_from_file = True
             elif airfoil_definition.upper().startswith('NACA'):
                 airfoil_definition = airfoil_definition.upper()
-                logger.info("Importing airfoil from NACA definition ({:s})".format(airfoil_definition))
+                logger.info(f"Importing airfoil from NACA definition ({airfoil_definition})")
                 import_from_NACA = True
             else:
                 raise ValueError("Airfoil input data neither a valid file " +
@@ -886,7 +872,7 @@ class WingSegment(FixedNamespace):
         for idx, subdivision in self.subdivision.items():
             if subdivision.rel_vertices['eta_a'] <= eta < subdivision.rel_vertices['eta_b']:
                 if eta == subdivision.rel_vertices['eta_a']:
-                    logger.debug("There is a subdivision line at requested position (eta = {:.3f})".format(eta))
+                    logger.debug(f"There is a subdivision line at requested position (eta = {eta:.3f})")
                     return idx, subdivision, True
                 else:
                     return idx, subdivision, False
@@ -1112,14 +1098,12 @@ class WingSegment(FixedNamespace):
         """
 
         # 1. CHECK SEGMENT PROPERTIES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-
         self.check_vertices()
         self.check_geometry()
         self.check_airfoils()
         self.check_panels()
 
         # 2. CHECK PROVIDED GEOMETRIC PROPERTIES ~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-
         if all(v for v in self.geometry.values()):
             # all geometric properties provided
             required = ['a', 'b', 'c', 'd', 'ad', 'bc', 'abcd']
@@ -1141,7 +1125,6 @@ class WingSegment(FixedNamespace):
             required = ['abcd']
 
         # 3. CHECK PROVIDED VERTEX COORDINATES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-
         # string of keys of correctly-defined vertices
         provided = ''.join(sorted(k for k, v in self.vertices.items() if v is not None))
 
@@ -1156,14 +1139,12 @@ class WingSegment(FixedNamespace):
             logger.info(f"--> Point {point.upper()} = {self.vertices[point]}")
 
         # 4. CHECK COMPONENT DEFINITION ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-
         # provided inputs are insufficient to generate segment geometry
         if provided not in required:
             self.state = False
             raise ComponentDefinitionError("geometric properties of segment ill-defined.")
 
         # 5. GENERATE A, D-EDGE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-
         if not ('a' in provided and 'd' in provided):
             # generate edge A, D from provided properties
 
@@ -1212,12 +1193,11 @@ class WingSegment(FixedNamespace):
 
             tan_ai = tan(radians(self.geometry['inner_alpha']))
 
-            logger.debug("--> Inner_chord = {}.".format(self.geometry['inner_chord']))
-            logger.debug("--> Inner_alpha = {}.".format(self.geometry['inner_alpha']))
-            logger.debug("--> Inner_beta = {}.".format(self.geometry['inner_beta']))
+            logger.debug(f"--> Inner_chord = {self.geometry['inner_chord']}")
+            logger.debug(f"--> Inner_alpha = {self.geometry['inner_alpha']}")
+            logger.debug(f"--> Inner_beta = {self.geometry['inner_beta']}")
 
         # 2. GENERATE B, C-EDGE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-
         if not ('a' in provided and 'b' in provided):
             # generate B, C from geometric properties
 
@@ -1266,12 +1246,11 @@ class WingSegment(FixedNamespace):
 
             tan_ao = tan(radians(self.geometry['outer_alpha']))
 
-            logger.debug("--> Outer_chord = {}.".format(self.geometry['outer_chord']))
-            logger.debug("--> Outer_alpha = {}.".format(self.geometry['outer_alpha']))
-            logger.debug("--> Outer_beta = {}.".format(self.geometry['outer_beta']))
+            logger.debug(f"--> Outer_chord = {self.geometry['outer_chord']}")
+            logger.debug(f"--> Outer_alpha = {self.geometry['outer_alpha']}")
+            logger.debug(f"--> Outer_beta = {self.geometry['outer_beta']}")
 
         # 7. GENERATE EDGES A-B AND D-C ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-
         # set default
         if self.geometry['inner_axis'] is None:
             self.geometry['inner_axis'] = 0.25
@@ -1292,8 +1271,8 @@ class WingSegment(FixedNamespace):
         axs_y = axo_y - axi_y
         axs_z = axo_z - axi_z
 
-        logger.debug("--> Inner_axis = {}.".format(self.geometry['inner_axis']))
-        logger.debug("--> Outer_axis = {}.".format(self.geometry['outer_axis']))
+        logger.debug(f"--> Inner_axis = {self.geometry['inner_axis']}")
+        logger.debug(f"--> Outer_axis = {self.geometry['outer_axis']}")
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
@@ -1317,9 +1296,9 @@ class WingSegment(FixedNamespace):
             # dihedral applied along axis
             self.geometry['dihedral'] = degrees(atan2((b_z + axs_z), (b_y + axs_y)))
 
-            logger.debug("--> Dihedral = {}".format(self.geometry['dihedral']))
-            logger.debug("--> Sweep = {}".format(self.geometry['sweep']))
-            logger.debug("--> Span = {}".format(self.geometry['span']))
+            logger.debug(f"--> Dihedral = {self.geometry['dihedral']}")
+            logger.debug(f"--> Sweep = {self.geometry['sweep']}")
+            logger.debug(f"--> Span = {self.geometry['span']}")
 
         else:
             # position edge B-C wrt edge A-D
@@ -1421,7 +1400,6 @@ class WingSegment(FixedNamespace):
             self.vertices['d'] = [d_x, d_y, d_z]
 
         # 8. GENERATE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-
         logger.debug(f"--> Vertex a = {self.vertices['a']}.")
         logger.debug(f"--> Vertex b = {self.vertices['b']}.")
         logger.debug(f"--> Vertex c = {self.vertices['c']}.")
@@ -1440,26 +1418,25 @@ class WingSegment(FixedNamespace):
         logger.info("Checking vertex coordinates...")
 
         # 1. CHECK DEFINITION OF VERTICES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-
         for key, val in self.vertices.items():
 
             if val is None:
-                logger.info("Vertex '{}' is NONE (not defined).".format(key))
+                logger.info(f"Vertex '{key}' is NONE (not defined)")
 
             elif isinstance(val, (list, np.ndarray)) and len(val) == 3:
 
                 if not isinstance(val[0], (float, int)):
-                    raise TypeError("x-coordinate of vertex '{}' must be FLOAT.".format(key))
+                    raise TypeError(f"x-coordinate of vertex '{key}' must be FLOAT")
                 if not isinstance(val[1], (float, int)):
-                    raise TypeError("y-coordinate of vertex '{}' must be FLOAT.".format(key))
+                    raise TypeError(f"y-coordinate of vertex '{key}' must be FLOAT")
                 if not isinstance(val[2], (float, int)):
-                    raise TypeError("z-coordinate of vertex '{}' must be FLOAT.".format(key))
+                    raise TypeError(f"z-coordinate of vertex '{key}' must be FLOAT")
 
                 # convert to NUMPY array
                 self.vertices[key] = np.array(val, dtype=float, order='C')
 
             else:
-                raise TypeError("vertex '{}' must be ARRAY of FLOAT [X, Y, Z].".format(key))
+                raise TypeError("Vertex '{key}' must be ARRAY of FLOAT [X, Y, Z]")
 
     def check_geometry(self):
         """Check type and value of properties in WINGSEGMENT.GEOMETRY."""
@@ -1467,7 +1444,6 @@ class WingSegment(FixedNamespace):
         logger.info("Checking geometric properties...")
 
         # 1. CHECK DEFINITION OF GEOMETRIC PROPERTIES ~~~~~~~~~~~~~~~~~~~~~ #
-
         # inner chord
         if self.geometry['inner_chord'] is None:
             logger.info("'inner_chord' is NONE (not defined).")
@@ -1603,7 +1579,7 @@ class WingSegment(FixedNamespace):
                 raise ValueError(f"{panel_number} must be positive")
 
 
-class WingControl(FixedNamespace):
+class WingControl:
     """
     Data structure for WING component: WINGCONTROL.
 
@@ -1630,8 +1606,6 @@ class WingControl(FixedNamespace):
         Upon initialisation, attributes of WINGCONTROL are created and fixed.
         Only existing attributes may be modified afterward.
         """
-
-        super().__init__()
 
         self.parent_wing = parent_wing
         self.uid = control_uid
@@ -1665,7 +1639,6 @@ class WingControl(FixedNamespace):
 
         # component definition state
         self.state = False
-        self._freeze()
 
     @property
     def symmetry(self):
@@ -1789,7 +1762,7 @@ class WingControl(FixedNamespace):
             raise ValueError("'num_c' must be positive")
 
 
-class WingSegmentSubdivision(FixedNamespace):
+class WingSegmentSubdivision:
     """
     WingSegmentSubdivision is a "child class" of WingSegment.
 
@@ -1817,8 +1790,6 @@ class WingSegmentSubdivision(FixedNamespace):
             :rel_vertices: (dict) relative coordinates of the subdivision (eta)
         """
 
-        super().__init__()
-
         # Keep a reference about the parents outer vertices
         self.parent_segment = segment
         self.parent_wing = self.parent_segment.parent_wing
@@ -1840,8 +1811,6 @@ class WingSegmentSubdivision(FixedNamespace):
         subarea_segment_rel_vertices['xsi_d'] = 1.0
         self.subarea.update({'segment': WingSegmentSubdivisionSubarea(self,
                             subarea_segment_rel_vertices, subarea_type='segment')})
-
-        self._freeze()
 
     @property
     def symmetry(self):
@@ -1921,10 +1890,10 @@ class WingSegmentSubdivision(FixedNamespace):
         device_type = parent_control.device_type
 
         if device_type not in ['slat', 'flap']:
-            raise ValueError("Unknown device type {:s}".format(str(device_type)))
+            raise ValueError(f"Unknown device type '{device_type}'")
 
         if device_type in self.subarea.keys():
-            raise ValueError("Subdivision already has subarea for type {:s}".format(device_type))
+            raise ValueError(f"Subdivision already has subarea for type '{device_type}'")
 
         if xsi_h1 is None:
             xsi_h1 = xsi1
@@ -1936,11 +1905,11 @@ class WingSegmentSubdivision(FixedNamespace):
 
         for xsi in [xsi2, xsi1]:
             if (xsi <= 0 or xsi >= 1):
-                raise ValueError("xsi must be in range (0, 1). Given xsi = {:.2e}".format(xsi))
+                raise ValueError(f"xsi must be in range (0, 1). Given xsi = {xsi:.2e}")
 
         for xsi in [xsi_h1, xsi_h2]:
             if (xsi < 0 or xsi > 1):
-                raise ValueError("xsi_h must be in range [0, 1]. Given xsi = {:.2e}".format(xsi))
+                raise ValueError(f"xsi_h must be in range [0, 1]. Given xsi = {xsi:.2e}")
 
         if 'slat' in self.subarea.keys():
             if self.subarea['slat'].rel_vertices['xsi_d'] + MIN_XSI_LIMIT > xsi1 \
@@ -2028,7 +1997,7 @@ class WingSegmentSubdivision(FixedNamespace):
             self.subarea['flap'].rel_hinge_vertices['xsi_h2'] = xsi_h2
 
 
-class WingSegmentSubdivisionSubarea(FixedNamespace):
+class WingSegmentSubdivisionSubarea:
     """
     WingSegmentSubdivisionSubarea is a "child class" of WingSegmentSubdivision.
 
@@ -2053,8 +2022,6 @@ class WingSegmentSubdivisionSubarea(FixedNamespace):
             :rel_vertices: (dict) relative coordinates of the subarea (xsi)
         """
 
-        super().__init__()
-
         # Keep a reference about the parent object (subdivision)
         self.parent_subdivision = subdivision
         self.parent_segment = self.parent_subdivision.parent_segment
@@ -2075,8 +2042,6 @@ class WingSegmentSubdivisionSubarea(FixedNamespace):
         # - Parent control device
         self.rel_hinge = None
         self.parent_control = None
-
-        self._freeze()
 
     @property
     def rel_length(self):
@@ -2261,12 +2226,10 @@ class WingSegmentSubdivisionSubarea(FixedNamespace):
             :xsi_h2: (float) relative position of the outer hinge point
         """
 
-        self._unfreeze()
         self.rel_hinge_vertices = FixedOrderedDict()
         self.rel_hinge_vertices['xsi_h1'] = xsi_h1
         self.rel_hinge_vertices['xsi_h2'] = xsi_h2
         self.rel_hinge_vertices._freeze()
-        self._freeze()
 
     def _add_parent_control(self, control_object):
         """
@@ -2388,7 +2351,7 @@ def mirror_point(point, plane):
     elif plane == 'yz' or plane == 3:
         point[0] = -point[0]
     else:
-        raise ValueError("Invalid plane (plane: {})".format(plane))
+        raise ValueError(f"Invalid plane (plane: '{plane}')")
 
     return point
 
@@ -2414,7 +2377,7 @@ def order_mirrored_vertex_points(vertices, plane):
     elif plane == 'yz' or plane == 3:
         a, b, c, d = d, c, b, a
     else:
-        raise ValueError("Invalid plane (plane: {})".format(plane))
+        raise ValueError(f"Invalid plane (plane: '{plane}')")
 
     return (a, b, c, d)
 
