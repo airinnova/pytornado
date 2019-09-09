@@ -12,6 +12,8 @@ Theoretical background
 
 .. [Bertin2014] Bertin, J.J. ; Cummings, R.M.: *Aerodynamics for Engineers*. Pearson, 2014. -- ISBN 9780134091198
 
+.. [Melin2000] Melin, T.: A Vortex Lattice MATLAB Implementation for Linear Aerodynamic Wing Applications, Diss., December 2000. http://dx.doi.org/10.13140/RG.2.2.24472.49923
+
 Publications referencing |name|
 -------------------------------
 
@@ -22,5 +24,5 @@ Publications referencing |name|
 Other references
 ----------------
 
-.. [Seywald2016] Seywald, Klaus: Impact of Aeroelasticity on Flight Dynamics and Handling Qualities of Novel Aircraft Configurations. München, Technische Universität München, Dissertation, 2016. https://mediatum.ub.tum.de/?id= 1296378
+.. [Seywald2016] Seywald, Klaus: Impact of Aeroelasticity on Flight Dynamics and Handling Qualities of Novel Aircraft Configurations. München, Technische Universität München, Dissertation, 2016. https://mediatum.ub.tum.de/?id=1296378
 

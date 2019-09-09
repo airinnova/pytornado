@@ -63,7 +63,10 @@ For simpler analyses |name| provides a simple command line interface. More compl
 
    dev_doc/general_remarks
    dev_doc/conventions
-   dev_doc/theory
+   dev_doc/geometry
+   dev_doc/meshing
+   dev_doc/normal_rotations
+   dev_doc/deformation_api
    dev_doc/modules_main
 
 Licence information
