@@ -3,18 +3,35 @@
 Aircraft file
 =============
 
-**TODO** add coordinate system
-
 An aircraft file defines the (undeformed) geometry of an aircraft. Aircraft models are defined using a hierarchical system. An **aircraft** is made up of one or more **wings**. Each wing may be divided into **segments** (a quadrilateral), and each wing may also have **control surfaces**.
 
-.. figure:: _static/images/aircraft_hierarchy.svg
-    :width: 550
+.. figure:: _static/images/aircraft_hierarchy_simple.svg
+    :width: 650
     :alt: Aircraft model
     :align: center
 
     An *aircraft* is broken down into *wings* and a wing is broken down into *segments*. Each wing can have any number of *control surfaces*. (Note that *segment strips* and *strip subdivisions* are part of |name|'s internal API. However, they are not relevant for the model input discussed here.)
 
-The aircraft definition file closely resembles the this hierarchical structure. A fairly simple example is shown below.
+Coordinate system
+-----------------
+
+Note that all absolute coordinates in the aircraft file are based to the *body-fixed* coordinate system.
+
+.. figure:: ../_static/images/conventions/body_fixed_coordinate_system.svg
+   :width: 300 px
+   :align: center
+   :alt: Body fixed coordinate system
+
+   Body fixed coordinate system
+
+.. seealso::
+
+    :ref:`coordinate_systems`
+
+Example file
+------------
+
+The aircraft definition file closely resembles the this hierarchical structure discussed above. A fairly simple example is shown below.
 
 .. include:: pytornado/aircraft/template_aircraft.json
     :code: json
@@ -147,7 +164,7 @@ There are two ways to define airfoils. First, NACA_ airfoils (4-digit series) ca
 Segments: panels
 ^^^^^^^^^^^^^^^^
 
-The number of panels can be set manually for a specific segment.
+The number of panels can be set manually for a specific segment. ``num_s`` is the number of *spanwise* panels and ``num_c`` is the number of *chordwise* panels.
 
 .. code:: json
 
@@ -163,29 +180,87 @@ The number of panels can be set manually for a specific segment.
 Wing: controls
 ~~~~~~~~~~~~~~
 
+Besides ``segments`` (at least one required), wings can optionally have *control surfaces* which are defined using the keyword ``controls``. The ``controls`` keyword is followed by a list (square bracket). Each list entry must be a description of a separate control surface.
+
+*Structure of the contol surface list*
+
+.. code:: json
+
+    "controls": [
+        {
+            << description of wing control object 1 >>
+        },
+        {
+            << description of wing control object 2 >>
+        }
+    ]
+
 Control: uid (unique identifier)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Each control must have a UID (|uid|).
 
 Control: device_type
 ^^^^^^^^^^^^^^^^^^^^
 
+Control surfaces can be leading edge devices or trailing edge devices. The keyword ``device_type`` must be followed by one of the following two strings:
+
+* ``"flap"`` Trailing edge device
+* ``"slat"`` Leading edge device
+
+**TODO** add illustration
+
 Control: deflection
 ^^^^^^^^^^^^^^^^^^^
+
+Control surface deflection in degrees [:math:`^\circ`] on the wing main side.
+
+**TODO** sign convention
+
+**TODO** add illustration
 
 Control: deflection_mirror
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Control surface deflection in degrees [:math:`^\circ`] on the mirrored side. This setting is only applicable if the wing has a mirrored side. Otherwise this setting will be ignored.
+
 Control: segment_uid
 ^^^^^^^^^^^^^^^^^^^^
+
+Control surfaces may span across multiple wing segments. The keyword ``segment_uid`` defines where the inner and the outer edge of the control segment are located. For instance, to let a control surface span from a segment called ``uid_of_the_INNER_segment`` to another segment with UID ``uid_of_the_OUTER_segment``, you can write:
+
+.. code:: json
+
+    "segment_uid": {
+        "inner": "uid_of_the_INNER_segment",
+        "outer": "uid_of_the_OUTER_segment"
+    },
+
+Of course, the segment with UID ``uid_of_the_INNER_segment`` and the segment with UID ``uid_of_the_OUTER_segment`` must exist and they must be located on the same wing.
+
+**TODO** add illustration
 
 Control: rel_vertices
 ^^^^^^^^^^^^^^^^^^^^^
 
+* Relative vertices for each segment
+
+**TODO**
+
 Control: rel_hinge_vertices
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Relative vertices for each segment
+
+**TODO**
 
 Control: panels
 ^^^^^^^^^^^^^^^
 
-**TODO** Explain
+The ``panels`` setting for control surfaces is an optional setting which can be used to manually set the number of panels for a specific control surface. Notice that only the number of *chordwise* panels can be set for a control surface. The number of spanwise panels is determined by the segment on which the control is placed.
 
+.. code:: json
+
+    "panels": {
+        "num_c": 5
+    }
