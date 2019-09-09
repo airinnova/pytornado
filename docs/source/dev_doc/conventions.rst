@@ -27,6 +27,10 @@ All data related to the aircraft model is contained in the ``Aircraft`` class. M
 
 
 
+.. figure:: ../_static/images/conventions/aircraft_hierarchy.svg
+    :width: 550
+    :alt: Aircraft model
+    :align: center
 
 
 

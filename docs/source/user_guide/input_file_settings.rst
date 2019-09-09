@@ -1,3 +1,5 @@
+.. _input_file_settings:
+
 Settings file
 =============
 
@@ -23,8 +25,8 @@ The project file structure corresponding to this settings file will look as foll
     └── state
         └── template.json
 
-Explanation of expected input
------------------------------
+Explanation of expected inputs
+------------------------------
 
 * ``aircraft`` The aircraft key must be followed by the name of the *aircraft file* which is to be loaded. The corresponding aircraft file must be located in the **aircraft** folder of the project directory. The referenced aircraft file may be a JSON file (native format) or a CPACS_ file. |name| will automatically detect the aircraft file type.
 
@@ -54,10 +56,10 @@ Explanation of expected input
 
 .. note::
 
-    * With options ``global`` and ``panelwise`` a new file each is created in every iteration of the |apm| analysis.
+    * If settings ``global`` and ``panelwise`` are true, a new file each is created for every iteration of the |apm| analysis.
     * With option ``aeroperformance`` only a single file is created after the entire |apm| has been evaluated.
 
-* ``plot`` Different kind of plots can be generated during program execution. Plots can either be *shown* in an interactive window during runtime of |name| or *saved* as files. Notice that the program execution is paused when plots are being shown interactively. When files are being saved, they are written to the **_plots** folder. The ``plot`` keyword is followed by a "sub-keywords" which has the following form:
+* ``plot`` Different kind of plots can be generated during program execution. Plots can either be *shown* in an interactive window during runtime of |name| or *saved* as files. Notice that the program execution is paused when plots are being shown interactively. When files are being saved, they are written to the **_plots** folder. The ``plot`` keyword is followed by "sub-keywords" with the following form:
 
 .. code:: json
 

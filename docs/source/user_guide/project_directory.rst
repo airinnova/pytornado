@@ -12,8 +12,8 @@ As seen in the first tutorial (:ref:`getting_started`), |name| has its own *proj
 
 |
 
-Overview
---------
+Folders and files
+-----------------
 
 .. image:: _static/images/folder.svg
    :width: 25
@@ -22,6 +22,10 @@ Overview
 
 **settings** The settings folder must contain a *JSON settings file*. This file is the entry point for any VLM analysis. Notice that you already referenced a settings file in the first tutorial with the ``--run`` argument (:ref:`getting_started`). The settings file can be named arbitrarily.
 
+.. seealso::
+
+    More information on the settings file can be found here: :ref:`input_file_settings`
+
 .. image:: _static/images/folder.svg
    :width: 25
    :alt: Folder
@@ -29,19 +33,31 @@ Overview
 
 **aircraft** This folder contains a file with the aircraft model. |name| reads models stored as JSON or CPACS_ files.
 
-.. image:: _static/images/folder.svg
-   :width: 25
-   :alt: Folder
-   :align: left
+.. seealso::
 
-**airfoils** This folder can contain files with airfoil descriptions. Airfoil files can be referenced from the aircraft model (JSON or CPACS_). Airfoil files may be automatically generated if you use CPACS_. Also, if you use |name|'s JSON format, you can define NACA airfoils without adding any files yourself. More information on airfoils can be found here: :ref:`input_files`.
+    More information on aircraft files can be found here: :ref:`input_file_aircraft`
 
 .. image:: _static/images/folder.svg
    :width: 25
    :alt: Folder
    :align: left
 
-**state** In the *state* directory there can be one or more files which describe the flight state which is to be analysed. Details on the definition of flight states can be found here: :ref:`input_files`.
+**airfoils** This folder can contain files with airfoil descriptions. Airfoil files can be referenced from the aircraft model (JSON or CPACS_). Airfoil files may be automatically generated if you use CPACS_. Also, if you use |name|'s JSON format, you can define NACA airfoils without adding any files yourself.
+
+.. seealso::
+
+    More information on airfoil files can be found here: :ref:`input_file_airfoils`
+
+.. image:: _static/images/folder.svg
+   :width: 25
+   :alt: Folder
+   :align: left
+
+**state** The *state* directory must contain a file which describes the flight state (or |apm|) which is to be analysed.
+
+.. seealso::
+
+    More information on state files can be found here: :ref:`input_file_state`
 
 .. image:: _static/images/folder.svg
    :width: 25
@@ -66,7 +82,7 @@ Overview
 
 .. note::
 
-    If you plan to perform analyses for multiple aircraft models, you can separate your analyses by using separate project directories (the top level folder). However, it is also possible to keep all analyses in one project folder. Then, you will have multiple settings files in the *settings* folder, multiple aircraft files in your *aircraft* folder etc.
+    If you plan to perform analyses for multiple aircraft models, you can separate your analyses by using separate project directories (the top level folder). Alternatively, it is also possible to keep all analyses in one project folder. Then, you will have multiple settings files in the *settings* folder, multiple aircraft files in your *aircraft* folder etc.
 
 .. hint::
 

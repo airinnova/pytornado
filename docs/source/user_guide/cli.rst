@@ -3,12 +3,12 @@
 The command line interface
 ==========================
 
-|name| provides a command line tool which can be used to start VLM analyses. The executable is called |name_cli|. If you simply run |name_cli| in a terminal without any arguments, a simple help page will be printed.
+|name| provides a command line tool which can be used to start a VLM analysis. The executable is called |name_cli|. If you simply run |name_cli| in a terminal without any arguments, a simple help page will be printed.
 
 .. include:: _help_page.txt
     :literal:
 
-**Pointing to a settings file**
+**Pointing to a settings file (\-\-run)**
 
 Perhaps the most important argument is ``--run`` (or short ``-r``). This argument must be followed by a file path to the |name| settings file. Notice that you used this argument in the first tutorial (:ref:`getting_started`) where the settings file was located at ``settings/template.json``.
 
@@ -42,7 +42,7 @@ If you do not want to start a new analysis you can use ``--clean-only`` which wi
 
         pytornado -cvr settings/template.json
 
-    |name| will clean up the **_results** and **_plots** directories (if there are files from previous analyses) and then a VLM will be started in verbose mode.
+    |name| will first clean up the **_results** and **_plots** directories (if there are files from previous analyses) and then a VLM will be started in verbose mode.
 
 **Creating a template project**
 
@@ -54,7 +54,7 @@ If you start with a new project, |name| allows you to easily generate a clean pr
 
 **Converting CPACS to JSON**
 
-|name|'s native JSON format has a simpler and flatter structure than CPACS_. Sometimes, it may be more convenient to edit the aircraft definition using the JSON format rather than CPACS_. CPACS_ files can easily be converted to JSON. Change into a project directory (see :ref:`project_dir`) with a CPACS_ file in the *aircraft* subdirectory. Now you may run:
+|name|'s native JSON format has a simpler and flatter structure than CPACS_. Sometimes, it may be more convenient to edit the aircraft definition using the JSON format rather than CPACS_. A CPACS_ file can easily be converted to JSON. Change into a project directory (see :ref:`project_dir`) with a CPACS_ file in the *aircraft* subdirectory. Now you may run:
 
 .. code::
 
@@ -66,7 +66,7 @@ The CPACS_ file ``aircraft/CPACS_file.xml`` will be loaded and a new file ``airc
 
     An existing file ``aircraft/CPACS_file.json`` will be overwritten.
 
-To use the new JSON file instead of CPACS_ you will have to edit your main settings file (:ref:`input_files`).
+To use the new JSON file instead of CPACS_ you will have to edit your main settings file (:ref:`input_file_settings`).
 
 **General notes**
 

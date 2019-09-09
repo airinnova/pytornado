@@ -3,7 +3,7 @@
 User guide
 ==========
 
-This user guide summarises features of |name| in a more general manner. If you want to learn from examples you can also checkout the tutorials (:ref:`tutorials`).
+This user guide summarises features of |name| in a more general manner. Notice that you can also find usage examples in the tutorial section (:ref:`tutorials`).
 
 .. toctree::
    :maxdepth: 2
