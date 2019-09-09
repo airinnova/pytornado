@@ -1,7 +1,7 @@
 .. _coeffs:
 
-Definition of global loads and coefficients
-===========================================
+Loads and coefficients
+======================
 
 |name| computes different *global* force and moment coefficients. The definitions are described below. Notice that there are three different **reference values**:
 
