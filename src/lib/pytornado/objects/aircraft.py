@@ -67,6 +67,11 @@ TOL = 1.0e-02
 MIN_XSI_LIMIT = 0.01
 MIN_ETA_LIMIT = 0.01
 
+# Common schema entries
+SCHEMA_FLOAT_01 = {'type': float, '>=': 0.0, '<=': 1.0}
+SCHEMA_ARRAY_XYZ = {'type': list, 'min_len': 3, 'max_len': 3, 'item_types': (int, float)}
+SCHEMA_FLOAT_POS = {'type': float, '>': 0}
+
 logger = logging.getLogger(__name__)
 
 
@@ -81,30 +86,11 @@ class Aircraft:
     # Schema for reference values
     REF_SCHEMA = {
         '__REQUIRED_KEYS': ['gcenter', 'rcenter', 'area', 'chord', 'span'],
-        'gcenter': {
-            'type': list,
-            'min_len': 3,
-            'max_len': 3,
-            'item_types': (int, float),
-        },
-        'rcenter': {
-            'type': list,
-            'min_len': 3,
-            'max_len': 3,
-            'item_types': (int, float),
-        },
-        'area': {
-            'type': float,
-            '>': 0,
-        },
-        'chord': {
-            'type': float,
-            '>': 0,
-        },
-        'span': {
-            'type': float,
-            '>': 0,
-        },
+        'gcenter': SCHEMA_ARRAY_XYZ,
+        'rcenter': SCHEMA_ARRAY_XYZ,
+        'area': SCHEMA_FLOAT_POS,
+        'chord': SCHEMA_FLOAT_POS,
+        'span': SCHEMA_FLOAT_POS,
     }
 
     def __init__(self):
@@ -591,11 +577,11 @@ class WingSegment:
 
     # Schema for vertices
     VERTICES_SCHEMA = {
-        '__REQUIRED_KEYS': ['a', 'b', 'c', 'd'],
-        'a': {'type': list, 'min_len': 3, 'max_len': 3, 'item_types': (int, float)},
-        'b': {'type': list, 'min_len': 3, 'max_len': 3, 'item_types': (int, float)},
-        'c': {'type': list, 'min_len': 3, 'max_len': 3, 'item_types': (int, float)},
-        'd': {'type': list, 'min_len': 3, 'max_len': 3, 'item_types': (int, float)},
+        # Vertices are not "required" input
+        'a': SCHEMA_ARRAY_XYZ,
+        'b': SCHEMA_ARRAY_XYZ,
+        'c': SCHEMA_ARRAY_XYZ,
+        'd': SCHEMA_ARRAY_XYZ,
     }
 
     # Schema for geometry
@@ -610,8 +596,8 @@ class WingSegment:
         'outer_alpha': {'type': float, '>=': -90, '<=': +90},
         'inner_beta': {'type': float, '>=': -90, '<=': +90},
         'outer_beta': {'type': float, '>=': -90, '<=': +90},
-        'inner_axis': {'type': float, '>=': 0.0, '<=': 1.0},
-        'outer_axis': {'type': float, '>=': 0.0, '<=': 1.0},
+        'inner_axis': SCHEMA_FLOAT_01,
+        'outer_axis': SCHEMA_FLOAT_01,
         'span': {'type': float},
         'sweep': {'type': float, '>=': -90, '<=': +90},
         'dihedral': {'type': float, '>=': -180, '<=': +180},
@@ -649,14 +635,14 @@ class WingSegment:
         self.parent_wing = wing
         self.uid = uid
 
-        # DATA: calculated position in wing (span) and lattice (index)
+        # Calculated position in wing (span) and lattice (index)
         self.position = FixedOrderedDict()
         self.position['inner'] = None
         self.position['outer'] = None
         self.position['panel'] = None
         self.position._freeze()
 
-        # PROPERTIES: provided or calculated segment area
+        # Provided or calculated segment area
         self.vertices = FixedOrderedDict()
         self.vertices['a'] = None
         self.vertices['b'] = None
@@ -664,7 +650,7 @@ class WingSegment:
         self.vertices['d'] = None
         self.vertices._freeze()
 
-        # PROPERTIES: provided or calculated segment properties
+        # Provided or calculated segment properties
         self.geometry = FixedOrderedDict()
         self.geometry['inner_chord'] = None
         self.geometry['inner_alpha'] = None
@@ -679,7 +665,7 @@ class WingSegment:
         self.geometry['dihedral'] = None
         self.geometry._freeze()
 
-        # PROPERTIES: provided airfoil names
+        # Provided airfoil names
         self.airfoils = FixedOrderedDict()
         self.airfoils['inner'] = None
         self.airfoils['outer'] = None
@@ -688,7 +674,7 @@ class WingSegment:
         # Derived
         self.segment_airfoil = None
 
-        # PROPERTIES: provided discretisation settings
+        # Provided discretisation settings
         self.panels = FixedOrderedDict()
         self.panels['num_c'] = None
         self.panels['num_s'] = None
@@ -698,14 +684,14 @@ class WingSegment:
         self.deformation = None
         self.deformation_mirror = None
 
-        # Subdivisions (by default always one "division")
+        # Subdivisions (by default there is always one "division")
         self.subdivision = OrderedDict()
         subdivision_rel_vertices = {}
         subdivision_rel_vertices['eta_a'] = 0.0
         subdivision_rel_vertices['eta_b'] = 1.0
         subdivision_rel_vertices['eta_c'] = 1.0
         subdivision_rel_vertices['eta_d'] = 0.0
-        self.subdivision.update({0: WingSegmentSubdivision(self, subdivision_rel_vertices)})
+        self.subdivision.update({0: SegmentStrip(self, subdivision_rel_vertices)})
 
         # state of component definition (see CHECK)
         self.state = False
@@ -806,8 +792,12 @@ class WingSegment:
                 logger.info(f"Importing airfoil from NACA definition ({airfoil_definition})")
                 import_from_NACA = True
             else:
-                raise ValueError("Airfoil input data neither a valid file " +
-                                 f"nor NACA definition:\n{airfoil_definition}")
+                raise ValueError(
+                    f"""
+                    Airfoil input data neither a valid file nor NACA definition:
+                    ==> '{airfoil_definition}'
+                    """
+                )
 
             if import_from_file:
                 upper, lower = import_airfoil_data(airfoil_definition)
@@ -821,7 +811,7 @@ class WingSegment:
 
     def add_subdivision(self, eta_a, eta_d, ignore_inval_eta=False):
         """
-        Add a subdivision for the current segment.
+        Add a subdivision for the current segment
 
         Note:
             * A new division will not be created if:
@@ -866,7 +856,7 @@ class WingSegment:
         subdivision_rel_vertices['eta_b'] = prev_subdivision.rel_vertices['eta_b']
         subdivision_rel_vertices['eta_c'] = prev_subdivision.rel_vertices['eta_c']
         subdivision_rel_vertices['eta_d'] = eta_d
-        self.subdivision.update({idx_new: WingSegmentSubdivision(self, subdivision_rel_vertices)})
+        self.subdivision.update({idx_new: SegmentStrip(self, subdivision_rel_vertices)})
 
         eta_a_prev = prev_subdivision.rel_vertices['eta_a']
         eta_b_prev = prev_subdivision.rel_vertices['eta_b']
@@ -956,7 +946,7 @@ class WingSegment:
 
     def add_subdivision_for_control(self, eta_a, eta_b, parent_control, xsi1, xsi2, xsi_h1=None, xsi_h2=None):
         """
-        Add a subdivision for with a control device for a specified range.
+        Add a subdivision for with a control device for a specified range
 
         Args:
             :eta_a: (float) inner eta position of control surface
@@ -1128,80 +1118,76 @@ class WingSegment:
 
     def generate(self):
         """
-        Compute WINGSEGMENT VERTICES, GEOMETRY, AREA from provided data.
+        Compute wingsegment vertices and geometry from provided data
 
         Procedure is as follows:
-            * check if WINGSEGMENT properties are correctly defined.
-            * check if WINGSEGMENT definition is complete.
-            * generate WINGSEGMENT VERTICES, GEOMETRY, AREA if possible.
 
-        Points are computed from geometric properties specified in GEOMETRY.
-        At least one of A, B, C, D must be defined as reference point.
+            * Check if wing segment properties are correctly defined
+            * Check if wing segment definition is complete
+            * Generate wing segment vertices, geometry if possible
 
-        Will compute corresponding properties in GEOMETRY given points A, D.
-        Will compute corresponding properties in GEOMETRY given points B, C.
-        Will compute all properties in GEOMETRY given points A, B, C, D.
+        Note:
 
-        No other combination of properties and coordinates is accepted.
+            * Points are computed from geometric properties specified in geometry
+            * At least one of A, B, C, D must be defined as reference point
+
+        * Will compute corresponding properties in GEOMETRY given points A, D
+        * Will compute corresponding properties in GEOMETRY given points B, C
+        * Will compute all properties in GEOMETRY given points A, B, C, D
+
+        No other combination of properties and coordinates is accepted
 
         Correct ordering of the vertices A, B, C, D is enforced:
+
             * A = (x_min, y_min, z_a) or A = (x_min, y_a, z_min) if vertical
             * B = (x_min, y_max, z_b) or B = (x_min, y_a, z_max) if vertical
             * C = (x_max, y_max, z_c) or C = (x_max, y_a, z_max) if vertical
             * D = (x_max, y_min, z_d) or D = (x_max, y_a, z_min) if vertical
         """
 
-        # 1. CHECK SEGMENT PROPERTIES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+        # ----- Check input data -----
         self.check_vertices()
         self.check_geometry()
         self.check_airfoils()
         self.check_panels()
 
-        # 2. CHECK PROVIDED GEOMETRIC PROPERTIES ~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+        # ----- Check provided geometric properties -----
+        # All geometric properties provided
         if all(v for v in self.geometry.values()):
-            # all geometric properties provided
             required = ['a', 'b', 'c', 'd', 'ad', 'bc', 'abcd']
-
+        # All geometric properties provided except for inner edge
         elif all(v for k, v in self.geometry.items() if 'inner_' not in k):
-            # all geometric properties provided except for inner edge
             required = ['ad', 'abcd']
-
+        # All geometric properties provided except for outer edge
         elif all(v for k, v in self.geometry.items() if 'outer_' not in k):
-            # all geometric properties provided except for outer edge
             required = ['bc', 'abcd']
-
+        # Some geometric properties provided, but not enough
         elif any(v for v in self.geometry.values()):
-            # some geometric properties provided, but not enough
             required = ['abcd']
-
+        # No geometric properties provided
         else:
-            # no geometric properties provided
             required = ['abcd']
 
-        # 3. CHECK PROVIDED VERTEX COORDINATES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-        # string of keys of correctly-defined vertices
+        # ----- Check provided vertex coordinates -----
+        # String of keys of correctly-defined vertices
         provided = ''.join(sorted(k for k, v in self.vertices.items() if v is not None))
-
         if not provided:
-            raise ComponentDefinitionError("no reference point provided.")
-
+            raise ComponentDefinitionError("No reference point provided")
         if provided not in ['a', 'b', 'c', 'd', 'ad', 'bc', 'abcd']:
-            raise ComponentDefinitionError("unsupported segment definition.")
+            raise ComponentDefinitionError(f"Unsupported definition")
 
         logger.info("Reference points provided: {}".format(', '.join(c for c in provided)))
         for point in provided:
             logger.info(f"--> Point {point.upper()} = {self.vertices[point]}")
 
-        # 4. CHECK COMPONENT DEFINITION ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+        # ----- Check component definition -----
         # provided inputs are insufficient to generate segment geometry
         if provided not in required:
             self.state = False
             raise ComponentDefinitionError("geometric properties of segment ill-defined.")
 
-        # 5. GENERATE A, D-EDGE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+        # ----- Generate edge A, D -----
         if not ('a' in provided and 'd' in provided):
-            # generate edge A, D from provided properties
-
             logger.debug("Computing chord AD...")
 
             tan_ai = tan(radians(self.geometry['inner_alpha']))
@@ -1210,26 +1196,24 @@ class WingSegment:
 
             r_i = self.geometry['inner_chord']/sqrt(1.0 + tan_ai**2.0*cos_bi**2.0)
 
+            # Point A
             a_x = +0.0
             a_y = +0.0
             a_z = +0.0
-            # point A
 
+            # Point D relative to point A
             d_x = +r_i*cos_bi
             d_y = +r_i*sin_bi
             d_z = -r_i*cos_bi*tan_ai
-            # point D relative to point A
-
         else:
-            # compute properties of edge A, D from provided coordinates
             logger.debug("Computing properties of chord BC...")
 
-            # point A
+            # Point A
             a_x = +0.0
             a_y = +0.0
             a_z = +0.0
 
-            # point D relative to point A
+            # Point D relative to point A
             d_x = self.vertices['d'][0] - self.vertices['a'][0]
             d_y = self.vertices['d'][1] - self.vertices['a'][1]
             d_z = self.vertices['d'][2] - self.vertices['a'][2]
@@ -1241,8 +1225,8 @@ class WingSegment:
             cos_bi = +d_x/r_i
             sin_bi = +d_y/r_i
 
+            # atan2() handles singularity
             self.geometry['inner_beta'] = -degrees(asin(sin_bi))
-            # atan2 handles singularity
             self.geometry['inner_alpha'] = -degrees(atan2(d_z, r_i*cos_bi))
 
             tan_ai = tan(radians(self.geometry['inner_alpha']))
@@ -1251,10 +1235,8 @@ class WingSegment:
             logger.debug(f"--> Inner_alpha = {self.geometry['inner_alpha']}")
             logger.debug(f"--> Inner_beta = {self.geometry['inner_beta']}")
 
-        # 2. GENERATE B, C-EDGE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+        # ----- Generate edge B, C -----
         if not ('a' in provided and 'b' in provided):
-            # generate B, C from geometric properties
-
             logger.debug("Computing chord BC...")
 
             tan_ao = tan(radians(self.geometry['outer_alpha']))
@@ -1263,26 +1245,24 @@ class WingSegment:
 
             r_o = self.geometry['outer_chord']/sqrt(1.0 + tan_ao*tan_ao*cos_bo*cos_bo)
 
-            # point B
+            # Point B
             b_x = +0.0
             b_y = +0.0
             b_z = +0.0
 
-            # point C relative to point B
+            # Point C relative to point B
             c_x = +r_o*cos_bo
             c_y = +r_o*sin_bo
             c_z = -r_o*cos_bo*tan_ao
-
         else:
-            # compute properties of B, C-edge from provided coordinates
             logger.debug("Computing chord BC...")
 
-            # point B
+            # Point B
             b_x = +0.0
             b_y = +0.0
             b_z = +0.0
 
-            # point C relative to point B
+            # Point C relative to point B
             c_x = self.vertices['c'][0] - self.vertices['b'][0]
             c_y = self.vertices['c'][1] - self.vertices['b'][1]
             c_z = self.vertices['c'][2] - self.vertices['b'][2]
@@ -1294,7 +1274,6 @@ class WingSegment:
             cos_bo = +c_x/r_o
             sin_bo = +c_y/r_o
 
-            # atan2 handles singularity
             self.geometry['outer_beta'] = -degrees(asin(sin_bo))
             self.geometry['outer_alpha'] = -degrees(atan2(c_z, r_o*cos_bo))
 
@@ -1304,8 +1283,8 @@ class WingSegment:
             logger.debug(f"--> Outer_alpha = {self.geometry['outer_alpha']}")
             logger.debug(f"--> Outer_beta = {self.geometry['outer_beta']}")
 
-        # 7. GENERATE EDGES A-B AND D-C ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-        # set default
+        # ----- Generate edges A-B AND D-C -----
+        # Set default
         if self.geometry['inner_axis'] is None:
             self.geometry['inner_axis'] = 0.25
         if self.geometry['outer_axis'] is None:
@@ -1314,25 +1293,24 @@ class WingSegment:
         # axi_x = r_i*self.geometry['inner_axis']*cos_bi
         axi_y = r_i*self.geometry['inner_axis']*sin_bi
         axi_z = r_i*self.geometry['inner_axis']*cos_bi*tan_ai
-        # offset of point A wrt axis point (dihedral line) on AD
+        # Offset of point A wrt axis point (dihedral line) on AD
 
         # axo_x = r_o*self.geometry['outer_axis']*cos_bo
         axo_y = r_o*self.geometry['outer_axis']*sin_bo
         axo_z = r_o*self.geometry['outer_axis']*cos_bo*tan_ao
-        # offset of point B wrt axis point (dihedral line) on BC
+        # Offset of point B wrt axis point (dihedral line) on BC
 
-        # relative y, z-offset between axis on B, C-edge and axis on A, B-edge
+        # Relative y, z-offset between axis on B, C-edge and axis on A, B-edge
         axs_y = axo_y - axi_y
         axs_z = axo_z - axi_z
 
         logger.debug(f"--> Inner_axis = {self.geometry['inner_axis']}")
         logger.debug(f"--> Outer_axis = {self.geometry['outer_axis']}")
 
-        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+        # ------------------------------------------------------------
 
+        # Compute spanwise properties from A, B, C, D
         if provided == 'abcd':
-            # compute spanwise properties from A, B, C, D
-
             logger.debug("Computing span-wise properties...")
 
             b_x = self.vertices['b'][0] - self.vertices['a'][0]
@@ -1343,26 +1321,25 @@ class WingSegment:
             c_y = self.vertices['b'][1] - self.vertices['a'][1]
             c_z = self.vertices['b'][2] - self.vertices['a'][2]
 
-            # span measured at leading edge
+            # Span measured at leading edge
             self.geometry['span'] = sqrt(b_y*b_y + b_z*b_z)
-            # sweep applied at leading edge
+            # Sweep applied at leading edge
             self.geometry['sweep'] = degrees(atan2(b_x, self.geometry['span']))
-            # dihedral applied along axis
+            # Dihedral applied along axis
             self.geometry['dihedral'] = degrees(atan2((b_z + axs_z), (b_y + axs_y)))
 
             logger.debug(f"--> Dihedral = {self.geometry['dihedral']}")
             logger.debug(f"--> Sweep = {self.geometry['sweep']}")
             logger.debug(f"--> Span = {self.geometry['span']}")
-
         else:
-            # position edge B-C wrt edge A-D
+            # Position edge B-C wrt edge A-D
             logger.debug("Computing span-wise edges AB and CD...")
 
             cos_d = cos(radians(self.geometry['dihedral']))
             sin_d = sin(radians(self.geometry['dihedral']))
             tan_s = tan(radians(self.geometry['sweep']))
 
-            # effective geometric dihedral of leading edge
+            # Effective geometric dihedral of leading edge
             axr = axs_z*cos_d - axs_y*sin_d
             dihedral_ax = radians(self.geometry['dihedral']) - asin(axr/self.geometry['span'])
 
@@ -1374,16 +1351,18 @@ class WingSegment:
             c_y += self.geometry['span']*cos(dihedral_ax)
             c_z += self.geometry['span']*sin(dihedral_ax)
 
-            # first point in user-provided points serves as reference
+            # First point in user-provided points serves as reference
             point = provided[0]
 
-            # used to set reference to [0.0, 0.0, 0.0] in relative coord
-            adjust = {'a': [a_x, a_y, a_z],
-                      'b': [b_x, b_y, b_z],
-                      'c': [c_x, c_y, c_z],
-                      'd': [d_x, d_y, d_z]}
+            # Used to set reference to [0.0, 0.0, 0.0] in relative coord
+            adjust = {
+                'a': [a_x, a_y, a_z],
+                'b': [b_x, b_y, b_z],
+                'c': [c_x, c_y, c_z],
+                'd': [d_x, d_y, d_z],
+            }
 
-            # translate [0.0, 0.0, 0.0] by absolute position of reference
+            # Translate [0.0, 0.0, 0.0] by absolute position of reference
             a_x += self.vertices[point][0] - adjust[point][0]
             a_y += self.vertices[point][1] - adjust[point][1]
             a_z += self.vertices[point][2] - adjust[point][2]
@@ -1400,49 +1379,49 @@ class WingSegment:
             d_y += self.vertices[point][1] - adjust[point][1]
             d_z += self.vertices[point][2] - adjust[point][2]
 
-            # invert span-wise orientation for negative span
+            # Invert span-wise orientation for negative span
             if self.geometry['span'] < 0:
                 a_x, b_x, c_x, d_x = b_x, a_x, d_x, c_x
                 a_y, b_y, c_y, d_y = b_y, a_y, d_y, c_y
                 a_z, b_z, c_z, d_z = b_z, a_z, d_z, c_z
 
-            # invert span-wise orientation for x < -90.0 or x > +90.0
+            # Invert span-wise orientation for x < -90.0 or x > +90.0
             if abs(self.geometry['dihedral']) > 90.0:
                 a_x, b_x, c_x, d_x = b_x, a_x, d_x, c_x
                 a_y, b_y, c_y, d_y = b_y, a_y, d_y, c_y
                 a_z, b_z, c_z, d_z = b_z, a_z, d_z, c_z
 
-            # invert ib chord-wise orientation for negative ib chord
+            # Invert ib chord-wise orientation for negative ib chord
             if self.geometry['inner_chord'] < 0:
                 a_x, b_x, c_x, d_x = d_x, b_x, c_x, a_x
                 a_y, b_y, c_y, d_y = d_y, b_y, c_y, a_y
                 a_z, b_z, c_z, d_z = d_z, b_z, c_z, a_z
 
-            # invert ib chord-wise orientation for x < -90.0 or x > +90.0
+            # Invert ib chord-wise orientation for x < -90.0 or x > +90.0
             if abs(self.geometry['inner_alpha']) > 90.0:
                 a_x, b_x, c_x, d_x = d_x, b_x, c_x, a_x
                 a_y, b_y, c_y, d_y = d_y, b_y, c_y, a_y
                 a_z, b_z, c_z, d_z = d_z, b_z, c_z, a_z
 
-            # invert ib chord-wise orientation for x < -90.0 or x > +90.0
+            # Invert ib chord-wise orientation for x < -90.0 or x > +90.0
             if abs(self.geometry['inner_beta']) > 90.0:
                 a_x, b_x, c_x, d_x = d_x, b_x, c_x, a_x
                 a_y, b_y, c_y, d_y = d_y, b_y, c_y, a_y
                 a_z, b_z, c_z, d_z = d_z, b_z, c_z, a_z
 
-            # invert ob chord-wise orientation for negative ob chord
+            # Invert ob chord-wise orientation for negative ob chord
             if self.geometry['outer_chord'] < 0:
                 a_x, b_x, c_x, d_x = a_x, c_x, b_x, d_x
                 a_y, b_y, c_y, d_y = a_y, c_y, b_y, d_y
                 a_z, b_z, c_z, d_z = a_z, c_z, b_z, d_z
 
-            # invert ob chord-wise orientation for x < -90.0 or x > +90.0
+            # Invert ob chord-wise orientation for x < -90.0 or x > +90.0
             if abs(self.geometry['outer_alpha']) > 90.0:
                 a_x, b_x, c_x, d_x = a_x, c_x, b_x, d_x
                 a_y, b_y, c_y, d_y = a_y, c_y, b_y, d_y
                 a_z, b_z, c_z, d_z = a_z, c_z, b_z, d_z
 
-            # invert ob chord-wise orientation for x < -90.0 or x > +90.0
+            # Invert ob chord-wise orientation for x < -90.0 or x > +90.0
             if abs(self.geometry['outer_beta']) > 90.0:
                 a_x, b_x, c_x, d_x = a_x, c_x, b_x, d_x
                 a_y, b_y, c_y, d_y = a_y, c_y, b_y, d_y
@@ -1453,19 +1432,17 @@ class WingSegment:
             self.vertices['c'] = [c_x, c_y, c_z]
             self.vertices['d'] = [d_x, d_y, d_z]
 
-        # 8. GENERATE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-        logger.debug(f"--> Vertex a = {self.vertices['a']}.")
-        logger.debug(f"--> Vertex b = {self.vertices['b']}.")
-        logger.debug(f"--> Vertex c = {self.vertices['c']}.")
-        logger.debug(f"--> Vertex d = {self.vertices['d']}.")
+        logger.debug(f"--> Vertex a = {self.vertices['a']}")
+        logger.debug(f"--> Vertex b = {self.vertices['b']}")
+        logger.debug(f"--> Vertex c = {self.vertices['c']}")
+        logger.debug(f"--> Vertex d = {self.vertices['d']}")
 
         # Generate airfoil object
         self._import_airfoils()
-
         self.state = True
 
     def check_vertices(self):
-        """Check type and value of properties in WINGSEGMENT.VERTICES."""
+        """Check types and values of properties in vertices dictionary"""
 
         logger.info("Checking vertex coordinates...")
         check_dict_against_schema(self.vertices, self.VERTICES_SCHEMA)
@@ -1486,7 +1463,7 @@ class WingSegment:
         check_dict_against_schema(self.geometry, self.GEOMETRY_SCHEMA)
 
     def check_airfoils(self):
-        """Check type and value of airfoil"""
+        """Check type and value of airfoil dictionary"""
 
         logger.info("Checking airfoil properties...")
         check_dict_against_schema(self.airfoils, self.AIRFOIL_SCHEMA)
@@ -1499,37 +1476,50 @@ class WingSegment:
 
 
 class WingControl:
-    """
-    Data structure for WING component: WINGCONTROL.
 
-    WINGCONTROL is a component of WING.
-    Components are accessed using their unique identifier, must be a STRING.
+    DEVICE_TYPES = ('slat', 'flap')
 
-    WINGCONTROL represents a quadrilateral control device.
+    SEGMENT_UID_SCHEMA = {
+        '__REQUIRED_KEYS': ['inner', 'outer'],
+        'inner': {'type': str},
+        'outer': {'type': str},
+    }
 
-    WINGCONTROL does not have a GENERATE() method.
-    VERTICES are calculated in the GENERATE() method of WING.
+    PANELS_SCHEMA = {
+        'num_c': {'type': int, '>': 0},
+    }
 
-    Attributes:
-        :device: (string) WINGCONTROL device type
-        :deflection: (float) WINGCONTROL deflection angle
-        :vertices: (dict) WINGCONTROL vertex coordinates
-        :geometry: (dict) WINGCONTROL geometric properties
-        :state: (bool) WINGCONTROL definition state
-    """
+    REL_VERTICES_SCHEMA = {
+        '__REQUIRED_KEYS': ['eta_inner', 'eta_outer', 'xsi_inner', 'xsi_outer'],
+        'eta_inner': SCHEMA_FLOAT_01,
+        'eta_outer': SCHEMA_FLOAT_01,
+        'xsi_inner': SCHEMA_FLOAT_01,
+        'xsi_outer': SCHEMA_FLOAT_01,
+    }
+
+    REL_HINGE_VERTICES_SCHEMA = {
+        '__REQUIRED_KEYS': ['xsi_inner', 'xsi_outer'],
+        'xsi_inner': SCHEMA_FLOAT_01,
+        'xsi_outer': SCHEMA_FLOAT_01,
+    }
 
     def __init__(self, parent_wing, control_uid):
         """
-        Initialise instance of WINGCONTROL.
+        Wing control (child of Wing class)
 
-        Upon initialisation, attributes of WINGCONTROL are created and fixed.
-        Only existing attributes may be modified afterward.
+        Attributes:
+            :parent_wing: (obj) Parent wing object
+            :device: (string) WINGCONTROL device type
+            :deflection: (float) WINGCONTROL deflection angle
+            :vertices: (dict) WINGCONTROL vertex coordinates
+            :geometry: (dict) WINGCONTROL geometric properties
+            :state: (bool) WINGCONTROL definition state
         """
 
         self.parent_wing = parent_wing
         self.uid = control_uid
 
-        self.device_type = None
+        self._device_type = None
         self.deflection = None
         self.deflection_mirror = None
 
@@ -1551,13 +1541,33 @@ class WingControl:
         self.rel_hinge_vertices['xsi_outer'] = None
         self.rel_hinge_vertices._freeze()
 
-        # PROPERTIES -- provided relative position of hinge ends
         self.panels = FixedOrderedDict()
         self.panels['num_c'] = None
         self.panels._freeze()
 
-        # component definition state
-        self.state = False
+    @property
+    def device_type(self):
+        return self._device_type
+
+    @device_type.setter
+    def device_type(self, device_type):
+        if not isinstance(device_type, str):
+            raise TypeError("'device_type' must be string")
+
+        if device_type not in self.DEVICE_TYPES:
+            raise ValueError(f"'device_type' must be in {self.DEVICE_TYPES}")
+
+        self._device_type = device_type
+
+    @property
+    def uid(self):
+        return self._uid
+
+    @uid.setter
+    def uid(self, uid):
+        if not isinstance(uid, str):
+            raise TypeError("'uid' must be a string")
+        self._uid = uid
 
     @property
     def symmetry(self):
@@ -1617,37 +1627,20 @@ class WingControl:
 
         logger.info("Checking geometric properties...")
 
-        # NOTE: segment name is checked at segment level
+        check_dict_against_schema(self.segment_uid, self.SEGMENT_UID_SCHEMA)
+        check_dict_against_schema(self.panels, self.PANELS_SCHEMA)
+        check_dict_against_schema(self.rel_vertices, self.REL_VERTICES_SCHEMA)
+        check_dict_against_schema(self.rel_hinge_vertices, self.REL_HINGE_VERTICES_SCHEMA)
 
-        # CHECK DEVICE TYPE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-
+        # ----- Check device type -----
         if self.device_type is None:
             raise ComponentDefinitionError("'device' is not defined.")
-        elif not isinstance(self.device_type, str):
-            raise TypeError("'device' must be STRING.")
-        elif self.device_type not in ['slat', 'flap']:
-            raise ValueError("'device' must be 'slat' or 'flap'.")
-
-        # CHECK GEOMETRY PROPERTIES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-
-        for rel_coord in self.rel_vertices.values():
-            if not isinstance(rel_coord, (float, int)):
-                raise TypeError("Values in 'rel_vertices' must be in of type 'float' or 'int'")
-            elif 0 < rel_coord > 1:
-                raise ValueError("Values in 'rel_vertices' must be in range [0, 1].")
 
         if (self.segment_uid['inner'] == self.segment_uid['outer']) and \
                 (self.rel_vertices['eta_outer'] <= self.rel_vertices['eta_inner']):
             raise ValueError("'eta_outer' must be greater than 'eta_inner'")
 
-        for rel_coord in self.rel_hinge_vertices.values():
-            if not isinstance(rel_coord, (float, int)):
-                raise TypeError("Values in 'rel_hinge_vertices' must be in of type 'float' or 'int'")
-            elif 0 < rel_coord > 1:
-                raise ValueError("Values in 'rel_hinge_vertices' must be in range [0, 1].")
-
-        # CHECK DEFLECTION ANGLE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-
+        # ----- Check deflection angle -----
         if self.deflection is None:
             raise ComponentDefinitionError("'deflection' is not defined.")
         elif not isinstance(self.deflection, (float, int)):
@@ -1672,18 +1665,10 @@ class WingControl:
         else:
             self.deflection_mirror = float(self.deflection_mirror)
 
-        # CHECK PANEL PROPERTIES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-        if self.panels['num_c'] is None:
-            logger.debug("'num_c' is None (not defined)")
-        elif not isinstance(self.panels['num_c'], int):
-            raise TypeError("'num_c' must be positive integer")
-        elif not self.panels['num_c'] > 0:
-            raise ValueError("'num_c' must be positive")
 
-
-class WingSegmentSubdivision:
+class SegmentStrip:
     """
-    WingSegmentSubdivision is a "child class" of WingSegment.
+    SegmentStrip is a "child class" of WingSegment.
 
     This object further divides each WingSegment into chordwise strips. This
     simplifies the meshing of the wing surface when there are leading and
@@ -1692,7 +1677,7 @@ class WingSegmentSubdivision:
     a deformed surface mesh, which is of particular interest for aeroelastic
     analyses.
 
-    WingSegmentSubdivision are quadrilateral segments.
+    SegmentStrip are quadrilateral segments.
 
     Attributes:
         :segment: (obj) reference to the parent segment object
@@ -1702,7 +1687,7 @@ class WingSegmentSubdivision:
 
     def __init__(self, segment, rel_vertices):
         """
-        Initialisation of the WingSegmentSubdivision
+        Initialisation of the SegmentStrip
 
         Args:
             :segment: (obj) parent object (segment)
@@ -1728,8 +1713,7 @@ class WingSegmentSubdivision:
         subarea_segment_rel_vertices['xsi_b'] = 0.0
         subarea_segment_rel_vertices['xsi_c'] = 1.0
         subarea_segment_rel_vertices['xsi_d'] = 1.0
-        self.subarea.update({'segment': WingSegmentSubdivisionSubarea(self,
-                            subarea_segment_rel_vertices, subarea_type='segment')})
+        self.subarea.update({'segment': StripSubdivision(self, subarea_segment_rel_vertices, subarea_type='segment')})
 
     @property
     def symmetry(self):
@@ -1846,7 +1830,7 @@ class WingSegmentSubdivision:
             subarea_segment_rel_vertices['xsi_b'] = 0.0
             subarea_segment_rel_vertices['xsi_c'] = xsi1
             subarea_segment_rel_vertices['xsi_d'] = xsi2
-            self.subarea.update({device_type: WingSegmentSubdivisionSubarea(self,
+            self.subarea.update({device_type: StripSubdivision(self,
                                 subarea_segment_rel_vertices, subarea_type='slat')})
 
             self.subarea['segment'].rel_vertices['xsi_a'] = xsi1
@@ -1858,7 +1842,7 @@ class WingSegmentSubdivision:
             subarea_segment_rel_vertices['xsi_b'] = xsi2
             subarea_segment_rel_vertices['xsi_c'] = 1.0
             subarea_segment_rel_vertices['xsi_d'] = 1.0
-            self.subarea.update({device_type: WingSegmentSubdivisionSubarea(self,
+            self.subarea.update({device_type: StripSubdivision(self,
                                 subarea_segment_rel_vertices, subarea_type='flap')})
 
             self.subarea['segment'].rel_vertices['xsi_c'] = xsi2
@@ -1916,9 +1900,9 @@ class WingSegmentSubdivision:
             self.subarea['flap'].rel_hinge_vertices['xsi_h2'] = xsi_h2
 
 
-class WingSegmentSubdivisionSubarea:
+class StripSubdivision:
     """
-    WingSegmentSubdivisionSubarea is a "child class" of WingSegmentSubdivision.
+    StripSubdivision is a "child class" of SegmentStrip.
 
     This object provides the basic geometric definition of subareas within a
     segment subdivision. Subareas are defined by their xsi coordinates within
@@ -1934,7 +1918,7 @@ class WingSegmentSubdivisionSubarea:
 
     def __init__(self, subdivision, rel_vertices, subarea_type):
         """
-        Initialise the WingSegmentSubdivisionSubarea.
+        Initialise the StripSubdivision.
 
         Args:
             :subdivision: (obj) parent object (subdivision)
