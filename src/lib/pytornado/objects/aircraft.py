@@ -589,7 +589,6 @@ class Wing:
 
 class WingSegment:
 
-# ==========
     # Schema for vertices
     VERTICES_SCHEMA = {
         '__REQUIRED_KEYS': ['a', 'b', 'c', 'd'],
@@ -637,6 +636,7 @@ class WingSegment:
         A wing segment represents a quadrilateral segment of lifting surface
 
         Attributes:
+            :parent_wing: (obj) Parent wing object
             :area: (float) Surface area
             :position: (dict) Span-wise position in WING
             :vertices: (dict) Corner point coordinates
@@ -648,9 +648,6 @@ class WingSegment:
 
         self.parent_wing = wing
         self.uid = uid
-
-        # DATA: calculated segment area
-        self.area = None
 
         # DATA: calculated position in wing (span) and lattice (index)
         self.position = FixedOrderedDict()
@@ -712,6 +709,22 @@ class WingSegment:
 
         # state of component definition (see CHECK)
         self.state = False
+
+    @property
+    def uid(self):
+        return self._uid
+
+    @uid.setter
+    def uid(self, uid):
+        if not isinstance(uid, str):
+            raise TypeError("'uid' must be a string")
+        self._uid = uid
+
+    @property
+    def area(self):
+        area = self.geometry['span']*0.5*(
+            self.geometry['inner_chord'] + self.geometry['outer_chord']
+        )
 
     @property
     def normal_vector(self):
@@ -1445,8 +1458,6 @@ class WingSegment:
         logger.debug(f"--> Vertex b = {self.vertices['b']}.")
         logger.debug(f"--> Vertex c = {self.vertices['c']}.")
         logger.debug(f"--> Vertex d = {self.vertices['d']}.")
-
-        self.area = 0.5*self.geometry['span']*(self.geometry['inner_chord'] + self.geometry['outer_chord'])
 
         # Generate airfoil object
         self._import_airfoils()
