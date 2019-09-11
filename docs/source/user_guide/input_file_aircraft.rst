@@ -132,10 +132,39 @@ Segments can be defined in two ways, either using the *vertices* field or using 
 
 **TODO** add illustration
 
+..
+    # FROM OLD DOCUMENTATION /// TO BE UPDATED
+    Vertices
+
+    The vertices are re-ordered so that the orientation of the segment's normal vector is consistent.
+
 Segments: geometry
 ^^^^^^^^^^^^^^^^^^
 
 **TODO** add illustration
+
+..
+    # FROM OLD DOCUMENTATION /// TO BE UPDATED
+    The geometric properties of each segment are stored in the dictionary WingSegment.geometry. These are listed and described below:
+
+        * ``inner_chord`` chord of segment edge AD
+        * ``inner_alpha`` incidence angle of segment edge AD
+        * ``inner_beta`` yaw angle of segment edge AD
+        * ``inner_axis`` position of twist axis on segment edge AD as fraction of inner_chord
+        * ``outer_chord`` chord of segment edge BC
+        * ``outer_alpha`` incidence angle of segment edge BC
+        * ``outer_beta`` yaw angle of segment edge BC
+        * ``outer_axis`` position of twist axis on segment edge BC as fraction of outer_chord
+        * ``span`` span of segment, taken along twist axis
+        * ``sweep`` sweep of segment, measured at leading edge
+        * ``dihedral`` dihedral of segment, measured at twist axis1.3.76
+
+    The geometry of each lifting surface segment is generated from a combination of provided corner points and geometric parameters. The accepted combinations are:
+
+        * All of the vertices A, B, C and D and no geometric properties.
+        * Vertices A and D and all geometric properties, except those beginning with ``inner_*``
+        * Vertices B and C and all geometric properties, except those beginning with ``outer_*``
+        * One of the vertices A, B, C or D and all geometric properties.
 
 Segments: airfoils
 ^^^^^^^^^^^^^^^^^^

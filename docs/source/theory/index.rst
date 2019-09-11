@@ -1,12 +1,15 @@
+.. _sec_theory:
+
 Introduction
 ============
 
 .. note::
 
-    This summary is based/copied from [Dettmann2019]_ with the authors permission.
+    This summary is based on/copied from [Dettmann2019]_ with the authors permission.
 
-The vortex-lattice method (VLM) is the simplest general 3D potential flow model [Drela2014]_. Since the model is relatively easy to setup and has low computational cost, it is a widely used tool in conceptual aircraft design [Drela2014]_ [Seywald2016]. The theory is well covered in literature, for instance by Drela [Drela2014]_, Katz and Plotkin [Katz2001]_ and Bertin and Cummings [Bertin2014]_. Only a basic summary will be given here. The VLM makes use of many assumptions and simplifications. Most significantly, quasi-steady, *potential flow* is assumed. A potential flow implies an inviscid and irrotational flow field. Viscous, dissipative effects such as turbulence or the boundary layer cannot be resolved. Only induced drag can be computed. The flow field is further assumed to incompressible, which is a reasonable simplification in low subsonic airflow [Drela2014]_. The lifting surfaces are assumed to be thin. Small angles of attack and sideslip angles are assumed. In general, large-angle effects like stall cannot be modelled.
+The vortex-lattice method (VLM) is the simplest general 3D potential flow model [Drela2014]_. Since the model is relatively easy to setup and has low computational cost, it is a widely used tool in conceptual aircraft design [Drela2014]_ [Seywald2016]_. The theory is well covered in literature, for instance by Drela [Drela2014]_, Katz and Plotkin [Katz2001]_ and Bertin and Cummings [Bertin2014]_. Only a basic summary will be given here. The VLM makes use of many assumptions and simplifications. Most significantly, quasi-steady, *potential flow* is assumed. A potential flow implies an inviscid and irrotational flow field. Viscous, dissipative effects such as turbulence or the boundary layer cannot be resolved. Only induced drag can be computed. The flow field is further assumed to incompressible, which is a reasonable simplification in low subsonic airflow [Drela2014]_. The lifting surfaces are assumed to be thin. Small angles of attack and sideslip angles are assumed. In general, large-angle effects like stall cannot be modelled.
 
+.. _vlm_discretisation:
 .. figure:: _static/images/vlm_discretisation.svg
    :width: 400 px
    :align: center
@@ -14,10 +17,11 @@ The vortex-lattice method (VLM) is the simplest general 3D potential flow model 
 
    Concept of the VLM discretisation (adapted from [Drela2014]_). The shown lifting surface is divided into nine panels. A three-legged horseshoe vortex is placed on each panel.
 
-The VLM is a numerical solution method for the general 3D *lifting surface problem* [Drela2014]_. The lifting surface problem is a model in which lifting surfaces and the wake are represented by infinitely thin vortex sheets with a sheet strength distribution [Drela2014]_. The potential flow field around the lifting surfaces is influenced by these vortex sheets. The basic approach applied in the VLM is to discretise the continuous vortex sheet strength distribution. To achieve this, each lifting surface (modelled as a flat sheet) is divided into small quadrilateral panels (see figure above), together constituting a mesh (or lattice). The distributed vortex distribution is then lumped into so-called horseshoe vortices. On each panel a horseshoe vortex with three legs is placed. A bound leg, modelling the lifting properties, lies at the panel quarter chord line. Two trailing legs, which model the influence of the wake, extend from the ends of the bound leg parallel to the freestream direction to downstream infinity [#]_. Each leg of the same horseshoe vortex i has the same circulation strength :math:`\Gamma_i` (see figure below).
+The VLM is a numerical solution method for the general 3D *lifting surface problem* [Drela2014]_. The lifting surface problem is a model in which lifting surfaces and the wake are represented by infinitely thin vortex sheets with a sheet strength distribution [Drela2014]_. The potential flow field around the lifting surfaces is influenced by these vortex sheets. The basic approach applied in the VLM is to discretise the continuous vortex sheet strength distribution. To achieve this, each lifting surface (modelled as a flat sheet) is divided into small quadrilateral panels (see :numref:`vlm_discretisation`), together constituting a mesh (or lattice). The distributed vortex distribution is then lumped into so-called horseshoe vortices. On each panel a horseshoe vortex with three legs is placed. A bound leg, modelling the lifting properties, lies at the panel quarter chord line. Two trailing legs, which model the influence of the wake, extend from the ends of the bound leg parallel to the freestream direction to downstream infinity [#]_. Each leg of the same horseshoe vortex i has the same circulation strength :math:`\Gamma_i` (see :numref:`horseshoe_vortex_geometry`).
 
 .. [#] The horseshoe vortex geometry is not consistently defined in literature and in different VLM implementations. Katz and Plotkin [Katz2001]_ include the most elaborate explanation and mention three different variations. Differently defined horseshoe vortex geometries can cause differences in between results provided by different VLM implementations.
 
+.. _horseshoe_vortex_geometry:
 .. figure:: _static/images/horseshoe_vortex_geometry.svg
    :width: 450 px
    :align: center
@@ -64,4 +68,4 @@ where the :math:`a_{ij}` denote the elements of a so-called aerodynamic influenc
 
     \mathbf{F}_i = \varrho_\text{air} \cdot \mathbf{V}_i \times \mathbf{s}_i \cdot \Gamma_i
 
-where :math:`\varrho_\text{air}` is the air density, :math:`\mathbf{V}_i` the velocity relative to the horseshoe vortex bound leg midpoint, and :math:`\mathbf{s}_i = \mathbf{r_b} - \mathbf{r_a}` a is the vector of the bound leg (see figure above). Based on the computed force distribution, aerodynamic parameters such as lift and (induced) drag coefficients can be obtained. For all further aeroelastic analyses, the panel forces are considered to be the main result of the VLM. Practically, these forces represent a discretised formulation of the continuous pressure distribution over the lifting surfaces.
+where :math:`\varrho_\text{air}` is the air density, :math:`\mathbf{V}_i` the velocity relative to the horseshoe vortex bound leg midpoint, and :math:`\mathbf{s}_i = \mathbf{r_b} - \mathbf{r_a}` a is the vector of the bound leg (see :numref:`horseshoe_vortex_geometry`). Based on the computed force distribution, aerodynamic parameters such as lift and (induced) drag coefficients can be obtained. For all further aeroelastic analyses, the panel forces are considered to be the main result of the VLM. Practically, these forces represent a discretised formulation of the continuous pressure distribution over the lifting surfaces.
