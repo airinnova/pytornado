@@ -34,7 +34,7 @@ REQUIRED = [
     'numpy',
     'scipy',
     'matplotlib==3.0.2',
-    'commonlibs>=0.2.2',
+    'commonlibs>=0.3.0',
 ]
 README = 'README.rst'
 PACKAGE_DIR = 'src/lib/'
