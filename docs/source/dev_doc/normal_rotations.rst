@@ -3,7 +3,7 @@ Flow tangency condition
 
 .. note::
 
-    This summary is based on/copied from [Dettmann2019]_ with the authors permission.
+    This summary is based on/copied from [Dett19]_ with the authors permission.
 
 **TODO** This sections needs to be improved!
 

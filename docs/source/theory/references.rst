@@ -19,7 +19,7 @@ Publications referencing |name|
 
 .. [Zhang2018] Zhang, M. ; Jungo, A. ; Gastaldi, A.A. ; Melin, T.: *Aircraft Geometry and Meshing with Common Language Schema CPACS for Variable-Fidelity MDO Applications*. 5 (2018), No. 47. http://dx.doi.org/10.3390/aerospace5020047
 
-.. [Dettmann2019] Dettmann, A.: *Loosely coupled, modular framework for linear static aeroelastic analyses*. Master Thesis (2019). KTH Royal Institute of Technology
+.. [Dett19] Dettmann, A.: *Loosely coupled, modular framework for linear static aeroelastic analyses*. Master Thesis (2019). KTH Royal Institute of Technology
 
 Other references
 ----------------

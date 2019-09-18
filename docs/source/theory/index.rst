@@ -5,7 +5,7 @@ Introduction
 
 .. note::
 
-    This summary is based on/copied from [Dettmann2019]_ with the authors permission.
+    This summary is based on/copied from [Dett19]_ with the authors permission.
 
 The vortex-lattice method (VLM) is the simplest general 3D potential flow model [Drela2014]_. Since the model is relatively easy to setup and has low computational cost, it is a widely used tool in conceptual aircraft design [Drela2014]_ [Seywald2016]_. The theory is well covered in literature, for instance by Drela [Drela2014]_, Katz and Plotkin [Katz2001]_ and Bertin and Cummings [Bertin2014]_. Only a basic summary will be given here. The VLM makes use of many assumptions and simplifications. Most significantly, quasi-steady, *potential flow* is assumed. A potential flow implies an inviscid and irrotational flow field. Viscous, dissipative effects such as turbulence or the boundary layer cannot be resolved. Only induced drag can be computed. The flow field is further assumed to incompressible, which is a reasonable simplification in low subsonic airflow [Drela2014]_. The lifting surfaces are assumed to be thin. Small angles of attack and sideslip angles are assumed. In general, large-angle effects like stall cannot be modelled.
 

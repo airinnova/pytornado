@@ -3,7 +3,7 @@ Meshing
 
 .. note::
 
-    This summary is based on/copied from [Dettmann2019]_ with the authors permission.
+    This summary is based on/copied from [Dett19]_ with the authors permission.
 
 .. figure:: ../_static/images/conventions/aircraft_hierarchy.svg
     :width: 550

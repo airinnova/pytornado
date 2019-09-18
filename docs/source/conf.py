@@ -88,6 +88,7 @@ rst_prolog = f"""
 .. |Apms| replace:: Aero-performance maps
 .. |uid| replace:: unique identifier
 .. |ccs| replace:: Cartesian coordinate system
+.. _CFD: https://en.wikipedia.org/wiki/Computational_fluid_dynamics
 .. _quadrilateral: https://en.wikipedia.org/wiki/Quadrilateral
 .. _NACA: https://en.wikipedia.org/wiki/NACA_airfoil
 .. _FEM: https://en.wikipedia.org/wiki/Finite_element_method
