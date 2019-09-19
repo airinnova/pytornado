@@ -90,20 +90,9 @@ def standard_run(args):
         :args: arguments (see StdRunArgs())
     """
 
-    # ===== Logging =====
-    if args.verbose:
-        level = 'info'
-    elif args.debug:
-        level = 'debug'
-    elif args.quiet:
-        level = 'quiet'
-    else:
-        level = 'default'
-
     # ===== Setup =====
     settings = get_settings(settings_filepath=args.run)
-
-    hlogger.init(settings.paths('f_log'), level)
+    hlogger.init(settings.paths('f_log'), level=args)
     logger = logging.getLogger(__name__)
     logger.info(hlogger.decorate(f"{__prog_name__} {__version__}"))
 
