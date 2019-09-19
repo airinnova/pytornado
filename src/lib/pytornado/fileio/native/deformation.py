@@ -54,6 +54,11 @@ def load(aircraft, settings):
     if not os.path.exists(filepath):
         raise IOError(f"file '{filepath}' not found")
 
+    # File is empty or as good as (this also catches empty JSON file: '{}')
+    if os.stat(filepath).st_size < 10:
+        logger.warning(f"Empty deformation file. No deformations are modelled.")
+        return
+
     with open(filepath, 'r') as infile:
         deformation_model = json.load(infile)
 
@@ -63,7 +68,7 @@ def load(aircraft, settings):
         mirror = entry['mirror']
 
         aircraft.wings[wing_uid].is_deformed = True
-        segment = aircraft.wings[wing_uid].segment[segment_uid]
+        segment = aircraft.wings[wing_uid].segments[segment_uid]
 
         if mirror:
             deformation = segment.deformation_mirror = {}
