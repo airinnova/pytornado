@@ -177,6 +177,7 @@ def standard_run(args):
     results = {
         "lattice": lattice,
         "vlmdata": vlmdata,
-        "state": state
+        "state": state,
+        "settings": settings,
     }
     return results
