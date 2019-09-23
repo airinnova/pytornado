@@ -4,6 +4,22 @@ Changelog
 Changelog for PyTornado. Version numbers try to follow `Semantic
 Versioning <https://semver.org/spec/v2.0.0.html>`__.
 
+[0.5.0] -- 2019-09-23
+---------------------
+
+Changed
+~~~~~~~
+
+* Changed the mesh deformation API
+    * A beam-like deformation field can be attributed to a wing
+    * The deformed VLM mesh will be interpolated based on the deformation field
+
+Added
+~~~~~
+
+* Optional parameter for *lattice* plot
+    * 'deformation': Adds the deformation field points to the lattice plot
+
 [0.4.3] -- 2019-09-06
 ---------------------
 
