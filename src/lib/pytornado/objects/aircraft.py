@@ -50,8 +50,7 @@ import logging
 import os
 
 import numpy as np
-from scipy.interpolate import CubicSpline
-from commonlibs.math.vectors import get_plane_line_intersect, rotate_vector_around_axis
+from commonlibs.math.vectors import get_plane_line_intersect
 from commonlibs.dicts.schemadicts import check_dict_against_schema
 from airfoils import Airfoil, MorphAirfoil
 from airfoils.fileio import import_airfoil_data
@@ -60,9 +59,8 @@ from aeroframe.interpol.translate import get_deformed_p2
 from pytornado.objects.utils import FixedOrderedDict
 
 # Global unit vectors
-X_axis = np.array([1, 0, 0])
-Y_axis = np.array([0, 1, 0])
-Z_axis = np.array([0, 0, 1])
+Y_AXIS = np.array([0, 1, 0])
+Z_AXIS = np.array([0, 0, 1])
 
 TOL = 1.0e-02
 
@@ -114,9 +112,13 @@ class Aircraft:
             * WingSegment
             * WingControl
 
+        Deformation API:
+
+            * A 'Wing' can have a deformation field attributed to it
+            * All deformations will be interpolated from this deformation field
+
         Attributes:
             :uid: (string) Unique identifier
-            :version: (string) User defined version
             :refs: (dict) Reference values for coefficients
             :wing: (dict) Wing objects
             :size: (float) Aircraft geometry size measure
@@ -125,7 +127,6 @@ class Aircraft:
         """
 
         self._uid = 'aircraft'
-        self._version = '0.0.1'
 
         self.refs = FixedOrderedDict()
         self.refs['area'] = None
@@ -149,16 +150,6 @@ class Aircraft:
         if not isinstance(uid, str):
             raise TypeError("'uid' must be a string")
         self._uid = uid
-
-    @property
-    def version(self):
-        return self._version
-
-    @version.setter
-    def version(self, version):
-        if not isinstance(version, str):
-            raise TypeError("'version' must be a string")
-        self._version = version
 
     @property
     def area(self):
@@ -628,10 +619,6 @@ class WingSegment:
         self.panels['num_s'] = None
         self.panels._freeze()
 
-        # Deformed state of the segment
-        self.deformation = None
-        self.deformation_mirror = None
-
         # Subdivisions (by default there is always one "division")
         self.subdivision = OrderedDict()
         subdivision_rel_vertices = {}
@@ -688,24 +675,6 @@ class WingSegment:
         ad = d - a
 
         return np.cross(ad, self.normal_vector)
-
-    @property
-    def deformation_rot_axis(self):
-        """
-        Rotation axis for computation of deformed segments
-
-        Note:
-            * It is assumed that panels generally are oriented in global x-direction
-        """
-
-        m = self.main_direction
-        dot_my = np.dot(m, Y_axis)
-        dot_mz = np.dot(m, Z_axis)
-
-        if dot_my > dot_mz:
-            return Y_axis
-        else:
-            return Z_axis
 
     @property
     def symmetry(self):

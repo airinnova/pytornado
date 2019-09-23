@@ -28,11 +28,8 @@ Developed at Airinnova AB, Stockholm, Sweden.
 
 import os
 import logging
-import json
 
-import numpy as np
 from commonlibs.logger import truncate_filepath
-from commonlibs.math.vectors import vector_projection
 from aeroframe.fileio.serialise import load_json_def_field
 
 import pytornado.objects.objecttools as ot
@@ -54,9 +51,8 @@ def load(aircraft, settings):
 
     if not os.path.exists(filepath):
         raise IOError(f"file '{filepath}' not found")
-
     # File is empty or as good as (this also catches empty JSON file: '{}')
-    if os.stat(filepath).st_size < 10:
+    elif os.stat(filepath).st_size < 10:
         logger.warning(f"Empty deformation file. No deformations are modelled.")
         return
 
@@ -64,5 +60,5 @@ def load(aircraft, settings):
     for wing_uid, def_field in def_fields.items():
         aircraft.wings[wing_uid].def_field = def_field
 
-        # TODO: handle exception
-        # TODO: check deformation continuity
+    # TODO: Handle exceptions
+    # TODO: Check deformation continuity
