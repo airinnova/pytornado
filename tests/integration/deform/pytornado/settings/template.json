@@ -16,7 +16,7 @@
             "save": false
         },
         "lattice": {
-            "opt": [],
+            "opt": ["deformation"],
             "show": true,
             "save": false
         },

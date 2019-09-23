@@ -70,6 +70,7 @@ class _Colors:
     GREEN = 'green'
     RED = 'red'
     BLUE = 'blue'
+    MAROON = 'maroon'
 
     # ----- Objects -----
     MESH = BLACK
@@ -77,6 +78,7 @@ class _Colors:
     CONTROL_SLAT = GREEN
     CONTROL_FLAP = RED
     CONTROL_HINGE = BLUE
+    DEFORMATION = MAROON
 
     # ----- Colormap -----
     COLORMAP = cm.get_cmap('Spectral')
@@ -618,6 +620,28 @@ def add_lattice(axes_2d, axes_3d, lattice):
 # ===========================================================================
 # ===========================================================================
 
+
+def add_deformation_field_points(axes_2d, axes_3d, aircraft):
+    """
+    Plot the deformation field points
+
+    Args:
+        :axes_2d: 2D axes object (matplotlib)
+        :axes_3d: 3D axes object (matplotlib)
+        :aircraft: (obj) aircraft
+    """
+
+    axes_yz, axes_xz, axes_xy = axes_2d
+    for wing in aircraft.wings.values():
+        if wing.is_deformed:
+            points = wing.def_field[:, 0:3]
+            _plot_XYZ_points(
+                axes_2d, axes_3d, points, symmetry=0,
+                linewidth=PS.LINEWIDTH_c, color=C.MAROON,
+                marker='o'
+            )
+
+
 def add_freestream_vector(axes_2d, axes_3d, state, tip_pos=np.array([0, 0, 0]), vector_len=3):
     """
     Add a free stream vector
@@ -678,7 +702,8 @@ def add_results(axes_2d, axes_3d, figure_3d, vlmdata, lattice, aircraft, key):
     cb.set_label(key)
 
 
-def _plot_XYZ_points(axes_2d, axes_3d, points, symmetry, *, linewidth, color, color_mirror=None):
+def _plot_XYZ_points(axes_2d, axes_3d, points, symmetry, *, linewidth, color,
+                     color_mirror=None, marker=None):
     """
     Plot a group of XYZ coordinates
 
@@ -698,10 +723,10 @@ def _plot_XYZ_points(axes_2d, axes_3d, points, symmetry, *, linewidth, color, co
     axes_yz, axes_xz, axes_xy = axes_2d
     color_mirror = color if color_mirror is None else color_mirror
 
-    axes_3d.plot(X, Y, Z, color=color, linewidth=linewidth)
-    axes_yz.plot(Y, Z, color=color, linewidth=linewidth)
-    axes_xz.plot(X, Z, color=color, linewidth=linewidth)
-    axes_xy.plot(X, Y, color=color, linewidth=linewidth)
+    axes_3d.plot(X, Y, Z, color=color, linewidth=linewidth, marker=marker)
+    axes_yz.plot(Y, Z, color=color, linewidth=linewidth, marker=marker)
+    axes_xz.plot(X, Z, color=color, linewidth=linewidth, marker=marker)
+    axes_xy.plot(X, Y, color=color, linewidth=linewidth, marker=marker)
 
     # X-Y symmetry
     if symmetry == 1:

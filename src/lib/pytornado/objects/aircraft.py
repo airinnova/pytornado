@@ -983,43 +983,6 @@ class WingSegment:
 
         return sd_list[:][0]
 
-    # def make_deformation_spline_interpolators(self):
-    #     """
-    #     Convert the discretised deformation to cubic spline interpolators.
-
-    #     If the deformation for the mirrored side has not been set, it is
-    #     assumed to be the same as on the "main" (non-mirrored) side.
-    #     """
-
-    #     eta = self.deformation['eta']
-    #     ux = self.deformation['ux']
-    #     uy = self.deformation['uy']
-    #     uz = self.deformation['uz']
-    #     theta = self.deformation['theta']
-
-    #     # Make cubic spline interpolators
-    #     self.deformation['ux'] = CubicSpline(eta, ux)
-    #     self.deformation['uy'] = CubicSpline(eta, uy)
-    #     self.deformation['uz'] = CubicSpline(eta, uz)
-    #     self.deformation['theta'] = CubicSpline(eta, theta)
-
-    #     if self.symmetry and self.deformation_mirror is None:
-    #         logger.warning("Deformation of mirrored side is not defined. Using non-mirrored side.")
-    #         self.deformation_mirror = self.deformation
-    #     elif self.symmetry and self.deformation_mirror is not None:
-    #         eta = self.deformation_mirror['eta']
-    #         ux = self.deformation_mirror['ux']
-    #         uy = self.deformation_mirror['uy']
-    #         uz = self.deformation_mirror['uz']
-    #         theta = self.deformation_mirror['theta']
-
-    #         self.deformation_mirror['ux'] = CubicSpline(eta, ux)
-    #         self.deformation_mirror['uy'] = CubicSpline(eta, uy)
-    #         self.deformation_mirror['uz'] = CubicSpline(eta, uz)
-    #         self.deformation_mirror['theta'] = CubicSpline(eta, theta)
-    #     elif not self.symmetry and self.deformation_mirror is not None:
-    #         raise ComponentDefinitionError("Deformation for mirrored side was defined, but wing has no symmetry.")
-
     def get_deformed_segment_point(self, eta, xsi, mirror=False):
         """
         Return a point of the deformed segment based on relative coordinates
@@ -1035,19 +998,10 @@ class WingSegment:
 
         # TODO: handle mirror
 
-        a = self.vertices['a']
-        b = self.vertices['b']
-        c = self.vertices['c']
-        d = self.vertices['d']
-
-        p_upper = a + eta*(b - a)
-        p_lower = d + eta*(c - d)
-        point = p_upper + xsi*(p_lower - p_upper)
-
+        point = get_abs_segment_point_coords(self.vertices, eta, xsi)
         p2_def_field_entry = get_deformed_p2(p2=point, def_field=self.parent_wing.def_field)
         def_point = p2_def_field_entry[0:3]
         return def_point
-
 
     def generate(self):
         """

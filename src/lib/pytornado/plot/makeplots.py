@@ -108,6 +108,9 @@ def plot_lattice_aircraft(aircraft, lattice, plot_settings):
         pt.add_controls(axes_2d, axes_3d, aircraft)
         pt.add_lattice(axes_2d, axes_3d, lattice)
 
+        if 'deformation' in plot_settings['opt']:
+            pt.add_deformation_field_points(axes_2d, axes_3d, aircraft)
+
 
 def plot_results_aircraft(aircraft, lattice, state, vlmdata, plot_settings):
     """
