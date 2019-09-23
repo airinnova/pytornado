@@ -1,5 +1,6 @@
 Sphinx==1.8.5
 ambiance==0.3.0
+aeroframe>=0.0.3
 airfoils>=0.2.0
 codecov==2.0.15
 commonlibs>=0.3.3

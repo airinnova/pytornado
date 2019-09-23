@@ -319,6 +319,8 @@ class Wing:
         self.is_deformed = False
         self.was_deformed = False
 
+        self.def_field = None
+
         self._state = False
 
     @property

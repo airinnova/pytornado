@@ -1,0 +1,36 @@
+{
+    "aircraft": "template_aircraft.json",
+    "state": "template.json",
+    "deformation": "test.json",
+    "vlm_autopanels_c": 5,
+    "vlm_autopanels_s": 20,
+    "save_results": {
+        "global": false,
+        "panelwise": false,
+        "aeroperformance": false
+    },
+    "plot": {
+        "geometry": {
+            "opt": [],
+            "show": false,
+            "save": false
+        },
+        "lattice": {
+            "opt": [],
+            "show": false,
+            "save": false
+        },
+        "matrix_downwash": {
+            "opt": [],
+            "show": false,
+            "save": false
+        },
+        "results": {
+            "opt": [
+                "cp"
+            ],
+            "show": true,
+            "save": false
+        }
+    }
+}

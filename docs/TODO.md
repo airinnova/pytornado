@@ -3,6 +3,9 @@
 ## Bug
 * `Cm` (computed in C) sometime large number (wrong memory allocation?)
 
+## Deformation API
+* Plot deformation field points (optional settings for geometry?)
+
 ## Important
 * Save plots in '_results'?
 * Aircraft.version used??

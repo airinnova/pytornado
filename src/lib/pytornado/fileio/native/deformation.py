@@ -33,6 +33,7 @@ import json
 import numpy as np
 from commonlibs.logger import truncate_filepath
 from commonlibs.math.vectors import vector_projection
+from aeroframe.fileio.serialise import load_json_def_field
 
 import pytornado.objects.objecttools as ot
 
@@ -59,58 +60,68 @@ def load(aircraft, settings):
         logger.warning(f"Empty deformation file. No deformations are modelled.")
         return
 
-    with open(filepath, 'r') as infile:
-        deformation_model = json.load(infile)
+    def_fields = load_json_def_field(filepath)
+    for wing_uid, def_field in def_fields.items():
+        aircraft.wings[wing_uid].def_field = def_field
+        # TODO: handle exception
 
-    for entry in deformation_model:
-        wing_uid = entry['wing']
-        segment_uid = entry['segment']
-        mirror = entry['mirror']
+    # print(def_fields)
 
-        aircraft.wings[wing_uid].is_deformed = True
-        segment = aircraft.wings[wing_uid].segments[segment_uid]
+    # import sys
+    # sys.exit(1)
 
-        if mirror:
-            deformation = segment.deformation_mirror = {}
-        else:
-            deformation = segment.deformation = {}
+    # with open(filepath, 'r') as infile:
+    #     deformation_model = json.load(infile)
 
-        deformation['eta'] = []
-        deformation['ux'] = []
-        deformation['uy'] = []
-        deformation['uz'] = []
-        deformation['theta'] = []
+    # for entry in deformation_model:
+    #     wing_uid = entry['wing']
+    #     segment_uid = entry['segment']
+    #     mirror = entry['mirror']
 
-        for def_entry in entry['deform']:
-            eta = def_entry['eta']
-            ux, uy, uz, tx, ty, tz = def_entry['deform']
-            theta = np.array([tx, ty, tz])
+    #     aircraft.wings[wing_uid].is_deformed = True
+    #     segment = aircraft.wings[wing_uid].segments[segment_uid]
 
-            # Convert twist vector onto rotation axis for deformations with sign
-            theta_proj = vector_projection(theta, segment.deformation_rot_axis)
-            sign = np.sign(np.dot(theta_proj, segment.deformation_rot_axis))
-            theta_scalar = sign*np.linalg.norm(theta_proj)
+    #     if mirror:
+    #         deformation = segment.deformation_mirror = {}
+    #     else:
+    #         deformation = segment.deformation = {}
 
-            deformation['eta'].append(eta)
-            deformation['ux'].append(ux)
-            deformation['uy'].append(uy)
-            deformation['uz'].append(uz)
-            deformation['theta'].append(theta_scalar)
+    #     deformation['eta'] = []
+    #     deformation['ux'] = []
+    #     deformation['uy'] = []
+    #     deformation['uz'] = []
+    #     deformation['theta'] = []
 
-    # Process the deformation
-    for this_segment, _ in ot.all_segments(aircraft):
-        segment = this_segment[2]
+    #     for def_entry in entry['deform']:
+    #         eta = def_entry['eta']
+    #         ux, uy, uz, tx, ty, tz = def_entry['deform']
+    #         theta = np.array([tx, ty, tz])
 
-        if segment.parent_wing.is_deformed:
-            segment.make_deformation_spline_interpolators()
+    #         # Convert twist vector onto rotation axis for deformations with sign
+    #         theta_proj = vector_projection(theta, segment.deformation_rot_axis)
+    #         sign = np.sign(np.dot(theta_proj, segment.deformation_rot_axis))
+    #         theta_scalar = sign*np.linalg.norm(theta_proj)
 
-    if not settings.settings['_deformation_check']:
-        logger.warning("Skipping deformation check (there may be discontinuities)")
-        return
+    #         deformation['eta'].append(eta)
+    #         deformation['ux'].append(ux)
+    #         deformation['uy'].append(uy)
+    #         deformation['uz'].append(uz)
+    #         deformation['theta'].append(theta_scalar)
 
-    # Check continuity
-    for this_wing in ot.all_wings(aircraft):
-        wing = this_wing[2]
+    # # Process the deformation
+    # for this_segment, _ in ot.all_segments(aircraft):
+    #     segment = this_segment[2]
 
-        if wing.is_deformed:
-            wing.check_deformation_continuity()
+    #     if segment.parent_wing.is_deformed:
+    #         segment.make_deformation_spline_interpolators()
+
+    # if not settings.settings['_deformation_check']:
+    #     logger.warning("Skipping deformation check (there may be discontinuities)")
+    #     return
+
+    # # Check continuity
+    # for this_wing in ot.all_wings(aircraft):
+    #     wing = this_wing[2]
+
+    #     if wing.is_deformed:
+    #         wing.check_deformation_continuity()
