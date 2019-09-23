@@ -55,6 +55,7 @@ from commonlibs.math.vectors import get_plane_line_intersect, rotate_vector_arou
 from commonlibs.dicts.schemadicts import check_dict_against_schema
 from airfoils import Airfoil, MorphAirfoil
 from airfoils.fileio import import_airfoil_data
+from aeroframe.interpol.translate import get_deformed_p2
 
 from pytornado.objects.utils import FixedOrderedDict
 
@@ -230,19 +231,6 @@ class Aircraft:
                 return True
         return False
 
-    def turn_off_all_deformation(self):
-        """Master switch which turns off all deformation"""
-
-        for wing in self.wings.values():
-            wing.is_deformed = False
-
-    def turn_on_all_deformation(self):
-        """Master switch which turns on all deformation"""
-
-        for wing in self.wings.values():
-            if wing.was_deformed:
-                wing.is_deformed = True
-
     def add_wing(self, wing_uid):
         """
         Add a new wing object
@@ -314,11 +302,7 @@ class Wing:
         self.segments = OrderedDict()
         self.controls = OrderedDict()
 
-        # By default wings are not deformed
-        # Flag used to toggle between deformed/undeformed state
-        self.is_deformed = False
-        self.was_deformed = False
-
+        # Deformation field
         self.def_field = None
 
         self._state = False
@@ -349,14 +333,10 @@ class Wing:
 
     @property
     def is_deformed(self):
-        return self._is_deformed
-
-    @is_deformed.setter
-    def is_deformed(self, is_deformed):
-        self._is_deformed = is_deformed
-
-        if self.is_deformed is True:
-            self.was_deformed = True
+        if self.def_field is not None:
+            return True
+        else:
+            False
 
     @property
     def area(self):
@@ -538,42 +518,7 @@ class Wing:
 
         logger.info("Checking continuity of wing deformation...")
 
-        # TODO: better iterate pairwise!
-
-        # Make a list of neighbouring segments of the wing
-        segment_list = []
-        for segment_uid, segment in self.segments.items():
-            segment_list.append([segment_uid, segment])
-
-        # Check that deformations at neighbouring segments are the same
-        for i in range(0, len(segment_list)-1):
-            segment_uid_inner, segment_inner = segment_list[i]
-            segment_uid_outer, segment_outer = segment_list[i+1]
-
-            for def_prop in ['ux', 'uy', 'uz', 'theta']:
-                # NON-MIRRORED SIDE
-                def_value_inner = segment_inner.deformation[def_prop](1.0)
-                def_value_outer = segment_outer.deformation[def_prop](0.0)
-
-                if def_value_inner != def_value_outer:
-                    raise ComponentDefinitionError(
-                        f"""
-                        Deformation ('{def_prop}') on non-mirrored wing is not continuous
-                        between segments ('{segment_uid_inner}', '{segment_uid_outer}')
-                        """
-                    )
-
-                # MIRRORED SIDE
-                def_value_inner = segment_inner.deformation_mirror[def_prop](1.0)
-                def_value_outer = segment_outer.deformation_mirror[def_prop](0.0)
-
-                if def_value_inner != def_value_outer:
-                    raise ComponentDefinitionError(
-                        f"""
-                        Deformation ('{def_prop}') on mirrored wing is not continuous
-                        between segments ('{segment_uid_inner}', '{segment_uid_outer}')
-                        """
-                    )
+        raise NotImplementedError
 
 
 class WingSegment:
@@ -1038,42 +983,42 @@ class WingSegment:
 
         return sd_list[:][0]
 
-    def make_deformation_spline_interpolators(self):
-        """
-        Convert the discretised deformation to cubic spline interpolators.
+    # def make_deformation_spline_interpolators(self):
+    #     """
+    #     Convert the discretised deformation to cubic spline interpolators.
 
-        If the deformation for the mirrored side has not been set, it is
-        assumed to be the same as on the "main" (non-mirrored) side.
-        """
+    #     If the deformation for the mirrored side has not been set, it is
+    #     assumed to be the same as on the "main" (non-mirrored) side.
+    #     """
 
-        eta = self.deformation['eta']
-        ux = self.deformation['ux']
-        uy = self.deformation['uy']
-        uz = self.deformation['uz']
-        theta = self.deformation['theta']
+    #     eta = self.deformation['eta']
+    #     ux = self.deformation['ux']
+    #     uy = self.deformation['uy']
+    #     uz = self.deformation['uz']
+    #     theta = self.deformation['theta']
 
-        # Make cubic spline interpolators
-        self.deformation['ux'] = CubicSpline(eta, ux)
-        self.deformation['uy'] = CubicSpline(eta, uy)
-        self.deformation['uz'] = CubicSpline(eta, uz)
-        self.deformation['theta'] = CubicSpline(eta, theta)
+    #     # Make cubic spline interpolators
+    #     self.deformation['ux'] = CubicSpline(eta, ux)
+    #     self.deformation['uy'] = CubicSpline(eta, uy)
+    #     self.deformation['uz'] = CubicSpline(eta, uz)
+    #     self.deformation['theta'] = CubicSpline(eta, theta)
 
-        if self.symmetry and self.deformation_mirror is None:
-            logger.warning("Deformation of mirrored side is not defined. Using non-mirrored side.")
-            self.deformation_mirror = self.deformation
-        elif self.symmetry and self.deformation_mirror is not None:
-            eta = self.deformation_mirror['eta']
-            ux = self.deformation_mirror['ux']
-            uy = self.deformation_mirror['uy']
-            uz = self.deformation_mirror['uz']
-            theta = self.deformation_mirror['theta']
+    #     if self.symmetry and self.deformation_mirror is None:
+    #         logger.warning("Deformation of mirrored side is not defined. Using non-mirrored side.")
+    #         self.deformation_mirror = self.deformation
+    #     elif self.symmetry and self.deformation_mirror is not None:
+    #         eta = self.deformation_mirror['eta']
+    #         ux = self.deformation_mirror['ux']
+    #         uy = self.deformation_mirror['uy']
+    #         uz = self.deformation_mirror['uz']
+    #         theta = self.deformation_mirror['theta']
 
-            self.deformation_mirror['ux'] = CubicSpline(eta, ux)
-            self.deformation_mirror['uy'] = CubicSpline(eta, uy)
-            self.deformation_mirror['uz'] = CubicSpline(eta, uz)
-            self.deformation_mirror['theta'] = CubicSpline(eta, theta)
-        elif not self.symmetry and self.deformation_mirror is not None:
-            raise ComponentDefinitionError("Deformation for mirrored side was defined, but wing has no symmetry.")
+    #         self.deformation_mirror['ux'] = CubicSpline(eta, ux)
+    #         self.deformation_mirror['uy'] = CubicSpline(eta, uy)
+    #         self.deformation_mirror['uz'] = CubicSpline(eta, uz)
+    #         self.deformation_mirror['theta'] = CubicSpline(eta, theta)
+    #     elif not self.symmetry and self.deformation_mirror is not None:
+    #         raise ComponentDefinitionError("Deformation for mirrored side was defined, but wing has no symmetry.")
 
     def get_deformed_segment_point(self, eta, xsi, mirror=False):
         """
@@ -1088,16 +1033,7 @@ class WingSegment:
             :point: segment point in the deformed mesh
         """
 
-        # Deformations on the mirrored and non-mirrored wing can be different
-        if mirror:
-            deformation = self.deformation_mirror
-        else:
-            deformation = self.deformation
-
-        ux = deformation['ux']
-        uy = deformation['uy']
-        uz = deformation['uz']
-        theta = deformation['theta']
+        # TODO: handle mirror
 
         a = self.vertices['a']
         b = self.vertices['b']
@@ -1106,18 +1042,12 @@ class WingSegment:
 
         p_upper = a + eta*(b - a)
         p_lower = d + eta*(c - d)
+        point = p_upper + xsi*(p_lower - p_upper)
 
-        # Vector from (u)pper to (l)ower side (on MAIN side)
-        d_u2l = p_lower - p_upper
-        d_u2l_rot = rotate_vector_around_axis(d_u2l, self.deformation_rot_axis, theta(eta))
+        p2_def_field_entry = get_deformed_p2(p2=point, def_field=self.parent_wing.def_field)
+        def_point = p2_def_field_entry[0:3]
+        return def_point
 
-        # First, mirror upper reference point accross the symmetry plane
-        if mirror:
-            p_upper = mirror_point(p_upper, self.symmetry)
-
-        # Then, interpolate segment point with translation/rotation at p_upper
-        point = p_upper + np.array([ux(eta), uy(eta), uz(eta)]) + xsi*d_u2l_rot
-        return point
 
     def generate(self):
         """
