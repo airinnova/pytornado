@@ -551,7 +551,7 @@ class WingSegment:
     PANELS_SCHEMA = {
         # Entries can be None (i.e. no required keys)
         'num_c': {'type': int, '>': 0},
-        'num_s': {'type': int, '<': 0},
+        'num_s': {'type': int, '>': 0},
     }
 
     def __init__(self, wing, uid):

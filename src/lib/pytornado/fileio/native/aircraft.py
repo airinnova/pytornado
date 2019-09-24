@@ -86,6 +86,9 @@ def load(settings):
                     segment.geometry[key] = value
 
             for key, value in segment_entry['airfoils'].items():
+                # From now on use the absolute file path
+                if value.startswith(PATHS.DIR.AIRFOILS):
+                    value = os.path.join(settings.paths('root'), value)
                 segment.airfoils[key] = value
 
             if segment_entry.get('panels', None):
