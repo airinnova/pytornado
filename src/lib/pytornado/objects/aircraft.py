@@ -293,8 +293,9 @@ class Wing:
         self.segments = OrderedDict()
         self.controls = OrderedDict()
 
-        # Deformation field
+        # Deformation fields
         self.def_field = None
+        self.def_field_mirror = None
 
         self._state = False
 
@@ -324,7 +325,7 @@ class Wing:
 
     @property
     def is_deformed(self):
-        if self.def_field is not None:
+        if self.def_field is not None or self.def_field_mirror is not None:
             return True
         else:
             False
@@ -965,11 +966,22 @@ class WingSegment:
             :point: segment point in the deformed mesh
         """
 
-        # TODO: handle mirror
-
         point = get_abs_segment_point_coords(self.vertices, eta, xsi)
-        p2_def_field_entry = get_deformed_point(p2=point, def_field=self.parent_wing.def_field)
-        def_point = p2_def_field_entry[0:3]
+
+        # ========
+        # Temporary workaround
+        # TODO: handle mirror
+        if mirror:
+            point = mirror_point(point, plane=self.symmetry)
+            def_field = self.parent_wing.def_field_mirror
+        else:
+            def_field = self.parent_wing.def_field
+        # ========
+
+        if def_field is None:
+            return point
+
+        def_point = get_deformed_point(point, def_field)
         return def_point
 
     def generate(self):

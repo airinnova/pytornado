@@ -58,6 +58,17 @@ def load(aircraft, settings):
 
     def_fields = load_json_def_fields(filepath)
     for wing_uid, def_field in def_fields.items():
+        ####
+        # Convention: Deformation fields starting with '_' will be ignore by CFD
+        if wing_uid.startswith('_'):
+            continue
+        ####
+
+        # Convention: Deformation fields ending with '_m' belongs to a 'mirrored' component
+        if wing_uid.endswith('_m'):
+            aircraft.wings[wing_uid.replace('_m', '')].def_field_mirror = def_field
+            continue
+
         aircraft.wings[wing_uid].def_field = def_field
 
     # TODO: Handle exceptions

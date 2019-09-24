@@ -634,12 +634,14 @@ def add_deformation_field_points(axes_2d, axes_3d, aircraft):
     axes_yz, axes_xz, axes_xy = axes_2d
     for wing in aircraft.wings.values():
         if wing.is_deformed:
-            points = wing.def_field[:, 0:3]
-            _plot_XYZ_points(
-                axes_2d, axes_3d, points, symmetry=0,
-                linewidth=PS.LINEWIDTH_c, color=C.MAROON,
-                marker='o'
-            )
+            for def_field in (wing.def_field, wing.def_field_mirror):
+                if def_field is not None:
+                    points = def_field[:, 0:3]
+                    _plot_XYZ_points(
+                        axes_2d, axes_3d, points, symmetry=0,
+                        linewidth=PS.LINEWIDTH_c, color=C.MAROON,
+                        marker='o'
+                    )
 
 
 def add_freestream_vector(axes_2d, axes_3d, state, tip_pos=np.array([0, 0, 0]), vector_len=3):
