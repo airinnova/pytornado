@@ -30,7 +30,7 @@ import os
 import logging
 
 from commonlibs.logger import truncate_filepath
-from aeroframe.fileio.serialise import load_json_def_field
+from aeroframe.fileio.serialise import load_json_def_fields
 
 import pytornado.objects.objecttools as ot
 
@@ -56,7 +56,7 @@ def load(aircraft, settings):
         logger.warning(f"Empty deformation file. No deformations are modelled.")
         return
 
-    def_fields = load_json_def_field(filepath)
+    def_fields = load_json_def_fields(filepath)
     for wing_uid, def_field in def_fields.items():
         aircraft.wings[wing_uid].def_field = def_field
 

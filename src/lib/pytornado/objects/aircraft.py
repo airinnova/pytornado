@@ -54,7 +54,7 @@ from commonlibs.math.vectors import get_plane_line_intersect
 from commonlibs.dicts.schemadicts import check_dict_against_schema
 from airfoils import Airfoil, MorphAirfoil
 from airfoils.fileio import import_airfoil_data
-from aeroframe.interpol.translate import get_deformed_p2
+from aeroframe.interpol.translate import get_deformed_point
 
 from pytornado.objects.utils import FixedOrderedDict
 
@@ -968,7 +968,7 @@ class WingSegment:
         # TODO: handle mirror
 
         point = get_abs_segment_point_coords(self.vertices, eta, xsi)
-        p2_def_field_entry = get_deformed_p2(p2=point, def_field=self.parent_wing.def_field)
+        p2_def_field_entry = get_deformed_point(p2=point, def_field=self.parent_wing.def_field)
         def_point = p2_def_field_entry[0:3]
         return def_point
 
@@ -1579,7 +1579,7 @@ class SegmentStrip:
 
     def abs_vertices(self, mirror):
         """
-        Get absolute coordinates of the subdivision.
+        Get absolute coordinates of the subdivision
 
         Absolute coordinates are only computed upon request based on the parent
         geometry (segment) and transformation directives if defined.
@@ -1842,7 +1842,7 @@ class StripSubdivision:
 
     def abs_vertices(self, mirror):
         """
-        Get absolute coordinates of subarea vertices.
+        Get absolute coordinates of subarea vertices
 
         Wing deformations are taken into account.
 
