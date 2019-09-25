@@ -365,11 +365,6 @@ def gen_lattice(aircraft, state, settings, make_new_subareas=True):
     c_vlm.py2c_lattice(lattice, state, array_subareas, array_symmetry, array_panels)
 
     # ----- Compute the length of the bound leg -----
-    # TODO: If length is needed, move computation to C code
-    lattice.len_bound_leg = np.zeros((num_p), dtype=float, order='C')
-    for i in range(0, num_p):
-        lattice.len_bound_leg[i] = np.linalg.norm(lattice.v[i, 1, :] - lattice.v[i, 2, :])
-
     logger.info(f"--> Number of panels: {lattice.info['num_panels']}")
     logger.info(f"--> Min panel area = {lattice.info['area_min']:.3e}")
     logger.info(f"--> Max panel area = {lattice.info['area_max']:.3e}")
