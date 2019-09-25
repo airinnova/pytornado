@@ -105,8 +105,14 @@ def plot_lattice_aircraft(aircraft, lattice, plot_settings):
     logger.info("Generating lattice plot...")
     with pt.plot2d3d(aircraft, 'lattice', plot_settings) as (figure_2d, axes_2d, figure_3d, axes_3d):
         pt.add_CG(axes_2d, axes_3d, aircraft)
-        pt.add_controls(axes_2d, axes_3d, aircraft)
         pt.add_lattice(axes_2d, axes_3d, lattice)
+
+        # Note: controls are plotted in the undeformed state
+        if not aircraft.has_deformed_wings:
+            pt.add_controls(axes_2d, axes_3d, aircraft)
+
+        if 'deformation' in plot_settings['opt']:
+            pt.add_deformation_field_points(axes_2d, axes_3d, aircraft)
 
 
 def plot_results_aircraft(aircraft, lattice, state, vlmdata, plot_settings):

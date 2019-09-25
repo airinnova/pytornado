@@ -30,6 +30,7 @@ URL = 'https://github.com/airinnova/pytornado'
 REQUIRES_PYTHON = '>=3.6.0'
 REQUIRED = [
     'airfoils>=0.2.0',
+    'aeroframe>=0.0.4',
     'ambiance',
     'numpy',
     'scipy',

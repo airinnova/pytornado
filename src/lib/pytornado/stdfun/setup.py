@@ -131,6 +131,7 @@ def setup_wkdir():
     io.native.aircraft.save(aircraft, settings)
     return project_dir
 
+
 def cpacs2pytornado(file_cpacs):
     """
     Load a CPACS file and export JSON Aircraft and state files

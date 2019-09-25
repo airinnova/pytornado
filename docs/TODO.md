@@ -3,6 +3,10 @@
 ## Bug
 * `Cm` (computed in C) sometime large number (wrong memory allocation?)
 
+# Plotting
+* Keep track of optional plot parameters somewhere
+* Warning or error if invalid optional key is given
+
 ## Important
 * Save plots in '_results'?
 * Aircraft.version used??

@@ -28,11 +28,9 @@ Developed at Airinnova AB, Stockholm, Sweden.
 
 import os
 import logging
-import json
 
-import numpy as np
 from commonlibs.logger import truncate_filepath
-from commonlibs.math.vectors import vector_projection
+from aeroframe.fileio.serialise import load_json_def_fields
 
 import pytornado.objects.objecttools as ot
 
@@ -53,64 +51,25 @@ def load(aircraft, settings):
 
     if not os.path.exists(filepath):
         raise IOError(f"file '{filepath}' not found")
-
     # File is empty or as good as (this also catches empty JSON file: '{}')
-    if os.stat(filepath).st_size < 10:
+    elif os.stat(filepath).st_size < 10:
         logger.warning(f"Empty deformation file. No deformations are modelled.")
         return
 
-    with open(filepath, 'r') as infile:
-        deformation_model = json.load(infile)
+    def_fields = load_json_def_fields(filepath)
+    for wing_uid, def_field in def_fields.items():
+        ####
+        # Convention: Deformation fields starting with '_' will be ignore by CFD
+        if wing_uid.startswith('_'):
+            continue
+        ####
 
-    for entry in deformation_model:
-        wing_uid = entry['wing']
-        segment_uid = entry['segment']
-        mirror = entry['mirror']
+        # Convention: Deformation fields ending with '_m' belongs to a 'mirrored' component
+        if wing_uid.endswith('_m'):
+            aircraft.wings[wing_uid.replace('_m', '')].def_field_mirror = def_field
+            continue
 
-        aircraft.wings[wing_uid].is_deformed = True
-        segment = aircraft.wings[wing_uid].segments[segment_uid]
+        aircraft.wings[wing_uid].def_field = def_field
 
-        if mirror:
-            deformation = segment.deformation_mirror = {}
-        else:
-            deformation = segment.deformation = {}
-
-        deformation['eta'] = []
-        deformation['ux'] = []
-        deformation['uy'] = []
-        deformation['uz'] = []
-        deformation['theta'] = []
-
-        for def_entry in entry['deform']:
-            eta = def_entry['eta']
-            ux, uy, uz, tx, ty, tz = def_entry['deform']
-            theta = np.array([tx, ty, tz])
-
-            # Convert twist vector onto rotation axis for deformations with sign
-            theta_proj = vector_projection(theta, segment.deformation_rot_axis)
-            sign = np.sign(np.dot(theta_proj, segment.deformation_rot_axis))
-            theta_scalar = sign*np.linalg.norm(theta_proj)
-
-            deformation['eta'].append(eta)
-            deformation['ux'].append(ux)
-            deformation['uy'].append(uy)
-            deformation['uz'].append(uz)
-            deformation['theta'].append(theta_scalar)
-
-    # Process the deformation
-    for this_segment, _ in ot.all_segments(aircraft):
-        segment = this_segment[2]
-
-        if segment.parent_wing.is_deformed:
-            segment.make_deformation_spline_interpolators()
-
-    if not settings.settings['_deformation_check']:
-        logger.warning("Skipping deformation check (there may be discontinuities)")
-        return
-
-    # Check continuity
-    for this_wing in ot.all_wings(aircraft):
-        wing = this_wing[2]
-
-        if wing.is_deformed:
-            wing.check_deformation_continuity()
+    # TODO: Handle exceptions
+    # TODO: Check deformation continuity

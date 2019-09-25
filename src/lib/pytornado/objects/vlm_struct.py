@@ -22,50 +22,44 @@
 # * Aaron Dettmann
 
 """
-Data structures for VLM-related data: grid and results.
+Data structures for VLM-related data: grid and results
 
 Developed for Airinnova AB, Stockholm, Sweden.
 """
 
 from collections import defaultdict, namedtuple
 
-from pytornado.objects.utils import FixedNamespace, FixedOrderedDict
+from pytornado.objects.utils import FixedOrderedDict
 
-BookKeepingEntry = namedtuple('BookKeepingEntry', ['subarea', 'pan_idx', 'num_chordwise_panels', 'mirror'])
+BookKeepingEntry = namedtuple(
+    'BookKeepingEntry',
+    ['subarea', 'pan_idx', 'num_chordwise_panels', 'mirror']
+)
 
 
-class VLMLattice(FixedNamespace):
-    """
-    Data structure for the PyTornado VLM lattice.
-
-    VLMLATTICE contains the lattice data required for VLM analysis
-    The data is stored in pre-allocated, contiguous-memory C-arrays
-
-    Attributes:
-        :p: (numpy) panel corner points (N x 4 x 3)
-        :v: (numpy) panel vortex points (N x 4 x 3)
-        :c: (numpy) panel collocation points (N x 3)
-        :bound_leg_midpoints: (numpy) midpoint of the bound leg (N x 3)
-        :n: (numpy) panel normal vectors (N x 3)
-        :a: (numpy) panel surface areas (N x 1)
-        :info: (dict) lattice statistics (quantity, quality)
-    """
+class VLMLattice:
 
     def __init__(self):
         """
-        Initialises instance of VLMLATTICE.
+        Data structure for the VLM lattice
 
-        Upon initialisation, attributes of VLMLATTICE are created and fixed
-        Only existing attributes may be modified afterwards
+        Note:
+            * VLMLattice contains the lattice data required for VLM analysis
+            * The data is stored in pre-allocated, contiguous-memory C-arrays
+
+        Attributes:
+            :p: (numpy) panel corner points (N x 4 x 3)
+            :v: (numpy) panel vortex points (N x 4 x 3)
+            :c: (numpy) panel collocation points (N x 3)
+            :bound_leg_midpoints: (numpy) midpoint of the bound leg (N x 3)
+            :n: (numpy) panel normal vectors (N x 3)
+            :a: (numpy) panel surface areas (N x 1)
+            :info: (dict) lattice statistics (quantity, quality)
+            :epsilon: (float) Small number used to avoid division by 0
+            :panel_bookkeeping: (list) List with bookkeeping entries
+            :bookkeeping_by_wing_uid: (dict) BookKeeping entries ordered by wing UID
+            :bookkeeping_by_wing_uid_mirror: (dict) BookKeeping entries of mirror ordered by wing UID
         """
-
-        super().__init__()
-
-        self.reset()
-        self._freeze()
-
-    def reset(self):
-        """Re-initialise VLMLATTICE properties and data"""
 
         self.p = None
         self.v = None
@@ -73,14 +67,6 @@ class VLMLattice(FixedNamespace):
         self.n = None
         self.a = None
         self.bound_leg_midpoints = None
-
-        self.epsilon = None
-
-        self.len_bound_leg = None
-
-        self.panel_bookkeeping = []
-        self.bookkeeping_by_wing_uid = defaultdict(list)
-        self.bookkeeping_by_wing_uid_mirror = defaultdict(list)
 
         self.info = FixedOrderedDict()
         self.info['num_wings'] = 0
@@ -96,63 +82,56 @@ class VLMLattice(FixedNamespace):
         self.info['area_avg'] = 0.0
         self.info._freeze()
 
-    def update_control_panels(self, control_uid, hinge_points, panel_range, deflection):
-        """
-        Update the book keeping of the control panels
+        self.epsilon = None
 
-        :control_uid: (str) name of the control surface
-        :hinge_points: (tuple) inner and outer hinge point
-        :panel_range: (gen-obj) generator with range of panel indices
-        :deflection: (float) deflection of panels in degrees
-        """
-
-        self.control_panels[control_uid].append([hinge_points[0], hinge_points[1], panel_range, deflection])
+        self.panel_bookkeeping = []
+        self.bookkeeping_by_wing_uid = defaultdict(list)
+        self.bookkeeping_by_wing_uid_mirror = defaultdict(list)
 
     def update_bookkeeping(self, entry):
+        """
+        Add a 'BookKeepingEntry()' to the bookkeeping system
+
+        Args:
+            :entry: (obj) Instance of 'BookKeepingEntry()'
+        """
 
         self.panel_bookkeeping.append(entry)
-
         if entry.mirror:
             self.bookkeeping_by_wing_uid_mirror[entry.subarea.parent_wing.uid].append(entry)
         else:
             self.bookkeeping_by_wing_uid[entry.subarea.parent_wing.uid].append(entry)
 
     def clean_bookkeeping(self):
+        """
+        Remove all bookkeeping entries
+        """
+
         self.panel_bookkeeping = []
         self.bookkeeping_by_wing_uid = defaultdict(list)
         self.bookkeeping_by_wing_uid_mirror = defaultdict(list)
 
 
-class VLMData(FixedNamespace):
-    """
-    Data structure for the PyTornado VLM analysis data.
-
-    VLMDATA contains the data produced during VLM analysis. .
-    The data is stored in pre-allocated, contiguous-memory C-arrays.
-
-    Attributes:
-        :panelwise: (dict) dictionary of panel-wise properties (NP)
-        :stripwise: (dict) dictionary of strip-wise properties (NS)
-        :forces: (dict) dictionary of aero forces (1)
-        :coeffs: (dict) dictionary of aero coefficients (1)
-    """
+class VLMData:
 
     def __init__(self):
         """
-        Initialise instance of VLMDATA.
+        Data structure for the VLM analysis results
 
-            * VLMDATA inherits from FIXEDNAMESPACE.
-            * Upon initialisation, attributes of VLMDATA are created and fixed.
-            * Only existing attributes may be modified afterwards.
+        Note:
+            * VLMData contains the data produced during VLM analysis
+            * The data is stored in pre-allocated, contiguous-memory C-arrays
+
+        Attributes:
+            :panelwise: (dict) dictionary of panel-wise properties (NP)
+            :stripwise: (dict) dictionary of strip-wise properties (NS)
+            :forces: (dict) dictionary of aero forces (1)
+            :coeffs: (dict) dictionary of aero coefficients (1)
+            :matrix_downwash: (TODO)
+            :array_rhs: (TODO)
+            :matrix_lu: (TODO)
+            :array_pivots: (TODO)
         """
-
-        super().__init__()
-
-        self.reset()
-        self._freeze()
-
-    def reset(self):
-        """Re-initialise VLMDATA."""
 
         self.matrix_downwash = None
         self.array_rhs = None
