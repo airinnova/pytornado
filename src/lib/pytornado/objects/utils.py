@@ -31,53 +31,6 @@ Developed for Airinnova AB, Stockholm, Sweden.
 from collections import OrderedDict, MutableMapping
 
 
-class FixedNamespace(object):
-    """
-    Immutable SIMPLENAMESPACE variant.
-
-    Functions as a RECORD- or STRUCT-like object.
-    Attributes of FIXEDNAMESPACE are accessed by dot notation: 'name.attr'.
-
-    __MUTABLE controls how attributes are created and modified:
-
-        * When TRUE, assigning a value to an undefined attribute creates it.
-        * When FALSE, this instead raises an AttributeError.
-
-    __MUTABLE is TRUE by default. _FREEZE sets __MUTABLE to FALSE.
-
-    [1] https://docs.python.org/3.5/library/types.html
-    """
-
-    __mutable = True
-
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-
-    def __setattr__(self, key, value):
-        if not self.__mutable and not hasattr(self, key):
-            raise AttributeError(f"Immutable instance of FixedNamespace does not have attribute '{key}'.")
-
-        object.__setattr__(self, key, value)
-
-    def __repr__(self):
-        keys = sorted(self.__dict__)
-        items = ("{}={!r}".format(k, self.__dict__[k]) for k in keys)
-        return "{}:\n ( {} )".format(type(self).__name__, ",\n ".join(items))
-
-    def __eq__(self, other):
-        return self.__dict__ == other.__dict__
-
-    def _freeze(self):
-        """Make current instance of FIXEDNAMESPACE immutable."""
-
-        self.__mutable = False
-
-    def _unfreeze(self):
-        """Make current instance of FIXEDNAMESPACE mutable."""
-
-        self.__mutable = True
-
-
 class FixedOrderedDict(MutableMapping):
     """
     Immutable ORDEREDDICT[1] variant, based on MUTABLEMAPPING[2].

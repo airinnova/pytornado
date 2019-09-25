@@ -34,7 +34,7 @@ import numpy as np
 from numpy import cos, sin, deg2rad
 from ambiance import Atmosphere
 
-from pytornado.objects.utils import FixedNamespace, FixedOrderedDict
+from pytornado.objects.utils import FixedOrderedDict
 
 logger = logging.getLogger(__name__)
 
