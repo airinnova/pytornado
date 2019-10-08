@@ -4,6 +4,17 @@ Changelog
 Changelog for PyTornado. Version numbers try to follow `Semantic
 Versioning <https://semver.org/spec/v2.0.0.html>`__.
 
+[0.5.1] -- 2019-10-08
+---------------------
+
+Fixed
+~~~~~
+
+* Fixed minor bug in CPACS control surface count function (patch) which could raise a Tixi error
+
+Changed
+~~~~~~~
+
 [0.5.0] -- 2019-09-23
 ---------------------
 
