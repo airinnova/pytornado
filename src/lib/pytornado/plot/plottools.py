@@ -264,7 +264,11 @@ def _init_plot3d(title=''):
 
     figure_3d = plt.figure(figsize=(12, 12), edgecolor=C.BLACK)
     axes_3d = figure_3d.gca(projection='3d')
-    axes_3d.set_aspect('equal')
+
+    # --> Matplotlib version 3.1.1 raises NotImplementedError
+    # --> See: https://github.com/matplotlib/matplotlib/issues/1077
+    #
+    # axes_3d.set_aspect('equal')
 
     # Add labels
     axes_3d.set_xlabel('X [m]')

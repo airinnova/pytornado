@@ -34,7 +34,7 @@ REQUIRED = [
     'ambiance',
     'numpy',
     'scipy',
-    'matplotlib==3.0.2',
+    'matplotlib>=3.0.2',
     'commonlibs>=0.3.3',
 ]
 README = 'README.rst'

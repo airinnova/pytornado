@@ -4,7 +4,7 @@ aeroframe>=0.0.4
 airfoils>=0.2.0
 codecov==2.0.15
 commonlibs>=0.3.3
-matplotlib==3.0.2
+matplotlib>=3.0.2
 numpy==1.16.4
 pytest-cov==2.7.1
 pytest==5.0.1
