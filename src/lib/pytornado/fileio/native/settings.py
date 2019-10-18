@@ -27,7 +27,6 @@ Functions for reading and writing of PyTornado execution settings file.
 Developed at Airinnova AB, Stockholm, Sweden.
 """
 
-import os
 import logging
 import json
 from pathlib import Path

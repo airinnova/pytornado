@@ -29,13 +29,8 @@ Developed at Airinnova AB, Stockholm, Sweden.
 
 import logging
 
-from pytornado.fileio.cpacs.utils import open_tixi, open_tigl, XPATHS
+from pytornado.fileio.cpacs.utils import open_tixi, XPATHS
 from pytornado.objects.state import FlightState, ALTITUDE, ALPHA, BETA, MACH, RATE_P, RATE_Q, RATE_R
-
-try:
-    from pytornado.fileio.cpacs_utils import tixiwrapper, tiglwrapper
-except:
-    pass
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +48,6 @@ def load(settings):
         raise FileNotFoundError(err_msg)
 
     tixi = open_tixi(cpacs_file)
-    tigl = open_tigl(tixi)
 
     state_dict = _get_aero_dict_from_APM(tixi)
     state = FlightState()
@@ -103,8 +97,8 @@ def _get_aero_dict_from_APM(tixi):
 
     if len(list(vector_lens)) > 1:
         err_msg = f"""
-        CPACS AeroPerformanceMap with UID {uid_apm} contains vectors of
-        different length. All vectors must have the same number of elements.
+        CPACS AeroPerformanceMap contains vectors of different length.
+        All vectors must have the same number of elements.
         """
         raise ValueError(err_msg)
 

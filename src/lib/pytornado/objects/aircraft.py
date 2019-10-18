@@ -644,7 +644,7 @@ class WingSegment:
 
     @property
     def area(self):
-        area = self.geometry['span']*0.5*(
+        return self.geometry['span']*0.5*(
             self.geometry['inner_chord'] + self.geometry['outer_chord']
         )
 

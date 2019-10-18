@@ -60,6 +60,7 @@ class _PlotSettings:
     # Scaling
     SCALE_FACTOR = 1.05
 
+
 PS = _PlotSettings
 
 
@@ -82,6 +83,7 @@ class _Colors:
 
     # ----- Colormap -----
     COLORMAP = cm.get_cmap('Spectral')
+
 
 C = _Colors
 
@@ -687,10 +689,6 @@ def add_results(axes_2d, axes_3d, figure_3d, vlmdata, lattice, aircraft, key):
     for pp, val in zip(lattice.p, values):
         color = C.COLORMAP(val)
         points_p = np.array([pp[0], pp[1], pp[2], pp[3], pp[0]])
-
-        X = points_p[:, 0]
-        Y = points_p[:, 1]
-        Z = points_p[:, 2]
 
         XS, YS, ZS = interpolate_quad(points_p[0], points_p[1], points_p[2], points_p[3], size=aircraft.size)
         axes_3d.plot_surface(XS, YS, ZS, color=color, linewidth=PS.LINEWIDTH_a, shade=False, cstride=1, rstride=1)

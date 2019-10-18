@@ -32,8 +32,6 @@ import logging
 from commonlibs.logger import truncate_filepath
 from aeroframe.fileio.serialise import load_json_def_fields
 
-import pytornado.objects.objecttools as ot
-
 logger = logging.getLogger(__name__)
 
 

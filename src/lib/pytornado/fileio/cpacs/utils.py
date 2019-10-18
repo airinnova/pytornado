@@ -110,6 +110,7 @@ class _XPaths:
 
         return uid_apm
 
+
 XPATHS = _XPaths
 
 

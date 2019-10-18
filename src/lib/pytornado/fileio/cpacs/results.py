@@ -30,12 +30,7 @@ import logging
 
 from commonlibs.logger import truncate_filepath
 
-from pytornado.fileio.cpacs.utils import open_tixi, open_tigl, XPATHS, add_vector, close_tixi, modify_cpacs
-
-try:
-    from pytornado.fileio.cpacs.utils import tixiwrapper, tiglwrapper
-except:
-    pass
+from pytornado.fileio.cpacs.utils import XPATHS, add_vector, modify_cpacs
 
 logger = logging.getLogger(__name__)
 
