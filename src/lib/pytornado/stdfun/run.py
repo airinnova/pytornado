@@ -27,7 +27,6 @@ PyTornado standard functions
 Developed for Airinnova AB, Stockholm, Sweden.
 """
 
-import os
 import logging
 
 import commonlibs.logger as hlogger
@@ -136,7 +135,7 @@ def standard_run(args):
         vlm.calc_results(lattice, cur_state, vlmdata)
 
         # ===== Create plots and result files =====
-        io.native.results.save_all(settings, aircraft, cur_state, vlmdata, lattice)
+        io.native.results.save_all(settings, aircraft, cur_state, vlmdata)
         makeplots.make_all(settings, aircraft, cur_state, vlmdata, lattice)
 
         ###############################################

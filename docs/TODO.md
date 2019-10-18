@@ -6,11 +6,7 @@
 
 ## Important
 * Save plots in '_results'?
-* Aircraft.version used??
 * Better autopanneling
-=========================================
-* 'save_results' --> lattice --> `*.dat`
-=========================================
 * Better system for airfoil modelling (check that camber line rotation axis correct, or better: compute camber line "roatations" as normals of a curved surface?)
 * Better "normal rotation" scheme: see Drela with small-angle approximations (would only change RHS!)
 =========================================
@@ -36,14 +32,8 @@
         * Dihedral wings
         * "Interference" with tail?
 * Be able to set flight state as desired --> target CL, target Cn etc.
-* (l) Rename:
-    * "subdivision": "strip"??
-    * "subarea": ??
 * Hinge axis orientation in global system (always consistent?)
 * Subdivision with cosine distribution towards wing tip (how for Boxwing?)
-
-## `fileio.native.resuls`
-* Don't save results as JSON files (serialisation too slow)
 
 ## Testing
 * Make `tox` work with Anaconda packages (Tigl/Tixi only available through Conda, not on PyPI)
@@ -53,7 +43,6 @@
 
 ## Refactor plotting functions
 * (l) Generelise downwash matrix plot
-* (l) Update/improve colorscheme
 * Separate 2D/3D plot functions?
 * Reuse plot objects (axes, figures) for efficiency?
 
@@ -90,7 +79,6 @@
 
 ## Misc
 * Documentation: Discuss limitations of the software (see e.g. contols in boxwing)
-* `fileio.results`: saving loads with undeformed deformed mesh does not work at same time
 * Aircraft input file: `segment.geometry` useful?
 * [`fileio.cpacs`] Currently control surface deflections for the CPACS format are handled using a `/toolspecific` node. Ideally deflections should be read from the CPACS "native" nodes. A few issues with this:
     * Definition of control surface deflection in CPACS is still unclear.
@@ -100,7 +88,6 @@
 ## `fileio`
 * Verify imported JSON file against schema (!?) Necessary?
 * `fileio.model.load()`: Is there a better way?
-* `fileio.results.save_panelwise()` --> make faster version
 * `fileio.cpacs`: Incorrect variables for `xsi` (...)
 * `fileio.cpacs`: CPACS path for leading egde device data is wrong ==> example file needed
 
@@ -114,10 +101,10 @@
 * Add a aircraft model generator
     * Simple Python API to generate and serialise aircraft models (--> Maybe later build GUI...?)
 * Vertex names should stay more consistent when mirroring (see symmetry 2)
-* `objects.model`: `get_point()` method in class `Wing` is obsolete (understand \& remove)
 * Is parallelism of segment lines AD and BC enforced?
 * Better meshing algorithm?
     * Set "markers" at eta/xsi where to divide... (how do we know what marker belongs to what surface)
+* There is a lot of 'copy-and-paste' code in ``c_vlm.cpp`` (make functions instead!)
 
 ## Documentation
 * Forces in Newton (not Newton per meter) are computed per panel using the Kutta-Joukowski theorem. According to the VLM theory the panel forces act on the center of the quarter-chord line (bound leg of horseshoe vortex)

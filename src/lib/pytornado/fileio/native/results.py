@@ -27,20 +27,21 @@ Functions for writing of PyTornado VLM results.
 Developed at Airinnova AB, Stockholm, Sweden.
 """
 
-import os
 import logging
 
 import numpy as np
 from commonlibs.logger import truncate_filepath
 
-from pytornado.objects.vlm_struct import VLMLattice
-import pytornado.aero.vlm as vlm
 from pytornado.fileio.utils import dump_pretty_json
 
 logger = logging.getLogger(__name__)
 
+# Hints:
+# * Large data sets should not be saved too JSON (too slow)
+# * Using Numpy's savetxt() function is preferable
 
-def save_all(settings, aircraft, state, vlmdata, lattice):
+
+def save_all(settings, aircraft, state, vlmdata):
     """
     Evaluate all 'save' settings and create result files
 
