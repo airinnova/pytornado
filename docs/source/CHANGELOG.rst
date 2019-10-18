@@ -4,6 +4,14 @@ Changelog
 Changelog for PyTornado. Version numbers try to follow `Semantic
 Versioning <https://semver.org/spec/v2.0.0.html>`__.
 
+[*****] -- *****
+---------------------
+
+Fixed
+~~~~~
+
+* Fixed bug in computation of global moments due to access of memory without prior having defined any value
+
 [0.5.1] -- 2019-10-08
 ---------------------
 

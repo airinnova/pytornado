@@ -49,6 +49,11 @@ void vlm_results(latticestruct* lattice, statestruct* state,
     double vel_wind_y = -state->airspeed*freestream_dir[1];
     double vel_wind_z = -state->airspeed*freestream_dir[2];
 
+    // Make sure global moments initialised with '0', the moments are added up below
+    results->mtot_x = 0.;
+    results->mtot_y = 0.;
+    results->mtot_z = 0.;
+
     for (int i = 0 ; i < num_pan ; ++i)
     {
         // Index of receiving panel i
