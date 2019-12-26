@@ -44,7 +44,7 @@ The aerodynamic coordinate system is only relevant for the lift, drag and side f
     \sin \alpha \cdot \cos \beta
     \end{pmatrix}
 
-where :math:`alpha` is the angle of attack and :math:`beta` is the sideslip angle. The transformation of global loads :math:`F_x`, :math:`F_y` and :math:`F_z` into the aerodynamic system is given as
+where :math:`\alpha` is the angle of attack and :math:`\beta` is the sideslip angle. The transformation of global loads :math:`F_x`, :math:`F_y` and :math:`F_z` into the aerodynamic system is given as
 
 .. math::
 
@@ -70,6 +70,10 @@ where :math:`F_D`, :math:`F_C` and :math:`F_L` are drag, side force and lift, re
 
 .. seealso::
 
-    * [Drela2014]
+    * [Drela2014]_
 
-**TODO** Explain (directions, illustration, angle sign convention)
+..
+    **TODO**
+    -- Explain directions
+    -- Add illustration
+    -- Angle sign convention
