@@ -4,6 +4,21 @@
 from setuptools import setup, Extension, find_packages
 import os
 
+
+def make_os_indep_path(unix_path):
+    """
+    Return a file path suitable for current OS
+
+    Args:
+        :unix_path: Unix-style file path (string)
+
+    Returns:
+        :os_path: OS-independent file path (string)
+    """
+
+    os_path = os.path.join(*unix_path.split('/'))
+    return os_path
+
 # Numpy must be installed
 try:
     import numpy as np
@@ -38,7 +53,7 @@ REQUIRED = [
     'commonlibs>=0.3.3',
 ]
 README = 'README.rst'
-PACKAGE_DIR = 'src/lib/'
+PACKAGE_DIR = make_os_indep_path('src/lib/')
 LICENSE = 'Apache License 2.0'
 
 
@@ -51,7 +66,7 @@ with open(os.path.join(here, README), "r") as fp:
 # See
 # * https://docs.python.org/3.7/extending/building.html
 # * https://docs.python.org/3/distutils/setupscript.html
-module1_path_rel = 'src/lib/pytornado/aero/'
+module1_path_rel = make_os_indep_path('src/lib/pytornado/aero/')
 module1 = Extension(
         'pytornado.aero.c_vlm',
         sources=[
@@ -63,7 +78,7 @@ module1 = Extension(
             ],
         include_dirs=[
             module1_path_rel,
-            '/usr/include/python3.6',
+            make_os_indep_path('/usr/include/python3.6'),
             # Numpy header
             # '/usr/lib/python3/dist-packages/numpy/core/include/'
             os.path.join(np.get_include(), 'numpy'),
@@ -82,7 +97,7 @@ setup(
     ext_modules=[module1],
     include_package_data=True,
     scripts=[
-        'src/bin/pytornado',
+        make_os_indep_path('src/bin/pytornado'),
         ],
     package_dir={'': PACKAGE_DIR},
     license=LICENSE,
