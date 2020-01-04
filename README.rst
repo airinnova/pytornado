@@ -39,6 +39,14 @@ Please refer to the documentation for installation instructions and a user guide
 
 * https://pytornado.readthedocs.io/
 
+Supported systems
+-----------------
+
+PyTornado has been tested on
+
+* *Linux* and
+* *MacOS*
+
 License
 -------
 

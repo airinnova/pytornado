@@ -11,6 +11,9 @@ Installation
 
     We do provide a |name| package on `PyPI`_. However, the installation with ``pip install pytornado`` will currently result in an incomplete installation due to the uncompiled *C++* code.
 
+Linux and MacOS
+---------------
+
 After downloading the |name| source code, extract the archive and then open a terminal in the root folder of the archive. There should be a file called ``setup.py`` in this folder (if not, the following command will not work). We will use the Python package installer (pip_) to compile and install |name| and its dependencies. In a command line run:
 
 .. code:: bash

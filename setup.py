@@ -19,6 +19,7 @@ def make_os_indep_path(unix_path):
     os_path = os.path.join(*unix_path.split('/'))
     return os_path
 
+
 # Numpy must be installed
 try:
     import numpy as np
