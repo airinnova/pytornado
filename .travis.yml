@@ -1,13 +1,34 @@
 # See also: https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/use-conda-with-travis-ci.html
 
 sudo: false
+
 language: python
-python:
-  - "3.6"
+
+# See https://docs.travis-ci.com/user/languages/python/#running-python-tests-on-multiple-operating-systems
+jobs:
+  include:
+    # === LINUX ===
+    - name: "Python 3.6 on Linux"
+      python: 3.6
+
+    # === MacOS ===
+    - name: "Python 3.7.4 on macOS"
+      os: osx
+      osx_image: xcode11.2  # Python 3.7.4 running on macOS 10.14.4
+      language: shell       # 'language: python' is an error on Travis CI macOS
+      before_install:
+        - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update; fi
+        - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install bash; fi
 
 install:
   # ----- Setup Miniconda -----
-  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+  - |
+    if [ "$TRAVIS_OS_NAME" = "osx" ]
+    then
+      wget https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O miniconda.sh
+    else
+      wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+    fi
   - bash miniconda.sh -b -p $HOME/miniconda
   - export PATH="$HOME/miniconda/bin:$PATH"
   - hash -r
