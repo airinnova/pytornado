@@ -112,21 +112,21 @@ static PyObject* py2c_lattice( PyObject *self, PyObject *args )
         return NULL;
 
     latticestruct lattice;
-    if (!get_latticestruct(py_lattice, &lattice) == ERR_SUCCESS)
+    if (get_latticestruct(py_lattice, &lattice) != ERR_SUCCESS)
     {
         Py_INCREF(Py_None);
         return Py_None;
     }
 
     infostruct info;
-    if (!get_infostruct(py_lattice, &info) == ERR_SUCCESS)
+    if (get_infostruct(py_lattice, &info) != ERR_SUCCESS)
     {
         Py_INCREF(Py_None);
         return Py_None;
     }
 
     statestruct state;
-    if (!get_statestruct(py_state, &state) == ERR_SUCCESS)
+    if (get_statestruct(py_state, &state) != ERR_SUCCESS)
     {
         Py_INCREF(Py_None);
         return Py_None;
@@ -163,7 +163,7 @@ static PyObject* py2c_lattice( PyObject *self, PyObject *args )
     vlm_lattice(&lattice, &info, &state, pts, sym, pan);
 
     // SET LATTICE QUALITY CONTROLS IN PYDICT
-    if (!set_infostruct(py_lattice, &info) == ERR_SUCCESS)
+    if (set_infostruct(py_lattice, &info) != ERR_SUCCESS)
     {
         Py_INCREF(Py_None);
         return Py_None;
@@ -190,14 +190,14 @@ static PyObject* py2c_downwash( PyObject *self, PyObject *args )
     double* dw = (double*)PyArray_DATA(py_dw);
 
     latticestruct lattice;
-    if (!get_latticestruct(py_lattice, &lattice) == ERR_SUCCESS)
+    if (get_latticestruct(py_lattice, &lattice) != ERR_SUCCESS)
     {
         Py_INCREF(Py_None);
         return Py_None;
     }
 
     infostruct info;
-    if (!get_infostruct(py_lattice, &info) == ERR_SUCCESS)
+    if (get_infostruct(py_lattice, &info) != ERR_SUCCESS)
     {
         Py_INCREF(Py_None);
         return Py_None;
@@ -229,28 +229,28 @@ static PyObject* py2c_boundary( PyObject *self, PyObject *args )
     double* rhs = (double*)PyArray_DATA(py_rhs);
 
     latticestruct lattice;
-    if (!get_latticestruct(py_lattice, &lattice) == ERR_SUCCESS)
+    if (get_latticestruct(py_lattice, &lattice) != ERR_SUCCESS)
     {
         Py_INCREF(Py_None);
         return Py_None;
     }
 
     infostruct info;
-    if (!get_infostruct(py_lattice, &info) == ERR_SUCCESS)
+    if (get_infostruct(py_lattice, &info) != ERR_SUCCESS)
     {
         Py_INCREF(Py_None);
         return Py_None;
     }
 
     statestruct state;
-    if (!get_statestruct(py_state, &state) == ERR_SUCCESS)
+    if (get_statestruct(py_state, &state) != ERR_SUCCESS)
     {
         Py_INCREF(Py_None);
         return Py_None;
     }
 
     refstruct refs;
-    if (!get_refstruct(py_state, &refs) == ERR_SUCCESS)
+    if (get_refstruct(py_state, &refs) != ERR_SUCCESS)
     {
         Py_INCREF(Py_None);
         return Py_None;
@@ -280,35 +280,35 @@ static PyObject* py2c_results( PyObject *self, PyObject *args )
         return NULL;
 
     latticestruct lattice;
-    if (!get_latticestruct(py_lattice, &lattice) == ERR_SUCCESS)
+    if (get_latticestruct(py_lattice, &lattice) != ERR_SUCCESS)
     {
         Py_INCREF(Py_None);
         return Py_None;
     }
 
     infostruct info;
-    if (!get_infostruct(py_lattice, &info) == ERR_SUCCESS)
+    if (get_infostruct(py_lattice, &info) != ERR_SUCCESS)
     {
         Py_INCREF(Py_None);
         return Py_None;
     }
 
     statestruct state;
-    if (!get_statestruct(py_state, &state) == ERR_SUCCESS)
+    if (get_statestruct(py_state, &state) != ERR_SUCCESS)
     {
         Py_INCREF(Py_None);
         return Py_None;
     }
 
     refstruct refs;
-    if (!get_refstruct(py_state, &refs) == ERR_SUCCESS)
+    if (get_refstruct(py_state, &refs) != ERR_SUCCESS)
     {
         Py_INCREF(Py_None);
         return Py_None;
     }
 
     resultstruct results;
-    if (!get_resultstruct(py_results, &results) == ERR_SUCCESS)
+    if (get_resultstruct(py_results, &results) != ERR_SUCCESS)
     {
         Py_INCREF(Py_None);
         return Py_None;
@@ -317,7 +317,7 @@ static PyObject* py2c_results( PyObject *self, PyObject *args )
     // Send to actual C CODE (no more magic required in the rest of the code)
     vlm_results(&lattice, &state, &refs, &results, info.num_pan);
 
-    if (!set_resultstruct(py_results, &results) == ERR_SUCCESS)
+    if (set_resultstruct(py_results, &results) != ERR_SUCCESS)
     {
         Py_INCREF(Py_None);
         return Py_None;
