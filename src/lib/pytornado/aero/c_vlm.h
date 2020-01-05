@@ -163,21 +163,6 @@ typedef struct infostruct
     double aspect_avg;  // Average panel aspect ratio
 } infostruct;
 
-// Interface with Python and NumPy
-static PyObject* py2c_lattice( PyObject *self, PyObject *args );
-static PyObject* py2c_downwash( PyObject *self, PyObject *args );
-static PyObject* py2c_boundary( PyObject *self, PyObject *args );
-static PyObject* py2c_results( PyObject *self, PyObject *args );
-
-static int get_latticestruct( PyObject* py_lattice, latticestruct* lattice );
-static int get_infostruct( PyObject* py_lattice, infostruct* info );
-static int get_statestruct( PyObject* py_state, statestruct* state );
-static int get_refstruct( PyObject* py_state, refstruct* refs );
-static int get_resultstruct( PyObject* py_data, resultstruct* results );
-
-static int set_infostruct( PyObject* py_lattice, infostruct* info );
-static int set_resultstruct( PyObject* py_results, resultstruct* results );
-
 // Main function for lattice generation
 void vlm_lattice( latticestruct* lattice,
                   infostruct* info,
