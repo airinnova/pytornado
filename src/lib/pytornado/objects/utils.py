@@ -28,7 +28,8 @@ Developed for Airinnova AB, Stockholm, Sweden.
 """
 
 
-from collections import OrderedDict, MutableMapping
+from collections import OrderedDict
+from collections.abc import MutableMapping
 
 
 class FixedOrderedDict(MutableMapping):
