@@ -54,7 +54,8 @@ REQUIRED = [
     'matplotlib>=3.0.2',
     'commonlibs>=0.3.3',
 ]
-README = 'README.rst'
+HERE = os.path.dirname(__file__)
+README = os.path.join(HERE, 'README.rst')
 PACKAGE_DIR = make_path_os_indep('src/lib/')
 LICENSE = 'Apache License 2.0'
 
@@ -69,10 +70,14 @@ if platform.system().lower() == 'windows':
 else:
     SCRIPTS.append(make_path_os_indep('src/bin/pytornado'))
 
-here = os.path.dirname(__file__)
-
-with open(os.path.join(here, README), "r") as fp:
-    long_description = fp.read()
+# Note: When downloading https://github.com/airinnova/pytornado/archive/master.zip from Windows,
+# the README file is not included for some reason; but we do not need to throw error
+if os.path.isfile(README):
+    with open(README, "r") as fp:
+        long_description = fp.read()
+else:
+    print("WARNING: Could not find README'")
+    long_description = ''
 
 # Extension modules
 # See
