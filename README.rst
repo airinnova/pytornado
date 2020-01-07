@@ -46,6 +46,14 @@ PyTornado has been tested on
 
 * *Linux* and
 * *MacOS*
+* *Windows*
+
+Tornado (Matlab)
+----------------
+
+Despite the similar name, *PyTornado* is not directly related to the Matlab VLM tool *Tornado* written by Melin etal. PyTornado has been implemented from scratch.
+
+* Tornado (Matlab) http://tornado.redhammer.se/
 
 License
 -------
