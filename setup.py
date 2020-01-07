@@ -3,9 +3,10 @@
 
 from setuptools import setup, Extension, find_packages
 import os
+import platform
 
 
-def make_os_indep_path(unix_path):
+def make_path_os_indep(unix_path):
     """
     Return a file path suitable for current OS
 
@@ -54,9 +55,19 @@ REQUIRED = [
     'commonlibs>=0.3.3',
 ]
 README = 'README.rst'
-PACKAGE_DIR = make_os_indep_path('src/lib/')
+PACKAGE_DIR = make_path_os_indep('src/lib/')
 LICENSE = 'Apache License 2.0'
 
+# ===== Main executable file =====
+SCRIPTS = [make_path_os_indep('src/bin/_pytornado_exe.py')]
+
+# Windows
+if platform.system().lower() == 'windows':
+    # Use BAT file as wrapper, see file header for reason
+    SCRIPTS.append(make_path_os_indep('src/bin/pytornado.bat'))
+# Linux and MacOs
+else:
+    SCRIPTS.append(make_path_os_indep('src/bin/pytornado'))
 
 here = os.path.dirname(__file__)
 
@@ -67,7 +78,7 @@ with open(os.path.join(here, README), "r") as fp:
 # See
 # * https://docs.python.org/3.7/extending/building.html
 # * https://docs.python.org/3/distutils/setupscript.html
-module1_path_rel = make_os_indep_path('src/lib/pytornado/aero/')
+module1_path_rel = make_path_os_indep('src/lib/pytornado/aero/')
 module1 = Extension(
         'pytornado.aero.c_vlm',
         sources=[
@@ -79,7 +90,7 @@ module1 = Extension(
             ],
         include_dirs=[
             module1_path_rel,
-            make_os_indep_path('/usr/include/python3.6'),
+            make_path_os_indep('/usr/include/python3.6'),
             # Numpy header
             # '/usr/lib/python3/dist-packages/numpy/core/include/'
             os.path.join(np.get_include(), 'numpy'),
@@ -97,9 +108,7 @@ setup(
     url=URL,
     ext_modules=[module1],
     include_package_data=True,
-    scripts=[
-        make_os_indep_path('src/bin/pytornado'),
-        ],
+    scripts=SCRIPTS,
     package_dir={'': PACKAGE_DIR},
     license=LICENSE,
     # packages=[NAME],
