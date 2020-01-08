@@ -36,5 +36,7 @@
 :: | file called 'abc' can lead to a 'ModuleNotFoundError'
 :: |   - See also https://stackoverflow.com/a/44339624
 
-_pytornado_exe.py %*
+:: Turn off command echoing feature
+@echo off
 
+_pytornado_exe.py %*
