@@ -4,13 +4,19 @@ Changelog
 Changelog for PyTornado. Version numbers try to follow `Semantic
 Versioning <https://semver.org/spec/v2.0.0.html>`__.
 
-[*****] -- *****
+[0.5.2] -- 2020-01-08
 ---------------------
+
+Added
+~~~~~
+
+* Support for Windows (Windows launcher)
+* Support for MacOS
 
 Fixed
 ~~~~~
 
-* Fixed bug in computation of global moments due to access of memory without prior having defined any value
+* Fixed bug in computation of global forces/moments due to access of memory without prior having defined any value
 
 [0.5.1] -- 2019-10-08
 ---------------------
