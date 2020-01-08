@@ -49,7 +49,11 @@ void vlm_results(latticestruct* lattice, statestruct* state,
     double vel_wind_y = -state->airspeed*freestream_dir[1];
     double vel_wind_z = -state->airspeed*freestream_dir[2];
 
-    // Make sure global moments initialised with '0', the moments are added up below
+    // Make sure global forces/moments initialised with '0', the loads are added up below
+    results->ftot_x = 0.;
+    results->ftot_y = 0.;
+    results->ftot_z = 0.;
+
     results->mtot_x = 0.;
     results->mtot_y = 0.;
     results->mtot_z = 0.;
