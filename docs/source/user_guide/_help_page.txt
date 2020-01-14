@@ -1,4 +1,4 @@
-usage: pytornado 0.5.1 [-h]
+usage: pytornado 0.5.3 [-h]
                        [-r <Settings file> | --cpacs2json <CPACS file> | --make-example]
                        [-v | -d | -q] [-c | --clean-only]
 

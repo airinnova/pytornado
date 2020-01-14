@@ -11,10 +11,12 @@ Prerequisites
 Linux
 ~~~~~
 
-*to be upadated*
+Make sure that the Python package manager pip_ (for Python 3.x) is installed. In addition, Numpy is needed for the installation as it provides some C++ header files. You can install pip_ and Numpy from a terminal by running the following commands (tested with *Ubuntu 18.04*):
 
-..
-    * setuptools required???
+.. code:: bash
+
+    sudo apt install python3-pip
+    pip3 install --user numpy
 
 MacOS
 ~~~~~
@@ -48,7 +50,8 @@ After downloading the |name| source code, extract the archive and then open a te
 
 .. note::
 
-    It is recommended to run the installation with the ``--user`` flag. If you know what you are doing, you can modify this setting.
+    * It is recommended to run the installation with the ``--user`` flag. If you know what you are doing, you can modify this setting.
+    * On Linux/Ubuntu the executable may be called ``pip3`` instead of ``pip``.
 
 .. seealso::
 
