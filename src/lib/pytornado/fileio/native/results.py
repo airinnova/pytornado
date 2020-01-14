@@ -59,6 +59,9 @@ def save_all(settings, aircraft, state, vlmdata):
     if settings.settings['save_results']['panelwise']:
         _save_panelwise(state, vlmdata, settings)
 
+    if settings.settings['save_results']['matrix_system']:
+        _save_matrix_system(state, vlmdata, settings)
+
 
 def _save_glob_results(state, vlmdata, settings):
     """
@@ -125,6 +128,39 @@ def _save_panelwise(state, vlmdata, settings):
         filepath,
         data,
         delimiter=',',
+        header=header,
+        fmt=fmt,
+        comments='# '
+    )
+
+
+def _save_matrix_system(state, vlmdata, settings):
+    """
+    Save downwash matrix and right-hand side of VLM equation system
+
+    Args:
+        :state: (object) data structure for operating conditions
+        :vlmdata: (object) data structure for VLM calculation data
+        :settings: (object) data structure for execution settings
+    """
+
+    filepath = settings.paths('f_results_matrix')
+    logger.info(f"Writing system matrix to file '{truncate_filepath(filepath)}'")
+
+    # ----- Data and formatting -----
+    matrix = vlmdata.matrix_downwash
+    rhs = vlmdata.array_rhs.reshape((vlmdata.matrix_downwash.shape[0], 1))
+    data = np.concatenate([matrix, rhs], axis=1)
+
+    # ----- Header -----
+    fmt = '%13.6e'
+    header = f"Downwash matrix: {vlmdata.matrix_downwash.shape}\n"
+    header += f"Right-hand side: {vlmdata.array_rhs.shape}"
+
+    # ----- Save -----
+    np.savetxt(
+        filepath,
+        data, delimiter=',',
         header=header,
         fmt=fmt,
         comments='# '

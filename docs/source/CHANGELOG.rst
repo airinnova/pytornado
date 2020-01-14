@@ -4,6 +4,14 @@ Changelog
 Changelog for PyTornado. Version numbers try to follow `Semantic
 Versioning <https://semver.org/spec/v2.0.0.html>`__.
 
+[0.5.3] -- 2020-01-14
+---------------------
+
+Added
+~~~~~
+
+* Added option to save downwash matrix and right-hand side (RHS) in file (requested by user)
+
 [0.5.2] -- 2020-01-08
 ---------------------
 

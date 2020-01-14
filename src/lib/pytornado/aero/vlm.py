@@ -473,7 +473,7 @@ def solver(vlmdata):
 
     logger.info("Solving linear system...")
     vlmdata.matrix_lu, vlmdata.array_pivots, vlmdata.panelwise['gamma'], _ \
-            = lapack.dgesv(vlmdata.matrix_downwash, vlmdata.array_rhs)
+        = lapack.dgesv(vlmdata.matrix_downwash, vlmdata.array_rhs)
 
 ########
 ########
