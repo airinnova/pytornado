@@ -36,6 +36,8 @@ from pytornado.fileio.utils import dump_pretty_json
 
 logger = logging.getLogger(__name__)
 
+FMT_NUM = '%13.6e'
+
 # Hints:
 # * Large data sets should not be saved too JSON (too slow)
 # * Using Numpy's savetxt() function is preferable
@@ -114,7 +116,7 @@ def _save_panelwise(state, vlmdata, settings):
 
     # ----- Data and formatting -----
     data = np.stack([vlmdata.panelwise[data_key] for (data_key, _) in data_keys], axis=-1)
-    fmt = ['%13.6e' for _ in data_keys]
+    fmt = [FMT_NUM for _ in data_keys]
 
     # ----- Header -----
     field_size = 12
@@ -153,7 +155,6 @@ def _save_matrix_system(state, vlmdata, settings):
     data = np.concatenate([matrix, rhs], axis=1)
 
     # ----- Header -----
-    fmt = '%13.6e'
     header = f"Downwash matrix: {vlmdata.matrix_downwash.shape}\n"
     header += f"Right-hand side: {vlmdata.array_rhs.shape}"
 
@@ -162,7 +163,7 @@ def _save_matrix_system(state, vlmdata, settings):
         filepath,
         data, delimiter=',',
         header=header,
-        fmt=fmt,
+        fmt=FMT_NUM,
         comments='# '
     )
 

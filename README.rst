@@ -44,7 +44,7 @@ Supported systems
 
 PyTornado has been tested on
 
-* *Linux* and
+* *Linux*
 * *MacOS*
 * *Windows*
 
