@@ -1,29 +1,20 @@
 # TODO
 
-# Plotting
-* Keep track of optional plot parameters somewhere
-* Warning or error if invalid optional key is given
-
 ## Important
 * Save plots in '_results'?
 * Better autopanneling
-* Better system for airfoil modelling (check that camber line rotation axis correct, or better: compute camber line "roatations" as normals of a curved surface?)
+* Better system for airfoil modelling (check that camber line rotation axis correct, or better: compute camber line "rotations" as normals of a curved surface?)
 * Better "normal rotation" scheme: see Drela with small-angle approximations (would only change RHS!)
-=========================================
 * Rename in objects.aircraft
     * WingSegmentSubdivision --> SegmentStrip
     * WingSegmentSubdivisionSubarea --> StripSubdivision
     * --> NOTE: change 'subarea' variables
-=========================================
 * Check: `c_results.cpp` --> sign of `results->iw_x[i]` correct?
 * Standard value for EPSILON?
 * Currently: state file
     - alpha and beta must be given in degrees
     - P, Q, R must be given in radians...!
 * Plot spanwise distribution of load (force per meter): get "strip loads"
-* Documentation:
-    * `rcenter`
-    * `gcenter`
 * Compute stability and control derivatives: see Drela (p.136)
 * Reordering of segment vertices (see `cpacs.py`) $\Rightarrow$ better in `objects.models`? (important for boxwing for instance)
 * Suspected asymmetric loads (see OptiMale case)
@@ -34,17 +25,29 @@
 * Be able to set flight state as desired --> target CL, target Cn etc.
 * Hinge axis orientation in global system (always consistent?)
 * Subdivision with cosine distribution towards wing tip (how for Boxwing?)
+* Can computation of influence matrix be optimized?
+   * Eg. exploit matrix symmetry
 
-## Testing
+## Plotting
+* Keep track of optional plot parameters somewhere
+* Add warning or error if invalid optional key is given
+* Visualize far-field velocity field? At cuts parallel to x-axis!?
+* Refactor plotting functions
+   * (l) Generelise downwash matrix plot
+   * Separate 2D/3D plot functions?
+   * Reuse plot objects (axes, figures) for efficiency?
+
+## Testing and builds
 * Make `tox` work with Anaconda packages (Tigl/Tixi only available through Conda, not on PyPI)
+* PyPI: Provide pre-compiled builds
+    * Current workaround --> only distribute source code, see also https://www.scivision.dev/easy-upload-to-pypi/
+    * Build on TravisCI?
+        * https://docs.travis-ci.com/user/deployment/pypi/
+        * https://github.com/pypa/python-manylinux-demo
+    * Distribute with Conda (less general!)
 
 ## JSON files
 * (l) Improve structure of the main settings file
-
-## Refactor plotting functions
-* (l) Generelise downwash matrix plot
-* Separate 2D/3D plot functions?
-* Reuse plot objects (axes, figures) for efficiency?
 
 ## CLI
 * The `--clean` option should only affect the project defined in the given settings file (i.e. don't delete everything in *_results* and *_plots* if there are multiple projects)
@@ -59,14 +62,6 @@
         * See: https://www.cpacs.de/documentation/CPACS_3_1_0_RC_Docs/html/e499b429-4ab0-c4f7-9fb4-8cc43b91e894.htm
         * Definition of some coefficients in CPACS is still unclear
 
-## PyTornado distribution
-* PyPI: Provide pre-compiled builds
-    * Current workaround --> only distribute source code, see also https://www.scivision.dev/easy-upload-to-pypi/
-    * Build on TravisCI?
-        * https://docs.travis-ci.com/user/deployment/pypi/
-        * https://github.com/pypa/python-manylinux-demo
-    * Distribute with Conda (less general!)
-
 ### `aero.vlm`
 * `pre_panelling`: interpolation of xsi values at segment borders creates curved lines
 * Improve auto-panelling algorithm:
@@ -78,8 +73,7 @@
 * `gen_lattice()`: `num_r` and `num_p` are the same (clean up)
 
 ## Misc
-* Documentation: Discuss limitations of the software (see e.g. contols in boxwing)
-* Aircraft input file: `segment.geometry` useful?
+* Aircraft input file: `segment.geometry` useful? Test required
 * [`fileio.cpacs`] Currently control surface deflections for the CPACS format are handled using a `/toolspecific` node. Ideally deflections should be read from the CPACS "native" nodes. A few issues with this:
     * Definition of control surface deflection in CPACS is still unclear.
     * How do we deal with `step`s in CPACS? Which deflection shall be used for the analysis?
@@ -91,7 +85,9 @@
 * `fileio.cpacs`: Incorrect variables for `xsi` (...)
 * `fileio.cpacs`: CPACS path for leading egde device data is wrong ==> example file needed
 
-## "BOX WING ISSUES"
+## Issues
+
+### "BOX WING ISSUES"
 * In the wing part (at the wing tip) that curves upwards, the normal will "jump" from one side to the other
     * Local effects on normals?
         * Control surface modelling
@@ -111,6 +107,10 @@
 * The standard horseshoe vortex is h.v. 2 (aligned with free stream), h.v. 0 should be optional (parallel to x)
 * CPACS reference length (in CPACS only reference span OR reference chord exists)
     * From CPACS documentation: "In CPACS, only one reference length exists (and is used, e.g. for all three moment coefficients. Coordinates given relative to MAC shall always use this length as MAC."
+* Documentation:
+    * `rcenter`
+    * `gcenter`
+* Documentation: Discuss limitations of the software (see e.g. contols in boxwing)
 
 ### ON ANGLES:
 * Generally, we work with radians in code internally
@@ -118,10 +118,6 @@
     * Deflections of control surfaces (user input)
     * Angle of attack and side slip angle (user input)
     * Airfoil camber line angle (change this!!!)
-
-## Other requirements
-* "Python3.6-devel" is required for "Python.h" header file (i.e. to compile the C/C++ code)
-* `tkinter` may have to be installed separately for matplotlib to work (not included in matplotlib PyPI package?)
 
 ## General reminders
 * Direction of normal can have influence on the sign of the pressure coefficient
