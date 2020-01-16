@@ -6,9 +6,7 @@
 * Better system for airfoil modelling (check that camber line rotation axis correct, or better: compute camber line "rotations" as normals of a curved surface?)
 * Better "normal rotation" scheme: see Drela with small-angle approximations (would only change RHS!)
 * Rename in objects.aircraft
-    * WingSegmentSubdivision --> SegmentStrip
-    * WingSegmentSubdivisionSubarea --> StripSubdivision
-    * --> NOTE: change 'subarea' variables
+    * Change 'subarea' variables
 * Check: `c_results.cpp` --> sign of `results->iw_x[i]` correct?
 * Standard value for EPSILON?
 * Currently: state file
