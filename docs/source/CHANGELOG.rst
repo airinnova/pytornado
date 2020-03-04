@@ -4,6 +4,16 @@ Changelog
 Changelog for PyTornado. Version numbers try to follow `Semantic
 Versioning <https://semver.org/spec/v2.0.0.html>`__.
 
+[0.5.4] -- 2020-03-04
+---------------------
+
+Added
+~~~~~
+
+* Added new options for the command line interface (CLI):
+    * `--make-example-from-db` (`--mdb`) to generate a project directory with example aircraft from a database
+    * `--list-example-from-db` (`--ldb`) to list available aircraft in the aircraft database
+
 [0.5.3] -- 2020-01-14
 ---------------------
 

@@ -1,5 +1,5 @@
-usage: pytornado 0.5.3 [-h]
-                       [-r <Settings file> | --cpacs2json <CPACS file> | --make-example]
+usage: pytornado 0.5.4 [-h]
+                       [-r <Settings file> | --cpacs2json <CPACS file> | --make-example | --list-example-from-db | --make-example-from-db <Aircraft name>]
                        [-v | -d | -q] [-c | --clean-only]
 
 optional arguments:
@@ -9,6 +9,11 @@ optional arguments:
   --cpacs2json <CPACS file>
                         Convert a CPACS file to native JSON format
   --make-example        Generate a minimal working example
+  --list-example-from-db, --ldb
+                        List example aircraft in the database
+  --make-example-from-db <Aircraft name>, --mdb <Aircraft name>
+                        Pick an aircraft from the database and generate a
+                        project directory
   -v, --verbose
   -d, --debug
   -q, --quiet

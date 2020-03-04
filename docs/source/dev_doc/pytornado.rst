@@ -7,6 +7,7 @@ Subpackages
 .. toctree::
 
     pytornado.aero
+    pytornado.database
     pytornado.fileio
     pytornado.objects
     pytornado.plot
