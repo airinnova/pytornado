@@ -477,7 +477,7 @@ class Wing:
                     # if not np.linalg.norm(b1c2) + linalg.norm(c1c2) > np.linalg.norm(b1c1):
                     #     #   B1C1 overlaps B2C2
                     segment_continuous = True
-                    logger.debug("Edge {i}-{i+1} is continuous (with discontinuous normal!)")
+                    logger.debug(f"Edge {i}-{i+1} is continuous (with discontinuous normal!)")
 
             # A1D1 and A2D2 have same orientation
             elif np.linalg.norm(a2d2 - a1d1) < TOL:
@@ -486,10 +486,10 @@ class Wing:
                     # if np.linalg.norm(a1d2) + np.linalg.norm(d1d2) > np.rm(d1d2) <= max_dist:
                     #     #   A1D1 overlaps A2D2
                     segment_continuous = True
-                    logger.debug("Edge {i}-{i+1} is continuous (with discontinuous normal!)")
+                    logger.debug(f"Edge {i}-{i+1} is continuous (with discontinuous normal!)")
 
             if not segment_continuous:
-                logger.warning("Edge {i}-{i+1} is discontinuous")
+                logger.warning(f"Edge {i}-{i+1} is discontinuous")
 
             wing_continuous &= segment_continuous
 
