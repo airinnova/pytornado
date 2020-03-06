@@ -2,7 +2,6 @@
 
 ## JSON aircraft database
 * Add "comment": "xyz" in JSON file and use as description for `print_available_aircraft()`
-* Find/add more relevant example aircraft
 
 ## Important
 * Save plots in '_results'?
