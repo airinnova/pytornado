@@ -30,6 +30,7 @@ from pathlib import Path
 import glob
 import logging
 import os
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -106,4 +107,8 @@ def print_available_aircraft():
 
     print("Available aircraft in database:\n")
     for aircraft_name in list_aircraft_names():
-        print("* " + aircraft_name)
+        file_aircraft = get_aircraft_file_path(aircraft_name)
+        with open(file_aircraft) as fp:
+            model_aircraft = json.load(fp)
+        comment = model_aircraft.get('comment', '[no information]')
+        print(f"* {aircraft_name:10s} -- {comment}")

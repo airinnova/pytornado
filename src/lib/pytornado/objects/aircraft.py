@@ -71,6 +71,7 @@ MIN_ETA_LIMIT = 0.01
 SCHEMA_FLOAT_01 = {'type': float, '>=': 0.0, '<=': 1.0}
 SCHEMA_ARRAY_XYZ = {'type': list, 'min_len': 3, 'max_len': 3, 'item_types': (int, float)}
 SCHEMA_FLOAT_POS = {'type': float, '>': 0}
+SCHEMA_STRING = {'type': str}
 
 logger = logging.getLogger(__name__)
 
@@ -91,6 +92,7 @@ class Aircraft:
         'area': SCHEMA_FLOAT_POS,
         'chord': SCHEMA_FLOAT_POS,
         'span': SCHEMA_FLOAT_POS,
+        'comment': SCHEMA_STRING,
     }
 
     def __init__(self):
@@ -134,6 +136,7 @@ class Aircraft:
         self.refs['chord'] = None
         self.refs['gcenter'] = None
         self.refs['rcenter'] = None
+        self.refs['comment'] = None
         self.refs._freeze()
 
         # Wing child objects

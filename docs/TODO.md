@@ -1,8 +1,5 @@
 # TODO
 
-## JSON aircraft database
-* Add "comment": "xyz" in JSON file and use as description for `print_available_aircraft()`
-
 ## Important
 * Save plots in '_results'?
 * Better autopanneling

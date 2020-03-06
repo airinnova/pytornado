@@ -1,6 +1,7 @@
 {
     "uid": "NASA_CRM",
     "version": "VERSION0",
+    "comment": "NASA CRM (modified)",
 
     "refs": {
         "area": 3.83690e02,
