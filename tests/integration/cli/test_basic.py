@@ -6,6 +6,7 @@ import json
 import shutil
 from pathlib import Path
 
+import pytornado.database.tools as dbtools
 
 def which(program):
     """
@@ -80,3 +81,43 @@ def test_basic_usage():
     assert results_dir.is_dir() is False
 
     shutil.rmtree(project_dir, ignore_errors=True)
+
+
+def test_database():
+    """
+    Test that all aircraft in the database can be loaded and run
+    """
+
+    # Paths
+    project_dir = Path('pytornado')
+    shutil.rmtree(project_dir, ignore_errors=True)
+
+    # ------ Iterate through all aircraft in database -----
+    for aircraft in dbtools.list_aircraft_names():
+        print(f"Testing aircraft '{aircraft}'")
+        os.system(f"pytornado -v --mdb {aircraft}")
+        assert project_dir.is_dir()
+
+        settings_file = Path(os.path.join(project_dir, 'settings', f'{aircraft}.json'))
+        results_dir = Path(os.path.join(project_dir, '_results'))
+        plot_dir = Path(os.path.join(project_dir, '_plots'))
+
+        # ------ Make sure it runs -----
+        with open(settings_file, "r") as fp:
+            settings = json.load(fp)
+        settings['plot']['results']['show'] = False
+        settings['plot']['results']['save'] = True
+        with open(settings_file, "w") as fp:
+            json.dump(settings, fp)
+        os.system(f"pytornado -v --clean --run {settings_file}")
+        os.system(f"pytornado -v --run {settings_file}")
+        assert plot_dir.is_dir()
+        assert results_dir.is_dir()
+
+        # ------ Test the cleaning -----
+        os.system(f"pytornado --clean-only --run {settings_file}")
+        assert settings_file.is_file() is True
+        assert plot_dir.is_dir() is False
+        assert results_dir.is_dir() is False
+
+        shutil.rmtree(project_dir, ignore_errors=True)

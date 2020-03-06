@@ -30,7 +30,7 @@ import sys
 from commonlibs.logger.logger import truncate_filepath
 
 from pytornado.__version__ import __version__
-import pytornado.database.aircraft.tools as dbtools
+import pytornado.database.tools as dbtools
 import pytornado.stdfun.run as stdrun
 import pytornado.stdfun.setup as project_setup
 

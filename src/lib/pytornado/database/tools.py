@@ -33,6 +33,8 @@ import os
 
 logger = logging.getLogger(__name__)
 
+PATH_AIRCRAFT_DB = 'aircraft'
+
 
 def get_aircraft_db_path():
     """
@@ -42,7 +44,10 @@ def get_aircraft_db_path():
         :path_aircraft_db: (str) absolute path
     """
 
-    path_aircraft_db = os.path.abspath(os.path.dirname(__file__))
+    path_aircraft_db = os.path.join(
+        os.path.abspath(os.path.dirname(__file__)),
+        PATH_AIRCRAFT_DB
+    )
     return path_aircraft_db
 
 
