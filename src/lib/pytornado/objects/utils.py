@@ -32,56 +32,6 @@ from collections import OrderedDict
 from collections.abc import MutableMapping
 
 
-class FixedOrderedDict(MutableMapping):
-    """
-    Immutable ORDEREDDICT[1] variant, based on MUTABLEMAPPING[2].
-
-    Works as a dictionary with ordered key-value pairs.
-    Entries of FIXEDORDEREDDICT are accessed by key: 'obj[key]'.
-
-    __MUTABLE controls how key-value pairs are created and modified:
-    * When TRUE, assigning a value to an undefined key creates a new entry.
-    * When FALSE, this instead raises an KeyError.
-
-    __MUTABLE is TRUE by default. _FREEZE sets __MUTABLE to FALSE.
-
-    [1] collections.OrderedDict
-    [2] collections.MutableMapping
-    """
-
-    __mutable = True
-
-    def __init__(self, *args):
-        self._dictionary = OrderedDict(*args)
-
-    def __getitem__(self, key):
-        return self._dictionary[key]
-
-    def __setitem__(self, key, value):
-        if not self.__mutable and key not in self._dictionary:
-            raise KeyError(f"Instance of FixedOrderedDict does not have item '{key}'.")
-
-        self._dictionary[key] = value
-
-    def __delitem__(self, key):
-        raise NotImplementedError("Cannot delete item of instance of FixedOrderedDict.")
-
-    def __iter__(self):
-        return iter(self._dictionary)
-
-    def __repr__(self):
-        items = ("{}={!r}".format(k, v) for k, v in self._dictionary.items())
-        return "{}({})".format(type(self).__name__, ", ".join(items))
-
-    def __len__(self):
-        return len(self._dictionary)
-
-    def _freeze(self):
-        """Add item to instance of FIXEDORDEREDDICT, with DEFAULT value."""
-
-        self.__mutable = False
-
-
 def check_dict(template_dict, test_dict):
     """
     Check that a test dictionary looks like a template dictionary

@@ -52,7 +52,8 @@ REQUIRED = [
     'numpy',
     'scipy',
     'matplotlib>=3.0.2',
-    'commonlibs>=0.3.3',
+    'commonlibs>=0.5.0',
+    'schemadict>=0.0.8',
 ]
 HERE = os.path.dirname(__file__)
 README = os.path.join(HERE, 'README.rst')

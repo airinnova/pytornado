@@ -51,12 +51,11 @@ import os
 
 import numpy as np
 from commonlibs.math.vectors import get_plane_line_intersect
-from commonlibs.dicts.schemadicts import check_dict_against_schema
 from airfoils import Airfoil, MorphAirfoil
 from airfoils.fileio import import_airfoil_data
 from aeroframe.interpol.translate import get_deformed_point
+from schemadict import schemadict
 
-from pytornado.objects.utils import FixedOrderedDict
 
 # Global unit vectors
 Y_AXIS = np.array([0, 1, 0])
@@ -85,15 +84,15 @@ class ComponentDefinitionError(Exception):
 class Aircraft:
 
     # Schema for reference values
-    REF_SCHEMA = {
-        '__REQUIRED_KEYS': ['gcenter', 'rcenter', 'area', 'chord', 'span'],
+    REF_SCHEMA = schemadict({
+        '$required_keys': ['gcenter', 'rcenter', 'area', 'chord', 'span'],
         'gcenter': SCHEMA_ARRAY_XYZ,
         'rcenter': SCHEMA_ARRAY_XYZ,
         'area': SCHEMA_FLOAT_POS,
         'chord': SCHEMA_FLOAT_POS,
         'span': SCHEMA_FLOAT_POS,
         'comment': SCHEMA_STRING,
-    }
+    })
 
     def __init__(self):
         """
@@ -130,14 +129,13 @@ class Aircraft:
 
         self._uid = 'aircraft'
 
-        self.refs = FixedOrderedDict()
+        self.refs = {}
         self.refs['area'] = None
         self.refs['span'] = None
         self.refs['chord'] = None
         self.refs['gcenter'] = None
         self.refs['rcenter'] = None
         self.refs['comment'] = None
-        self.refs._freeze()
 
         # Wing child objects
         self.wings = OrderedDict()
@@ -257,7 +255,7 @@ class Aircraft:
         self.refs['gcenter'] = list(self.refs['gcenter'])
         self.refs['rcenter'] = list(self.refs['rcenter'])
 
-        check_dict_against_schema(self.refs, self.REF_SCHEMA)
+        self.REF_SCHEMA.validate(self.refs)
 
         self.refs['gcenter'] = np.array(self.refs['gcenter'], dtype=float, order='C')
         self.refs['rcenter'] = np.array(self.refs['rcenter'], dtype=float, order='C')
@@ -519,17 +517,17 @@ class Wing:
 class WingSegment:
 
     # Schema for vertices
-    VERTICES_SCHEMA = {
+    VERTICES_SCHEMA = schemadict({
         # Vertices are not "required" input
         'a': SCHEMA_ARRAY_XYZ,
         'b': SCHEMA_ARRAY_XYZ,
         'c': SCHEMA_ARRAY_XYZ,
         'd': SCHEMA_ARRAY_XYZ,
-    }
+    })
 
     # Schema for geometry
-    GEOMETRY_SCHEMA = {
-        '__REQUIRED_KEYS': [
+    GEOMETRY_SCHEMA = schemadict({
+        '$required_keys': [
             'inner_axis',
             'outer_axis',
         ],
@@ -544,19 +542,19 @@ class WingSegment:
         'span': {'type': float},
         'sweep': {'type': float, '>=': -90, '<=': +90},
         'dihedral': {'type': float, '>=': -180, '<=': +180},
-    }
+    })
 
-    AIRFOIL_SCHEMA = {
-        '__REQUIRED_KEYS': ['inner', 'outer'],
+    AIRFOIL_SCHEMA = schemadict({
+        '$required_keys': ['inner', 'outer'],
         'inner': {'type': str},
         'outer': {'type': str},
-    }
+    })
 
-    PANELS_SCHEMA = {
+    PANELS_SCHEMA = schemadict({
         # Entries can be None (i.e. no required keys)
         'num_c': {'type': int, '>': 0},
         'num_s': {'type': int, '>': 0},
-    }
+    })
 
     def __init__(self, wing, uid):
         """
@@ -579,22 +577,20 @@ class WingSegment:
         self.uid = uid
 
         # Calculated position in wing (span) and lattice (index)
-        self.position = FixedOrderedDict()
+        self.position = {}
         self.position['inner'] = None
         self.position['outer'] = None
         self.position['panel'] = None
-        self.position._freeze()
 
         # Provided or calculated segment area
-        self.vertices = FixedOrderedDict()
+        self.vertices = {}
         self.vertices['a'] = None
         self.vertices['b'] = None
         self.vertices['c'] = None
         self.vertices['d'] = None
-        self.vertices._freeze()
 
         # Provided or calculated segment properties
-        self.geometry = FixedOrderedDict()
+        self.geometry = {}
         self.geometry['inner_chord'] = None
         self.geometry['inner_alpha'] = None
         self.geometry['inner_beta'] = None
@@ -606,22 +602,19 @@ class WingSegment:
         self.geometry['span'] = None
         self.geometry['sweep'] = None
         self.geometry['dihedral'] = None
-        self.geometry._freeze()
 
         # Provided airfoil names
-        self.airfoils = FixedOrderedDict()
+        self.airfoils = {}
         self.airfoils['inner'] = None
         self.airfoils['outer'] = None
-        self.airfoils._freeze()
 
         # Derived
         self.segment_airfoil = None
 
         # Provided discretisation settings
-        self.panels = FixedOrderedDict()
+        self.panels = {}
         self.panels['num_c'] = None
         self.panels['num_s'] = None
-        self.panels._freeze()
 
         # Subdivisions (by default there is always one "division")
         self.subdivision = OrderedDict()
@@ -1316,7 +1309,7 @@ class WingSegment:
         """Check types and values of properties in vertices dictionary"""
 
         logger.info("Checking vertex coordinates...")
-        check_dict_against_schema(self.vertices, self.VERTICES_SCHEMA)
+        self.VERTICES_SCHEMA.validate(self.vertices)
 
         # Convert to NUMPY array
         for key in ['a', 'b', 'c', 'd']:
@@ -1331,48 +1324,48 @@ class WingSegment:
             if self.geometry[axis] is None:
                 self.geometry[axis] = 0.25
 
-        check_dict_against_schema(self.geometry, self.GEOMETRY_SCHEMA)
+        self.GEOMETRY_SCHEMA.validate(self.geometry)
 
     def check_airfoils(self):
         """Check type and value of airfoil dictionary"""
 
         logger.info("Checking airfoil properties...")
-        check_dict_against_schema(self.airfoils, self.AIRFOIL_SCHEMA)
+        self.AIRFOIL_SCHEMA.validate(self.airfoils)
 
     def check_panels(self):
         """Check type and value of properties in WINGSEGMENT.PANELS."""
 
         logger.info("Checking discretisation properties...")
-        check_dict_against_schema(self.panels, self.PANELS_SCHEMA)
+        self.PANELS_SCHEMA.validate(self.panels)
 
 
 class WingControl:
 
     DEVICE_TYPES = ('slat', 'flap')
 
-    SEGMENT_UID_SCHEMA = {
-        '__REQUIRED_KEYS': ['inner', 'outer'],
+    SEGMENT_UID_SCHEMA = schemadict({
+        '$required_keys': ['inner', 'outer'],
         'inner': {'type': str},
         'outer': {'type': str},
-    }
+    })
 
-    PANELS_SCHEMA = {
+    PANELS_SCHEMA = schemadict({
         'num_c': {'type': int, '>': 0},
-    }
+    })
 
-    REL_VERTICES_SCHEMA = {
-        '__REQUIRED_KEYS': ['eta_inner', 'eta_outer', 'xsi_inner', 'xsi_outer'],
+    REL_VERTICES_SCHEMA = schemadict({
+        '$required_keys': ['eta_inner', 'eta_outer', 'xsi_inner', 'xsi_outer'],
         'eta_inner': SCHEMA_FLOAT_01,
         'eta_outer': SCHEMA_FLOAT_01,
         'xsi_inner': SCHEMA_FLOAT_01,
         'xsi_outer': SCHEMA_FLOAT_01,
-    }
+    })
 
-    REL_HINGE_VERTICES_SCHEMA = {
-        '__REQUIRED_KEYS': ['xsi_inner', 'xsi_outer'],
+    REL_HINGE_VERTICES_SCHEMA = schemadict({
+        '$required_keys': ['xsi_inner', 'xsi_outer'],
         'xsi_inner': SCHEMA_FLOAT_01,
         'xsi_outer': SCHEMA_FLOAT_01,
-    }
+    })
 
     def __init__(self, parent_wing, control_uid):
         """
@@ -1395,26 +1388,22 @@ class WingControl:
         self.deflection_mirror = None
 
         # Name of the section on which the inner and outer part of the control section lies on
-        self.segment_uid = FixedOrderedDict()
+        self.segment_uid = {}
         self.segment_uid['inner'] = None
         self.segment_uid['outer'] = None
-        self.segment_uid._freeze()
 
-        self.rel_vertices = FixedOrderedDict()
+        self.rel_vertices = {}
         self.rel_vertices['eta_inner'] = None
         self.rel_vertices['eta_outer'] = None
         self.rel_vertices['xsi_inner'] = None
         self.rel_vertices['xsi_outer'] = None
-        self.rel_vertices._freeze()
 
-        self.rel_hinge_vertices = FixedOrderedDict()
+        self.rel_hinge_vertices = {}
         self.rel_hinge_vertices['xsi_inner'] = None
         self.rel_hinge_vertices['xsi_outer'] = None
-        self.rel_hinge_vertices._freeze()
 
-        self.panels = FixedOrderedDict()
+        self.panels = {}
         self.panels['num_c'] = None
-        self.panels._freeze()
 
     @property
     def device_type(self):
@@ -1498,10 +1487,10 @@ class WingControl:
 
         logger.info("Checking geometric properties...")
 
-        check_dict_against_schema(self.segment_uid, self.SEGMENT_UID_SCHEMA)
-        check_dict_against_schema(self.panels, self.PANELS_SCHEMA)
-        check_dict_against_schema(self.rel_vertices, self.REL_VERTICES_SCHEMA)
-        check_dict_against_schema(self.rel_hinge_vertices, self.REL_HINGE_VERTICES_SCHEMA)
+        self.SEGMENT_UID_SCHEMA.validate(self.segment_uid)
+        self.PANELS_SCHEMA.validate(self.panels)
+        self.REL_VERTICES_SCHEMA.validate(self.rel_vertices)
+        self.REL_HINGE_VERTICES_SCHEMA.validate(self.rel_hinge_vertices)
 
         # ----- Check device type -----
         if self.device_type is None:
@@ -1570,12 +1559,11 @@ class SegmentStrip:
         self.parent_wing = self.parent_segment.parent_wing
 
         # Relative vertices of the subdivision (w.r.t. segment)
-        self.rel_vertices = FixedOrderedDict()
+        self.rel_vertices = {}
         self.rel_vertices['eta_a'] = rel_vertices['eta_a']
         self.rel_vertices['eta_b'] = rel_vertices['eta_b']
         self.rel_vertices['eta_c'] = rel_vertices['eta_c']
         self.rel_vertices['eta_d'] = rel_vertices['eta_d']
-        self.rel_vertices._freeze()
 
         # Subareas (by default always a 'segment' subarea)
         self.subarea = OrderedDict()
@@ -1804,12 +1792,11 @@ class StripSubdivision:
         self.type = subarea_type
 
         # Relative position of vertices
-        self.rel_vertices = FixedOrderedDict()
+        self.rel_vertices = {}
         self.rel_vertices['xsi_a'] = rel_vertices['xsi_a']
         self.rel_vertices['xsi_b'] = rel_vertices['xsi_b']
         self.rel_vertices['xsi_c'] = rel_vertices['xsi_d']
         self.rel_vertices['xsi_d'] = rel_vertices['xsi_c']
-        self.rel_vertices._freeze()
 
         # For subareas of type 'slat' and 'flap'
         # - Relative position of hinge line
@@ -2000,10 +1987,9 @@ class StripSubdivision:
             :xsi_h2: (float) relative position of the outer hinge point
         """
 
-        self.rel_hinge_vertices = FixedOrderedDict()
+        self.rel_hinge_vertices = {}
         self.rel_hinge_vertices['xsi_h1'] = xsi_h1
         self.rel_hinge_vertices['xsi_h2'] = xsi_h2
-        self.rel_hinge_vertices._freeze()
 
     def _add_parent_control(self, control_object):
         """

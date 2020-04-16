@@ -4,7 +4,8 @@ _results/
 log.txt
 airfoils/
 
-# See: https://www.gitignore.io/api/c++,python
+# Created by https://www.gitignore.io/api/vim,c++,python
+# Edit at https://www.gitignore.io/?templates=vim,c++,python
 
 ### C++ ###
 # Prerequisites
@@ -56,6 +57,8 @@ dist/
 downloads/
 eggs/
 .eggs/
+# lib/
+lib64/
 parts/
 sdist/
 var/
@@ -94,16 +97,6 @@ coverage.xml
 *.mo
 *.pot
 
-# Django stuff:
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
-
-# Flask stuff:
-instance/
-.webassets-cache
-
 # Scrapy stuff:
 .scrapy
 
@@ -112,13 +105,6 @@ docs/_build/
 
 # PyBuilder
 target/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# IPython
-profile_default/
-ipython_config.py
 
 # pyenv
 .python-version
@@ -136,21 +122,17 @@ celerybeat-schedule
 # SageMath parsed files
 *.sage.py
 
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
 # Spyder project settings
 .spyderproject
 .spyproject
 
 # Rope project settings
 .ropeproject
+
+# Mr Developer
+.mr.developer.cfg
+.project
+.pydevproject
 
 # mkdocs documentation
 /site
@@ -162,3 +144,31 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+### Vim ###
+# Swap
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+
+# Session
+Session.vim
+Sessionx.vim
+
+# Temporary
+.netrwhist
+*~
+
+# Auto-generated tag files
+tags
+
+# Persistent undo
+[._]*.un~
+
+# Coc configuration directory
+.vim
+
+# End of https://www.gitignore.io/api/vim,c++,python
+

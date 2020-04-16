@@ -4,6 +4,19 @@ Changelog
 Changelog for PyTornado. Version numbers try to follow `Semantic
 Versioning <https://semver.org/spec/v2.0.0.html>`__.
 
+[0.6.0] -- 2020-04-15
+---------------------
+
+Added
+~~~~~
+
+* Use new `schemadict` instead of deprecated method in `commonlibs`
+
+Removed
+~~~~~~~
+
+* Remove `FixedOrderedDict`
+
 [0.5.4] -- 2020-03-04
 ---------------------
 

@@ -29,7 +29,6 @@ Developed for Airinnova AB, Stockholm, Sweden.
 
 from collections import defaultdict, namedtuple
 
-from pytornado.objects.utils import FixedOrderedDict
 
 BookKeepingEntry = namedtuple(
     'BookKeepingEntry',
@@ -68,7 +67,7 @@ class VLMLattice:
         self.a = None
         self.bound_leg_midpoints = None
 
-        self.info = FixedOrderedDict()
+        self.info = {}
         self.info['num_wings'] = 0
         self.info['num_segments'] = 0
         self.info['num_controls'] = 0
@@ -80,7 +79,6 @@ class VLMLattice:
         self.info['area_min'] = 0.0
         self.info['area_max'] = 0.0
         self.info['area_avg'] = 0.0
-        self.info._freeze()
 
         self.epsilon = None
 
@@ -143,7 +141,7 @@ class VLMData:
         # Circulation [gamma] = m²/s
         # Velocity v{x,y,z} [m/s]
         # Panel forces f{x,y,z} [Newton] (NOT force per length)
-        self.panelwise = FixedOrderedDict()
+        self.panelwise = {}
         self.panelwise['gamma'] = None
         self.panelwise['vx'] = None
         self.panelwise['vy'] = None
@@ -154,13 +152,11 @@ class VLMData:
         self.panelwise['fz'] = None
         self.panelwise['fmag'] = None
         self.panelwise['cp'] = None
-        self.panelwise._freeze()
 
-        self.stripwise = FixedOrderedDict()
+        self.stripwise = {}
         self.stripwise['cl'] = None
-        self.stripwise._freeze()
 
-        self.forces = FixedOrderedDict()
+        self.forces = {}
         self.forces['x'] = 0.0
         self.forces['y'] = 0.0
         self.forces['z'] = 0.0
@@ -170,9 +166,8 @@ class VLMData:
         self.forces['l'] = 0.0
         self.forces['m'] = 0.0
         self.forces['n'] = 0.0
-        self.forces._freeze()
 
-        self.coeffs = FixedOrderedDict()
+        self.coeffs = {}
         self.coeffs['x'] = 0.0
         self.coeffs['y'] = 0.0
         self.coeffs['z'] = 0.0
@@ -182,4 +177,3 @@ class VLMData:
         self.coeffs['l'] = 0.0
         self.coeffs['m'] = 0.0
         self.coeffs['n'] = 0.0
-        self.coeffs._freeze()

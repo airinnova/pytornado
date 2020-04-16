@@ -496,21 +496,14 @@ static int get_infostruct( PyObject* py_lattice, infostruct* info )
 
     // GET LATTICE CONTROLS DICT
 
-    // Get FixedOrderedDict attribute 'info' of VLMLattice
+    // Get dict attribute 'info' of VLMLattice
     if (!PyObject_HasAttrString(py_lattice, "info"))
     {
         std::cout << "ERROR: lattice does not have attribute 'info'" << std::endl;
         return ERR_ATTRIBUTE;
     }
     py_attr = PyObject_GetAttrString(py_lattice, "info");
-
-    // Get dictionary of entries in FixedOrderedDict
-    if (!PyObject_HasAttrString(py_attr, "_dictionary"))
-    {
-        std::cout << "ERROR: lattice.info is not FixedOrderedDict" << std::endl;
-        return ERR_TYPE;
-    }
-    py_dict = PyObject_GetAttrString(py_attr, "_dictionary");
+    py_dict = py_attr;
 
     // GET LATTICE CONTROLS DATA
 
@@ -559,21 +552,14 @@ static int set_infostruct( PyObject* py_lattice, infostruct* info )
 
     // GET LATTICE CONTROLS DICT
 
-    // Get FixedOrderedDict attribute 'info' of VLMLattice
+    // Get dict attribute 'info' of VLMLattice
     if (!PyObject_HasAttrString(py_lattice, "info"))
     {
         std::cout << "ERROR: lattice does not have attribute 'info'" << std::endl;
         return ERR_ATTRIBUTE;
     }
     py_attr = PyObject_GetAttrString(py_lattice, "info");
-
-    // Get dictionary of entries in FixedOrderedDict
-    if (!PyObject_HasAttrString(py_attr, "_dictionary"))
-    {
-        std::cout << "ERROR: lattice.info is not FixedOrderedDict" << std::endl;
-        return ERR_TYPE;
-    }
-    py_dict = PyObject_GetAttrString(py_attr, "_dictionary");
+    py_dict = py_attr;
 
     // SET LATTICE CONTROLS DATA
 
@@ -643,21 +629,14 @@ static int get_statestruct( PyObject* py_state, statestruct* state )
 
     // GET AERODYNAMIC DATA DICT
 
-    // Get FixedOrderedDict attribute 'aero' of FlightState
+    // Get dict attribute 'aero' of FlightState
     if (!PyObject_HasAttrString(py_state, "aero"))
     {
         std::cout << "ERROR: state does not have attribute 'aero'" << std::endl;
         return ERR_ATTRIBUTE;
     }
     py_attr = PyObject_GetAttrString(py_state, "aero");
-
-    // Get dictionary of entries in FixedOrderedDict
-    if (!PyObject_HasAttrString(py_attr, "_dictionary"))
-    {
-        std::cout << "ERROR: state.aero is not FixedOrderedDict" << std::endl;
-        return ERR_TYPE;
-    }
-    py_dict = PyObject_GetAttrString(py_attr, "_dictionary");
+    py_dict = py_attr;
 
     // GET AERODYNAMIC OPERATING CONDITIONS (PY DICT)
 
@@ -793,21 +772,14 @@ static int get_refstruct( PyObject* py_state, refstruct* refs )
 
     /* GET REFERENCE VALUES (PY DICT) ****************************************/
 
-    // Get FixedOrderedDict attribute 'refs' of FlightState
+    // Get dict attribute 'refs' of FlightState
     if (!PyObject_HasAttrString(py_state, "refs"))
     {
         std::cout << "ERROR: state does not have attribute 'refs'" << std::endl;
         return ERR_ATTRIBUTE;
     }
     py_attr = PyObject_GetAttrString(py_state, "refs");
-
-    // Get dictionary of entries in FixedOrderedDict
-    if (!PyObject_HasAttrString(py_attr, "_dictionary"))
-    {
-        std::cout << "ERROR: state.refs is not FixedOrderedDict" << std::endl;
-        return ERR_TYPE;
-    }
-    py_dict = PyObject_GetAttrString(py_attr, "_dictionary");
+    py_dict = py_attr;
 
     /* GET REFERENCE POINT AND CENTER OF GRAVITY (NUMPY ARRAY) ***************/
 
@@ -920,21 +892,14 @@ static int get_resultstruct( PyObject* py_data, resultstruct* results )
 
     // GET PANEL-WISE DATA DICT
 
-    // Get FixedOrderedDict attribute 'panelwise' of VLMData
+    // Get dict attribute 'panelwise' of VLMData
     if (!PyObject_HasAttrString(py_data, "panelwise"))
     {
         std::cout << "ERROR: vlmdata does not have attribute 'panelwise'" << std::endl;
         return ERR_ATTRIBUTE;
     }
     py_attr = PyObject_GetAttrString(py_data, "panelwise");
-
-    // Get dictionary of entries in FixedOrderedDict
-    if (!PyObject_HasAttrString(py_attr, "_dictionary"))
-    {
-        std::cout << "ERROR: vlmdata.panelwise is not FixedOrderedDict" << std::endl;
-        return ERR_TYPE;
-    }
-    py_dict = PyObject_GetAttrString(py_attr, "_dictionary");
+    py_dict =py_attr;
 
     // GET PANEL-WISE DATA (NUMPY ARRAYS)
 
@@ -1175,21 +1140,14 @@ static int set_resultstruct( PyObject* py_data, resultstruct* results )
 
     // GET AERODYNAMIC FORCES DICT
 
-    // Get FixedOrderedDict attribute 'forces' of VLMData
+    // Get dict attribute 'forces' of VLMData
     if (!PyObject_HasAttrString(py_data, "forces"))
     {
         std::cout << "ERROR: vlmdata does not have attribute 'forces'" << std::endl;
         return ERR_ATTRIBUTE;
     }
     py_attr = PyObject_GetAttrString(py_data, "forces");
-
-    // Get dictionary of entries in FixedOrderedDict
-    if (!PyObject_HasAttrString(py_attr, "_dictionary"))
-    {
-        std::cout << "ERROR: vlmdata.panelwise is not FixedOrderedDict" << std::endl;
-        return ERR_TYPE;
-    }
-    py_dict = PyObject_GetAttrString(py_attr, "_dictionary");
+    py_dict = py_attr;
 
     // SET AERODYNAMIC FORCES
 
@@ -1276,21 +1234,14 @@ static int set_resultstruct( PyObject* py_data, resultstruct* results )
 
     // GET AERODYNAMIC COEFFICIENTS DICT
 
-    // Get FixedOrderedDict attribute 'coeffs' of VLMData
+    // Get dict attribute 'coeffs' of VLMData
     if (!PyObject_HasAttrString(py_data, "coeffs"))
     {
         std::cout << "ERROR: vlmdata does not have attribute 'coeffs'" << std::endl;
         return ERR_ATTRIBUTE;
     }
     py_attr = PyObject_GetAttrString(py_data, "coeffs");
-
-    // Get dictionary of entries in FixedOrderedDict
-    if (!PyObject_HasAttrString(py_attr, "_dictionary"))
-    {
-        std::cout << "ERROR: vlmdata.panelwise is not FixedOrderedDict" << std::endl;
-        return ERR_TYPE;
-    }
-    py_dict = PyObject_GetAttrString(py_attr, "_dictionary");
+    py_dict = py_attr;
 
     // SET AERODYNAMIC COEFFICIENTS
 

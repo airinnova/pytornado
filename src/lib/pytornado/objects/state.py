@@ -34,7 +34,6 @@ import numpy as np
 from numpy import cos, sin, deg2rad
 from ambiance import Atmosphere
 
-from pytornado.objects.utils import FixedOrderedDict
 
 logger = logging.getLogger(__name__)
 
@@ -123,10 +122,9 @@ class FlightState:
               will not be changed during runtime.
         """
 
-        self.aero = FixedOrderedDict()
+        self.aero = {}
         for prop in STATE_ALL_PARAMS:
             self.aero[prop] = None
-        self.aero._freeze()
 
         self.results = {}
         for param in GLOBAL_COEFFS:
@@ -235,10 +233,9 @@ class FlightState:
 
             current_state = CurrentState()
 
-            current_aero = FixedOrderedDict()
+            current_aero = {}
             for param in STATE_PRIMARY_PARAMS:
                 current_aero[param] = float(self.aero[param][i])
-            current_aero._freeze()
 
             current_state.aero = current_aero
             current_state.free_stream_velocity_vector = self.free_stream_velocity_vector
