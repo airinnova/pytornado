@@ -1,8 +1,8 @@
-Sphinx==1.8.5
+Sphinx==3.1.0
 sphinx-rtd-theme==0.4.3
-ambiance==0.3.0
-airfoils>=0.0.2
-commonlibs>=0.2.0
-matplotlib==3.0.2
-numpy==1.16.4
-scipy==1.2.1
+airfoils>=0.2.2
+ambiance>=1.0.0
+commonlibs>=0.5.0
+matplotlib==3.2.1
+numpy==1.18.5
+scipy==1.4.1
