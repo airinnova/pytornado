@@ -7,11 +7,12 @@
 # -- Path setup --------------------------------------------------------------
 import os
 import sys
+import re
 
 from pytornado.__version__ import __version__
 
 
-sys.path.insert(0, os.path.abspath('../../src/pytornado'))
+sys.path.insert(0, os.path.abspath('../../src/lib/pytornado'))
 sys.setrecursionlimit(1500)
 
 NAME = 'PyTornado'
@@ -39,7 +40,9 @@ version = __version__
 # ######### AUTOMATE THINGS ##########
 # ====================================
 os.system('bash ./dev_doc/gen_auto_doc.sh')
-os.system('python ./user_guide/gen_model_doc.py')
+os.system('bash ./_gen_help_page.sh')
+os.system('bash ./user_guide/make_template.sh clean')
+os.system('bash ./user_guide/make_template.sh make')
 
 # -- General configuration ---------------------------------------------------
 extensions = [
@@ -49,10 +52,7 @@ extensions = [
     'sphinx.ext.ifconfig',
     # 'sphinx.ext.viewcode',
     'sphinx.ext.autosummary',
-    'sphinxcontrib.mermaid',
 ]
-
-mermaid_params = ['--theme', 'forest', '--backgroundColor', 'transparent']
 
 # Paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

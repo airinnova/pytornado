@@ -12,14 +12,12 @@ Theoretical background
 
 .. [Bertin2014] Bertin, J.J. ; Cummings, R.M.: *Aerodynamics for Engineers*. Pearson, 2014. -- ISBN 9780134091198
 
-..
-    .. [Melin2000] Melin, T.: A Vortex Lattice MATLAB Implementation for Linear Aerodynamic Wing Applications, Diss., December 2000. http://dx.doi.org/10.13140/RG.2.2.24472.49923
+.. [Melin2000] Melin, T.: A Vortex Lattice MATLAB Implementation for Linear Aerodynamic Wing Applications, Diss., December 2000. http://dx.doi.org/10.13140/RG.2.2.24472.49923
 
 Publications referencing |name|
 -------------------------------
 
-..
-    .. [Zhang2018] Zhang, M. ; Jungo, A. ; Gastaldi, A.A. ; Melin, T.: *Aircraft Geometry and Meshing with Common Language Schema CPACS for Variable-Fidelity MDO Applications*. 5 (2018), No. 47. http://dx.doi.org/10.3390/aerospace5020047
+.. [Zhang2018] Zhang, M. ; Jungo, A. ; Gastaldi, A.A. ; Melin, T.: *Aircraft Geometry and Meshing with Common Language Schema CPACS for Variable-Fidelity MDO Applications*. 5 (2018), No. 47. http://dx.doi.org/10.3390/aerospace5020047
 
 .. [Dett19] Dettmann, A.: *Loosely coupled, modular framework for linear static aeroelastic analyses*. Master Thesis (2019). KTH Royal Institute of Technology. http://kth.diva-portal.org/smash/record.jsf?pid=diva2:1360722
 

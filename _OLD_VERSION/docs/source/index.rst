@@ -24,7 +24,11 @@ For simpler analyses |name| provides a simple command line interface. More compl
    :maxdepth: 2
    :caption: User guide
 
-   user_guide/api.rst
+   user_guide/installation
+   user_guide/getting_started
+   user_guide/detailed_user_guide
+   user_guide/tutorials
+   user_guide/limitations
 
 .. toctree::
    :maxdepth: 2
@@ -39,6 +43,7 @@ For simpler analyses |name| provides a simple command line interface. More compl
    :caption: Links
 
    theory/references
+   user_guide/related_projects
 
 .. toctree::
    :maxdepth: 1
@@ -51,6 +56,18 @@ For simpler analyses |name| provides a simple command line interface. More compl
    :caption: Changelog
 
    CHANGELOG
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Developer documentation
+
+   dev_doc/general_remarks
+   dev_doc/conventions
+   dev_doc/geometry
+   dev_doc/meshing
+   dev_doc/normal_rotations
+   dev_doc/deformation_api
+   dev_doc/modules_main
 
 Licence information
 -------------------

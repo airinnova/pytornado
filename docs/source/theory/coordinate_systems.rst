@@ -8,7 +8,7 @@ In |name| there are two different coordinate systems, a *body-fixed* system and 
 Body-fixed coordinate system
 ----------------------------
 
-The body-fixed coordinate system can also be seen as a *global* system. The aircraft geometry, the centre of gravity and centre of rotation are defined in this system. Data in the aircraft input file is assumed to be defined in this system (see :ref:`input_file_aircraft`). The longitudinal aircraft axis is expected to be parallel to :math:`X`. The starboard wing span points in the :math:`Y` direction and :math:`Z` points upwards (right-handed coordinate system).
+The body-fixed coordinate system can also be seen as a *global* system. The aircraft geometry, the centre of gravity and centre of rotation are defined in this system. Data in the aircraft input file is assumed to be defined in this system (see **TODO**). The longitudinal aircraft axis is expected to be parallel to :math:`X`. The starboard wing span points in the :math:`Y` direction and :math:`Z` points upwards (right-handed coordinate system).
 
 .. figure:: ../_static/images/conventions/body_fixed_coordinate_system.svg
    :width: 400 px

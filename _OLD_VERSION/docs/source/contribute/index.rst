@@ -19,7 +19,6 @@ You can also make changes to the |name| code base. On *Github* you may *fork* th
 
 * https://help.github.com/en/articles/creating-a-pull-request-from-a-fork
 
-..
-    .. hint::
+.. hint::
 
-        Helpful comments relevant to the codebase, conventions and other developer guidelines can be found in the *developer documentation*. See also :ref:`general_remarks` to get started.
+    Helpful comments relevant to the codebase, conventions and other developer guidelines can be found in the *developer documentation*. See also :ref:`general_remarks` to get started.
