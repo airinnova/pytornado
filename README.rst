@@ -20,6 +20,11 @@
 
 |
 
+⚠ **Development version**: PyTornado is undergoing a redesign. This is the development branch (`main branch <https://github.com/airinnova/pytornado/tree/master>`_).
+
+* `Documentation for this development branch <https://pytornado.readthedocs.io/en/revamp/>`_
+* `Documentation for the main branch <https://pytornado.readthedocs.io/en/latest/>`_
+
 .. image:: https://raw.githubusercontent.com/airinnova/pytornado/master/docs/source/_static/images/logo/logo.png
     :alt: PyTornado
     :width: 200 px
@@ -47,13 +52,6 @@ PyTornado has been tested on
 * *Linux*
 * *MacOS*
 * *Windows*
-
-Tornado (Matlab)
-----------------
-
-Despite the similar name, *PyTornado* is not directly related to the Matlab VLM tool *Tornado* written by Melin etal. PyTornado has been implemented from scratch.
-
-* Tornado (Matlab) http://tornado.redhammer.se/
 
 License
 -------
