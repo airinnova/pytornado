@@ -14,43 +14,53 @@ Introduction
 For simpler analyses |name| provides a simple command line interface. More complex analyses can be setup using the flexible Python API. The aircraft geometry can be defined in a JSON file format or with the CPACS_ format which has been developed by the |dlr_full| (`DLR`_). |name| also provides an API to model *deformed* wings. This makes it possible to perform static *aeroelastic analyses*.
 
 .. figure:: _static/images/main.png
-   :scale: 70 %
-   :alt: Example
-   :align: center
+    :scale: 70 %
+    :alt: Example
+    :align: center
 
-   Aircraft modelled as an assembly of lifting surfaces. The different colors indicate different pressure levels on the wings.
+    Aircraft modelled as an assembly of lifting surfaces. The different colors indicate different pressure levels on the wings.
 
 .. toctree::
    :maxdepth: 2
    :caption: User guide
 
-   user_guide/api.rst
+   user_guide/installation
+   user_guide/getting_started
+   user_guide/model_api_general
+   user_guide/model_api
+   user_guide/result_api
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Theory
+    :maxdepth: 2
+    :caption: Theory
 
-   theory/index
-   theory/coordinate_systems
-   theory/global_coeffs
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Links
-
-   theory/references
+    theory/index
+    theory/coordinate_systems
+    theory/global_coeffs
 
 .. toctree::
-   :maxdepth: 1
-   :caption: Contributing
+    :maxdepth: 2
+    :caption: Links
 
-   contribute/index
+    theory/references
 
 .. toctree::
-   :maxdepth: 1
-   :caption: Changelog
+    :maxdepth: 1
+    :caption: Contributing
 
-   CHANGELOG
+    contribute/index
+
+.. toctree:: :maxdepth: 1
+   :caption: Developer documentation
+
+   dev_doc/index
+   dev_doc/modules_main
+
+.. toctree::
+    :maxdepth: 1
+    :caption: Changelog
+
+    CHANGELOG
 
 Licence information
 -------------------

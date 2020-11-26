@@ -101,7 +101,9 @@ rst_prolog = f"""
 .. _Airinnova: http://airinnova.se/
 .. _Airinnova AB: http://airinnova.se/
 .. _PyPI: https://pypi.org/
+.. |pypi_long| replace:: Python Package Index
 .. _pip: https://pip.pypa.io/en/stable/
+.. |py_version| replace:: Python 3.6 or later
 .. |name_cli| replace:: ``{NAME_CLI}``
 .. |vlm| replace:: Vortex Lattice Method
 .. |author1| replace:: {AUTHOR_LIST[0]}
