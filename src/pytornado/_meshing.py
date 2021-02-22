@@ -17,8 +17,6 @@
 # limitations under the License.
 # ----------------------------------------------------------------------
 
-# Author: Aaron Dettmann
-
 """
 Module for creating the geometric mesh
 """
