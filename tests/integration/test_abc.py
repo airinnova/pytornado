@@ -7,5 +7,5 @@ from pytornado import Model
 
 
 def test_basic():
-    model = Model()
+    model = Model.from_example()
     model.run()

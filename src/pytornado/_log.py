@@ -27,5 +27,3 @@ from . import MODULE_NAME
 
 _plogger = PackageLogger(MODULE_NAME)
 logger = _plogger.logger
-enable_logger = _plogger.enable
-disable_logger = _plogger.disable
