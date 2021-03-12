@@ -36,15 +36,15 @@ Output files.
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
    :align: left
-   :alt: singleton
+   :alt: max_items
 
-*Singleton*: True
+*Maximum number*: 1
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
    :align: left
    :alt: required
 
-*Required*: True
+*Required*: True (1)
 
 Property: plots
 ~~~~~~~~~~~~~~~
@@ -65,15 +65,15 @@ Plot files
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
    :align: left
-   :alt: singleton
+   :alt: max_items
 
-*Singleton*: True
+*Maximum number*: inf
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
    :align: left
    :alt: required
 
-*Required*: False
+*Required*: True (1)
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/clipboard-check.svg
    :align: left
