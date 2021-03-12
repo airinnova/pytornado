@@ -23,8 +23,8 @@ available features and properties. The model object has the following features:
     A[Model]
     A --> F0[state]
     A --> F1[wing]
-    A --> F2[deformation]
-    A --> F3[refs]
+    A --> F2[refs]
+    A --> F3[deformation]
     A --> F4[settings]
 
 
@@ -41,59 +41,21 @@ Use the ``'state'`` feature to define the aircraft flight state. To          com
           * ``'mach'`` and ``'altitude'`` 
           * ``'airspeed'`` and ``'altitude'`` 
           
-          If you define use 'altitude as input, the ambient atmospheric          properties are computed assuming the ICAO 1993 standard atmosphere.
+          If you define use 'altitude' as input, the ambient atmospheric          properties are computed assuming the ICAO 1993 standard atmosphere.          
+
+          An arbitrary number of flight states can be added.
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
    :align: left
-   :alt: singleton
+   :alt: max_items
 
-*Singleton*: False
+*Maximum number*: inf
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
    :align: left
    :alt: required
 
-*Required*: True
-
-Property: airspeed
-~~~~~~~~~~~~~~~~~~
-
-.. mermaid::
-
-    graph LR
-    A[Model]
-    A --> F1[state] 
-    F1 --> P1[airspeed] 
-
-
-.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/notes.svg
-   :align: left
-   :alt: description
-
-True airspeed [m/s].
-
-.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
-   :align: left
-   :alt: singleton
-
-*Singleton*: True
-
-.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
-   :align: left
-   :alt: required
-
-*Required*: False
-
-.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/clipboard-check.svg
-   :align: left
-   :alt: schema
-
-*Schema*:
-
-======== ========================
-**type** <class 'numbers.Number'>
- **>**              0            
-======== ========================
+*Required*: True (1)
 
 Property: alpha
 ~~~~~~~~~~~~~~~
@@ -114,15 +76,15 @@ Angle of attack [deg].
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
    :align: left
-   :alt: singleton
+   :alt: max_items
 
-*Singleton*: True
+*Maximum number*: 1
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
    :align: left
    :alt: required
 
-*Required*: False
+*Required*: True (1)
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/clipboard-check.svg
    :align: left
@@ -155,15 +117,15 @@ Side-slip angle [deg].
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
    :align: left
-   :alt: singleton
+   :alt: max_items
 
-*Singleton*: True
+*Maximum number*: 1
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
    :align: left
    :alt: required
 
-*Required*: False
+*Required*: True (1)
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/clipboard-check.svg
    :align: left
@@ -175,6 +137,85 @@ Side-slip angle [deg].
 **type** <class 'numbers.Number'>
  **>**             -90           
  **<**              90           
+======== ========================
+
+Property: airspeed
+~~~~~~~~~~~~~~~~~~
+
+.. mermaid::
+
+    graph LR
+    A[Model]
+    A --> F1[state] 
+    F1 --> P1[airspeed] 
+
+
+.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/notes.svg
+   :align: left
+   :alt: description
+
+True airspeed [m/s].
+
+.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
+   :align: left
+   :alt: max_items
+
+*Maximum number*: 1
+
+.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
+   :align: left
+   :alt: required
+
+*Required*: False (0)
+
+.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/clipboard-check.svg
+   :align: left
+   :alt: schema
+
+*Schema*:
+
+======== ========================
+**type** <class 'numbers.Number'>
+ **>**              0            
+======== ========================
+
+Property: mach
+~~~~~~~~~~~~~~
+
+.. mermaid::
+
+    graph LR
+    A[Model]
+    A --> F1[state] 
+    F1 --> P1[mach] 
+
+
+.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/notes.svg
+   :align: left
+   :alt: description
+
+Mach number [1].
+
+.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
+   :align: left
+   :alt: max_items
+
+*Maximum number*: 1
+
+.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
+   :align: left
+   :alt: required
+
+*Required*: False (0)
+
+.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/clipboard-check.svg
+   :align: left
+   :alt: schema
+
+*Schema*:
+
+======== ========================
+**type** <class 'numbers.Number'>
 ======== ========================
 
 Property: altitude
@@ -196,15 +237,15 @@ Flight altitude [m]. When setting the altitude atmospheric          properties s
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
    :align: left
-   :alt: singleton
+   :alt: max_items
 
-*Singleton*: True
+*Maximum number*: 1
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
    :align: left
    :alt: required
 
-*Required*: False
+*Required*: False (0)
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/clipboard-check.svg
    :align: left
@@ -235,54 +276,15 @@ Air density [kg/m³].
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
    :align: left
-   :alt: singleton
+   :alt: max_items
 
-*Singleton*: True
-
-.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
-   :align: left
-   :alt: required
-
-*Required*: False
-
-.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/clipboard-check.svg
-   :align: left
-   :alt: schema
-
-*Schema*:
-
-======== ========================
-**type** <class 'numbers.Number'>
-======== ========================
-
-Property: mach
-~~~~~~~~~~~~~~
-
-.. mermaid::
-
-    graph LR
-    A[Model]
-    A --> F1[state] 
-    F1 --> P1[mach] 
-
-
-.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/notes.svg
-   :align: left
-   :alt: description
-
-Mach number [1].
-
-.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
-   :align: left
-   :alt: singleton
-
-*Singleton*: True
+*Maximum number*: 1
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
    :align: left
    :alt: required
 
-*Required*: False
+*Required*: False (0)
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/clipboard-check.svg
    :align: left
@@ -313,15 +315,15 @@ Roll rate [rad/s].
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
    :align: left
-   :alt: singleton
+   :alt: max_items
 
-*Singleton*: True
+*Maximum number*: 1
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
    :align: left
    :alt: required
 
-*Required*: False
+*Required*: True (1)
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/clipboard-check.svg
    :align: left
@@ -352,15 +354,15 @@ Pitch rate [rad/s].
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
    :align: left
-   :alt: singleton
+   :alt: max_items
 
-*Singleton*: True
+*Maximum number*: 1
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
    :align: left
    :alt: required
 
-*Required*: False
+*Required*: True (1)
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/clipboard-check.svg
    :align: left
@@ -391,15 +393,15 @@ Yaw rate [rad/s].
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
    :align: left
-   :alt: singleton
+   :alt: max_items
 
-*Singleton*: True
+*Maximum number*: 1
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
    :align: left
    :alt: required
 
-*Required*: False
+*Required*: True (1)
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/clipboard-check.svg
    :align: left
@@ -418,19 +420,19 @@ Feature: wing
    :align: left
    :alt: description
 
-Add a wing to the aircraft model. A wing consists of one or multiple          segments. There can be control surfaces spanning across the          segments. **TODO**
+Add a wing to the aircraft model. A wing consists of one or multiple          segments. There can be leading or trailing edge control surfaces          spanning across the segments.
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
    :align: left
-   :alt: singleton
+   :alt: max_items
 
-*Singleton*: True
+*Maximum number*: inf
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
    :align: left
    :alt: required
 
-*Required*: False
+*Required*: True (1)
 
 Property: symmetry
 ~~~~~~~~~~~~~~~~~~
@@ -447,19 +449,19 @@ Property: symmetry
    :align: left
    :alt: description
 
-Define symmetry properties of the wing. **TODO**
+Define symmetry properties of the wing. Wings can have mirror          symmetry about the three planes spanned by the global coordinate          system ('xy', 'yz', 'xz'). Use 'none' if the wing has no          symmetry (like a vertical tail).
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
    :align: left
-   :alt: singleton
+   :alt: max_items
 
-*Singleton*: True
+*Maximum number*: 1
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
    :align: left
    :alt: required
 
-*Required*: False
+*Required*: True (1)
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/clipboard-check.svg
    :align: left
@@ -467,10 +469,10 @@ Define symmetry properties of the wing. **TODO**
 
 *Schema*:
 
-========== =============
- **type**  <class 'int'>
-**one_of**   [0, 1, 2]  
-========== =============
+========== ==========================
+ **type**        <class 'str'>       
+**one_of** ['none', 'xy', 'yz', 'xz']
+========== ==========================
 
 Property: segment
 ~~~~~~~~~~~~~~~~~
@@ -487,19 +489,19 @@ Property: segment
    :align: left
    :alt: description
 
-Add a wing segment to the aircraft model. **TODO**
+Add a wing segment to the aircraft model. An arbitrary number of          wing segments may be added to define a complex wing geometry. Each          wing segment is defined by four vertices 'a', 'b', 'c' and 'd'.
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
    :align: left
-   :alt: singleton
+   :alt: max_items
 
-*Singleton*: False
+*Maximum number*: inf
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
    :align: left
    :alt: required
 
-*Required*: False
+*Required*: True (1)
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
    :align: left
@@ -533,19 +535,25 @@ Property: control
    :align: left
    :alt: description
 
-Add a control surface to the aircraft model. **TODO**'
+Add a control surface to the aircraft model. A control surface can          be either a leading edge device ('flap') or a trailing edge device          ('slat'). Each wing may have an arbitrary number of control          surfaces.
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
    :align: left
-   :alt: singleton
+   :alt: max_items
 
-*Singleton*: False
+*Maximum number*: inf
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
    :align: left
    :alt: required
 
-*Required*: False
+*Required*: False (0)
+
+.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
+   :align: left
+   :alt: required
+
+A UID must be provided.
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/clipboard-check.svg
    :align: left
@@ -558,67 +566,6 @@ Add a control surface to the aircraft model. **TODO**'
 **schema** {'device_type': {'type': <class 'str'>, 'one_of': ['flap', 'slat']}, 'deflection': {'type': <class 'numbers.Number'>}, 'deflection_mirror': {'type': <class 'numbers.Number'>}, 'segment_uids': {'inner': {'type': <class 'str'>, '>': 0}, 'outer': {'type': <class 'str'>, '>': 0}}, 'rel_vertices': {'eta_inner': {'type': <class 'numbers.Number'>}, 'eta_outer': {'type': <class 'numbers.Number'>}, 'xi_inner': {'type': <class 'numbers.Number'>}, 'xi_outer': {'type': <class 'numbers.Number'>}}, 'rel_hinge_vertices': {'xi_inner': {'type': <class 'numbers.Number'>}, 'xi_outer': {'type': <class 'numbers.Number'>}}}
 ========== =================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================
 
-Feature: deformation
---------------------
-
-.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/notes.svg
-   :align: left
-   :alt: description
-
-Not yet implemented. Deformation field for aeroelastic analyses. **TODO**
-
-.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
-   :align: left
-   :alt: singleton
-
-*Singleton*: True
-
-.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
-   :align: left
-   :alt: required
-
-*Required*: False
-
-Property: wing_uid
-~~~~~~~~~~~~~~~~~~
-
-.. mermaid::
-
-    graph LR
-    A[Model]
-    A --> F1[deformation] 
-    F1 --> P1[wing_uid] 
-
-
-.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/notes.svg
-   :align: left
-   :alt: description
-
-**TODO**
-
-.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
-   :align: left
-   :alt: singleton
-
-*Singleton*: True
-
-.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
-   :align: left
-   :alt: required
-
-*Required*: False
-
-.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/clipboard-check.svg
-   :align: left
-   :alt: schema
-
-*Schema*:
-
-======== =============
-**type** <class 'str'>
- **>**         0      
-======== =============
-
 Feature: refs
 -------------
 
@@ -626,19 +573,19 @@ Feature: refs
    :align: left
    :alt: description
 
-Reference values
+Reference values used in the computation of aerodynamic coefficients.          Coefficients can only be properly interpreted and compared if the          reference parameters are known. Therefore, reference values must          always be specified explicitly.
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
    :align: left
-   :alt: singleton
+   :alt: max_items
 
-*Singleton*: True
+*Maximum number*: 1
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
    :align: left
    :alt: required
 
-*Required*: False
+*Required*: True (1)
 
 Property: area
 ~~~~~~~~~~~~~~
@@ -659,15 +606,15 @@ Reference area [m²].
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
    :align: left
-   :alt: singleton
+   :alt: max_items
 
-*Singleton*: True
+*Maximum number*: 1
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
    :align: left
    :alt: required
 
-*Required*: False
+*Required*: True (1)
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/clipboard-check.svg
    :align: left
@@ -699,15 +646,15 @@ Reference span [m].
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
    :align: left
-   :alt: singleton
+   :alt: max_items
 
-*Singleton*: True
+*Maximum number*: 1
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
    :align: left
    :alt: required
 
-*Required*: False
+*Required*: True (1)
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/clipboard-check.svg
    :align: left
@@ -739,15 +686,15 @@ Reference chord [m].
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
    :align: left
-   :alt: singleton
+   :alt: max_items
 
-*Singleton*: True
+*Maximum number*: 1
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
    :align: left
    :alt: required
 
-*Required*: False
+*Required*: True (1)
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/clipboard-check.svg
    :align: left
@@ -779,15 +726,15 @@ Reference centre of mass.
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
    :align: left
-   :alt: singleton
+   :alt: max_items
 
-*Singleton*: True
+*Maximum number*: 1
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
    :align: left
    :alt: required
 
-*Required*: False
+*Required*: True (1)
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/clipboard-check.svg
    :align: left
@@ -821,15 +768,15 @@ Reference centre of rotation.
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
    :align: left
-   :alt: singleton
+   :alt: max_items
 
-*Singleton*: True
+*Maximum number*: 1
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
    :align: left
    :alt: required
 
-*Required*: False
+*Required*: True (1)
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/clipboard-check.svg
    :align: left
@@ -844,6 +791,67 @@ Reference centre of rotation.
 **item_types** <class 'numbers.Number'>
 ============== ========================
 
+Feature: deformation
+--------------------
+
+.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/notes.svg
+   :align: left
+   :alt: description
+
+Not yet implemented. Deformation field for aeroelastic analyses.
+
+.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
+   :align: left
+   :alt: max_items
+
+*Maximum number*: 1
+
+.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
+   :align: left
+   :alt: required
+
+*Required*: False (0)
+
+Property: wing_uid
+~~~~~~~~~~~~~~~~~~
+
+.. mermaid::
+
+    graph LR
+    A[Model]
+    A --> F1[deformation] 
+    F1 --> P1[wing_uid] 
+
+
+.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/notes.svg
+   :align: left
+   :alt: description
+
+Not yet implemented.
+
+.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
+   :align: left
+   :alt: max_items
+
+*Maximum number*: inf
+
+.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
+   :align: left
+   :alt: required
+
+*Required*: True (1)
+
+.. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/clipboard-check.svg
+   :align: left
+   :alt: schema
+
+*Schema*:
+
+======== =============
+**type** <class 'str'>
+ **>**         0      
+======== =============
+
 Feature: settings
 -----------------
 
@@ -855,15 +863,15 @@ Use the ``'settings'`` to define global settings.
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
    :align: left
-   :alt: singleton
+   :alt: max_items
 
-*Singleton*: True
+*Maximum number*: 1
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
    :align: left
    :alt: required
 
-*Required*: False
+*Required*: False (0)
 
 Property: plot_geometry
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -884,15 +892,15 @@ Create a geometry plot.
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
    :align: left
-   :alt: singleton
+   :alt: max_items
 
-*Singleton*: True
+*Maximum number*: 1
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
    :align: left
    :alt: required
 
-*Required*: False
+*Required*: False (0)
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/clipboard-check.svg
    :align: left
@@ -924,15 +932,15 @@ Create a plot of the VLM mesh.
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
    :align: left
-   :alt: singleton
+   :alt: max_items
 
-*Singleton*: True
+*Maximum number*: 1
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
    :align: left
    :alt: required
 
-*Required*: False
+*Required*: False (0)
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/clipboard-check.svg
    :align: left
@@ -964,15 +972,15 @@ Create a plot of VLM results.
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
    :align: left
-   :alt: singleton
+   :alt: max_items
 
-*Singleton*: False
+*Maximum number*: 1
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
    :align: left
    :alt: required
 
-*Required*: False
+*Required*: False (0)
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/clipboard-check.svg
    :align: left
@@ -1000,19 +1008,19 @@ Property: save_dir
    :align: left
    :alt: description
 
-Directory for output files. **TODO**
+Directory for output files.
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/point.svg
    :align: left
-   :alt: singleton
+   :alt: max_items
 
-*Singleton*: True
+*Maximum number*: 1
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/lifebuoy.svg
    :align: left
    :alt: required
 
-*Required*: False
+*Required*: False (0)
 
 .. image:: https://raw.githubusercontent.com/airinnova/model-framework/master/src/mframework/ressources/icons/clipboard-check.svg
    :align: left
