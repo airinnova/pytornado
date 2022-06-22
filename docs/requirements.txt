@@ -4,5 +4,5 @@ ambiance==0.3.0
 airfoils>=0.0.2
 commonlibs>=0.2.0
 matplotlib==3.0.2
-numpy==1.16.4
+numpy==1.22.0
 scipy==1.2.1
