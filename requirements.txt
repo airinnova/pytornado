@@ -2,7 +2,7 @@ Sphinx==1.8.5
 aeroframe==0.1.2
 airfoils==0.2.1
 ambiance==1.0.0
-codecov==2.0.15
+codecov==2.0.16
 commonlibs==0.5.0
 coverage==5.1
 matplotlib==3.2.1
